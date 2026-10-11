@@ -11,6 +11,7 @@
 :root{
   --ink: #101114;
   --text-light: #F2F1EC;
+  --paper: #F2F1EC;
   --accent-personal: #ADD944;
   --nav-fg: #ffffff;
   --nav-fg-soft: rgba(255,255,255,0.55);
@@ -19,6 +20,13 @@
   --grid-gap: calc((100vw - 2 * var(--grid-inset)) / 6); /* spacing between the 7 lines */
   --mobile-grid-gap: calc((100vw - 2 * var(--grid-inset)) / 4);
   --ease: cubic-bezier(.22,.61,.36,1);
+
+  /* Equal-height cards: hidden copies of the two LONGEST case blurbs (same as in index.html).
+     The text block of every card is as tall as the tallest of {its own text, these two} at
+     the current width, so every card matches. If you rewrite a blurb to be longer than these,
+     paste it here (and into index.html) so the cards stay equal. */
+  --ruler-a: "Warehouse loading sheets are generated straight out of legacy systems — dense, cluttered, hard to scan under fatigue. LiteLoad parses them into a clean, task-first interface built for the floor, not the back office.";
+  --ruler-b: "Before software, the same instinct: a thesis proposing constructed wetlands to filter urban runoff before it reached a contaminated creek in eastern São Paulo — systems thinking applied to water instead of software.";
 }
 
 *{ box-sizing: border-box; }
@@ -401,20 +409,57 @@ h1,h2,h3{
 
 
 /* ---------- Standalone work pages: card, text and back button ----------
-   The card runs from the midpoint between pinstripes 1 & 2 to the midpoint
-   between 6 & 7 (same as the homepage cards). Its left padding is half a
-   column, so the badge, title, dividers, text and button all start exactly
-   on pinstripe 2. Classes (not inline styles) so mobile can tighten them. */
+   This card mirrors the homepage card: same structure, spacing and padding, so
+   the two come out the same height (and every case's card matches the others).
+   It runs from the midpoint between pinstripes 1 & 2 to the midpoint between
+   6 & 7. Its left padding is half a column, so the badge, title, dividers, text
+   and button all start exactly on pinstripe 2. */
 .case-page-card{
   width: calc(5 * var(--grid-gap));
   flex-shrink:0;
   margin-left: calc(-0.5 * var(--grid-gap));
-  padding: 2.5rem 2.5rem 2.5rem calc(0.5 * var(--grid-gap));
+  padding: 3rem 3rem 3rem calc(0.5 * var(--grid-gap));
   max-width:none;
 }
-.page-hero .case-page-card p{ max-width:52ch; } /* same measure as the homepage cards */
-.case-page-title{ font-size: clamp(2.25rem, 5vw, 3.5rem); }
-.case-page-cta{ width: calc(2 * var(--grid-gap)); min-width:max-content; white-space:nowrap; padding:0 0.5rem; } /* pinstripe 2 -> 4 */
+.case-page-card .case-index{ margin-bottom:1rem; }
+.case-page-card .thread{ width:90px; height:6px; margin:1.5rem 0 1.75rem; display:block; }
+.case-page-card .thread svg{ display:block; width:100%; height:100%; overflow:visible; }
+.case-page-title{ font-size: clamp(2.25rem, 5vw, 3.5rem); margin-bottom:0.5rem; }
+.page-hero .case-page-card p{ font-size:1.02rem; line-height:1.65; max-width:52ch; margin:1em 0; color:#1B1C1E; }
+.page-hero .case-page-card .role{ font-size:1rem; font-weight:500; margin:1em 0 1.5rem; opacity:0.75; }
+.case-text{ display:grid; font-size:1.02rem; margin:1em 0; }
+.page-hero .case-page-card .case-text > p{ grid-area:1 / 1; margin:0; }
+.case-text::before, .case-text::after{
+  grid-area:1 / 1;
+  visibility:hidden;
+  pointer-events:none;
+  line-height:1.65;
+  max-width:52ch;
+}
+.case-text::before{ content: var(--ruler-a); }
+.case-text::after{ content: var(--ruler-b); }
+/* Back button: pinstripe 2 -> 4, inverts on hover like every other button (colors set per page) */
+.case-page-cta{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width: calc(2 * var(--grid-gap));
+  min-width:max-content;
+  white-space:nowrap;
+  height:35px;
+  margin-top:2rem;
+  padding:0 0.5rem;
+  border-radius:999px;
+  border:1px solid var(--cta-rest);
+  color: var(--cta-rest);
+  background: transparent;
+  text-decoration:none;
+  font-weight:600;
+  font-size:0.95rem;
+  transition: background 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease);
+}
+.case-page-cta:hover,
+.case-page-cta:focus-visible{ background: var(--cta-fill); border-color: var(--cta-fill); color: var(--paper); }
 @media (max-width: 720px){
   .case-page-card{
     width: calc(3 * var(--mobile-grid-gap));
@@ -422,6 +467,7 @@ h1,h2,h3{
     padding: 1.5rem 1.5rem 1.5rem calc(0.5 * var(--mobile-grid-gap));
   }
   .page-hero .case-page-card p{ max-width:none; }
+  .case-text::before, .case-text::after{ max-width:none; }
   /* One title line, always (longest title "Cisco Systems" = 5.46em); and two lines
      reserved for the role so every page's divider and text sit at the same height. */
   .case-page-title{ white-space:nowrap; font-size: min(2.25rem, calc((57.5vw - 24px) / 5.6)); }
