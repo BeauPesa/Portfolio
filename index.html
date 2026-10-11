@@ -45,7 +45,7 @@
     --grid-inset: 4vw; /* distance of the outermost grid line from each edge */
     --grid-gap: calc((100vw - 2 * var(--grid-inset)) / 6); /* spacing between the 7 lines */
     --card-left: calc(var(--grid-inset) + 0.5 * var(--grid-gap)); /* midpoint between line 1 and 2 */
-    --card-right: calc(var(--grid-inset) + 4.5 * var(--grid-gap)); /* midpoint between line 5 and 6 */
+    --card-right: calc(var(--grid-inset) + 5.5 * var(--grid-gap)); /* midpoint between line 6 and 7 (mirrors the left edge, midway between 1 and 2) */
     --mobile-grid-gap: calc((100vw - 2 * var(--grid-inset)) / 4); /* spacing once 2 lines are hidden on mobile */
     --ease: cubic-bezier(.22,.61,.36,1);
 
@@ -207,17 +207,20 @@
   .case{
     justify-content:flex-start;
     padding-left: var(--card-left);
-    /* Half a screen of runway above and below each card (plus 5rem of
-       buffer), so two cards can never be on screen together. The script
-       switches the background when a section crosses the middle of the
-       screen, which lands in the gap between cards. */
-    padding-top: calc(50vh + 5rem);
-    padding-bottom: calc(50vh + 5rem);
+    /* Half a screen of runway above and below each card, plus 2.5rem of buffer.
+       Together that is one full screen height of empty scroll between cards,
+       which is the floor for never having two cards on screen at once, plus
+       80px so the background fade has room to start. The script switches the
+       background when a section crosses the middle of the screen, which lands
+       in this gap. */
+    padding-top: calc(50vh + 2.5rem);
+    padding-bottom: calc(50vh + 2.5rem);
   }
   .case-card{
     background: var(--paper);
     width: calc(var(--card-right) - var(--card-left));
     max-width: none;
+    flex-shrink:0; /* keep the exact grid width even if the row is a hair narrower (e.g. a scrollbar) */
     padding: 3rem 3rem 3rem calc(0.5 * var(--grid-gap)); /* left padding = half a column, so content lands on pinstripe 2 */
     box-shadow: 0 30px 60px -20px rgba(0,0,0,0.25);
   }
@@ -571,7 +574,7 @@
     /* Reserve two lines for the role so every card's divider and paragraph
        start at the same height, however the role wraps (LiteLoad is the reference). */
     .case .role{ min-height: 3.3em; }
-    .bookend .cta, .case .cta{ width:min(188px, 100%); }
+    .bookend .cta, .case .cta{ width:min(calc(2 * var(--mobile-grid-gap)), 100%); } /* pinstripe 2 -> 4 (of the 5 visible lines) */
 
     /* Fewer lines on mobile — same grid, less clutter. Keeps both
        outer edges and the center; drops the 2nd and 6th. */

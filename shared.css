@@ -130,7 +130,7 @@ h1,h2,h3{
     padding-right: 1.5rem;
   }
   .page-hero p{ max-width:none; }
-  .page-hero .cta{ width:min(188px, 100%); padding:0 0.75rem; }
+  .page-hero .cta{ width:min(calc(2 * var(--mobile-grid-gap)), 100%); padding:0 0.75rem; } /* pinstripe 2 -> 4 */
 }
 
 /* ---------- Shared tooltip (rounded bubble, arrow pointing at its icon) ---------- */
@@ -402,11 +402,12 @@ h1,h2,h3{
 
 /* ---------- Standalone work pages: card, text and back button ----------
    The card runs from the midpoint between pinstripes 1 & 2 to the midpoint
-   between 5 & 6 (same as the homepage cards). Its left padding is half a
+   between 6 & 7 (same as the homepage cards). Its left padding is half a
    column, so the badge, title, dividers, text and button all start exactly
    on pinstripe 2. Classes (not inline styles) so mobile can tighten them. */
 .case-page-card{
-  width: calc(4 * var(--grid-gap));
+  width: calc(5 * var(--grid-gap));
+  flex-shrink:0;
   margin-left: calc(-0.5 * var(--grid-gap));
   padding: 2.5rem 2.5rem 2.5rem calc(0.5 * var(--grid-gap));
   max-width:none;
@@ -425,7 +426,7 @@ h1,h2,h3{
      reserved for the role so every page's divider and text sit at the same height. */
   .case-page-title{ white-space:nowrap; font-size: min(2.25rem, calc((57.5vw - 24px) / 5.6)); }
   .case-page-role{ min-height: 3.3em; }
-  .case-page-cta{ width:min(188px, 100%); padding:0 0.75rem; }
+  .case-page-cta{ width:min(calc(2 * var(--mobile-grid-gap)), 100%); padding:0 0.75rem; } /* pinstripe 2 -> 4 */
 }
 
 /* ---------- Case-study carousel nav (right-hand pinstripe) ----------
