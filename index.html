@@ -44,6 +44,8 @@
 
     --grid-inset: 4vw; /* distance of the outermost grid line from each edge */
     --grid-gap: calc((100vw - 2 * var(--grid-inset)) / 6); /* spacing between the 7 lines */
+    --card-left: calc(var(--grid-inset) + 0.5 * var(--grid-gap)); /* midpoint between line 1 and 2 */
+    --card-right: calc(var(--grid-inset) + 4.5 * var(--grid-gap)); /* midpoint between line 5 and 6 */
     --mobile-grid-gap: calc((100vw - 2 * var(--grid-inset)) / 4); /* spacing once 2 lines are hidden on mobile */
     --ease: cubic-bezier(.22,.61,.36,1);
 
@@ -156,9 +158,13 @@
   .bookend .cta{
     display:inline-flex;
     align-items:center;
+    justify-content:center;
+    width: var(--grid-gap); /* pinstripe 2 -> 3 */
+    min-width:max-content;
+    white-space:nowrap;
     height:35px;
     margin-top:2rem;
-    padding:0 1.5rem;
+    padding:0 0.5rem;
     border-radius:999px;
     border:1px solid var(--accent-personal);
     background: var(--ink); /* bookends are always this fixed dark color, so a solid fill here fully hides the grid line behind it */
@@ -171,9 +177,13 @@
   .case .cta{
     display:inline-flex;
     align-items:center;
+    justify-content:center;
+    width: var(--grid-gap); /* pinstripe 2 -> 3 */
+    min-width:max-content;
+    white-space:nowrap;
     height:35px;
     margin-top:2rem;
-    padding:0 1.5rem;
+    padding:0 0.5rem;
     border-radius:999px;
     border:1px solid currentColor;
     background: transparent;
@@ -191,11 +201,19 @@
   /* ---------- Case study sections ---------- */
   .case{
     justify-content:flex-start;
+    padding-left: var(--card-left);
+    /* A full viewport of empty runway above and below each card, so the
+       next case study can't appear until the background has finished
+       changing (the script switches color when the section crosses the
+       middle of the screen, which now happens in the empty gap). */
+    padding-top: calc(50vh + 10rem);
+    padding-bottom: calc(50vh + 10rem);
   }
   .case-card{
     background: var(--paper);
-    max-width: 640px;
-    padding: 3rem;
+    width: calc(var(--card-right) - var(--card-left));
+    max-width: none;
+    padding: 3rem 3rem 3rem calc(0.5 * var(--grid-gap)); /* left padding = half a column, so content lands on pinstripe 2 */
     box-shadow: 0 30px 60px -20px rgba(0,0,0,0.25);
   }
   .case-index{
@@ -352,6 +370,27 @@
      dark since that dot is always solid white regardless of theme. */
   #progress-nav button svg.eye-icon{ opacity:0; color: var(--ink); }
   #progress-nav button.active svg.eye-icon{ opacity:1; }
+
+  /* "See the work" / case-study click: the five middle buttons fade away,
+     the top one tilts 45deg left (up-left arrow = previous) and the
+     bottom one tilts to point down-right (= next). They slide together
+     and become the carousel controls on the case-study pages. */
+  #progress-nav{ --step: calc(30px + 1.1rem); }
+  #progress-nav.collapsed button{
+    pointer-events:none;
+    transition: opacity 0.35s var(--ease), transform 0.8s var(--ease), background-color 0.35s var(--ease), border-color 0.25s var(--ease);
+  }
+  #progress-nav.collapsed button svg{ transition: transform 0.8s var(--ease), opacity 0.4s var(--ease); }
+  #progress-nav.collapsed button:not(:first-child):not(:last-child){ opacity:0; transform: scale(0.4); }
+  #progress-nav.collapsed button:first-child{ transform: translateY(calc(2.5 * var(--step))); }
+  #progress-nav.collapsed button:last-child{ transform: translateY(calc(-2.5 * var(--step))); }
+  #progress-nav.collapsed button:first-child svg.chevron-icon{ transform: rotate(-45deg); opacity:1; }
+  #progress-nav.collapsed button:last-child svg.chevron-icon{ transform: rotate(135deg); opacity:1; }
+  #progress-nav.collapsed .tooltip{ opacity:0 !important; }
+  /* A transformed button becomes its own stacking context, which would paint
+     its blurred halo OVER its own border and wash the ring out. The work-page
+     buttons have no halo, so drop it here to match. */
+  #progress-nav.collapsed button::before{ display:none; }
   /* Soft blurred halo, same color as the dot, feathers the dashed
      line into invisibility instead of hard-clipping a dash right at
      the circle's edge (which looks like a cut, not a clean stop).
@@ -518,7 +557,15 @@
     .bookend p{ max-width:none; }
     .case p{ max-width:none; }
     .bookend > div{ width:100%; min-width:0; }
-    .case-card{ padding:1.5rem; max-width:100%; }
+    .case{ padding-left: calc(var(--grid-inset) + 0.5 * var(--mobile-grid-gap)); }
+    .case-card{ padding:1.5rem 1.5rem 1.5rem calc(0.5 * var(--mobile-grid-gap)); width:100%; max-width:100%; }
+    /* One title line, always: size tracks the text column (width = 57.5vw - 24px)
+       so the longest title ("Cisco Systems", 5.46em) can never wrap or overflow. */
+    .case h2{ white-space:nowrap; font-size: min(2.25rem, calc((57.5vw - 24px) / 5.6)); }
+    /* Reserve two lines for the role so every card's divider and paragraph
+       start at the same height, however the role wraps (LiteLoad is the reference). */
+    .case .role{ min-height: 3.3em; }
+    .bookend .cta, .case .cta{ width:min(188px, 100%); }
 
     /* Fewer lines on mobile — same grid, less clutter. Keeps both
        outer edges and the center; drops the 2nd and 6th. */
@@ -531,16 +578,17 @@
     #progress-nav{
       position:fixed;
       top:auto;
-      right:auto;
+      left:0;
+      right:0;
       bottom:0.9rem;
-      left:50%;
-      transform:translateX(-50%);
+      margin:0 auto;
+      width:fit-content;
+      transform:none;
       flex-direction:row;
       gap:0.65rem;
       background: rgba(16,17,20,0.35);
       padding:0.5rem 0.75rem;
       border-radius:999px;
-      backdrop-filter: blur(6px);
     }
     #progress-nav button{ width:9px; height:9px; border-width:1px; }
     #progress-nav button svg{ display:none; }
@@ -556,10 +604,8 @@
       transform:translateX(-50%);
       flex-direction:row;
       gap:0.6rem;
-      background: rgba(16,17,20,0.35);
       padding:0.4rem 0.6rem;
       border-radius:999px;
-      backdrop-filter: blur(6px);
     }
     #social-nav{
       position:fixed;
@@ -569,13 +615,11 @@
       transform:translateX(-50%);
       flex-direction:row;
       gap:0.6rem;
-      background: rgba(16,17,20,0.35);
       padding:0.4rem 0.6rem;
       border-radius:999px;
-      backdrop-filter: blur(6px);
     }
     #icon-nav a,
-    #social-nav a{ width:26px; height:26px; background:transparent; }
+    #social-nav a{ width:26px; height:26px; background:var(--ink); }
     #social-nav a::before{ display:none; }
     #social-nav a svg{ width:13px; height:13px; }
     #social-nav a .tooltip{ display:none; }
@@ -779,10 +823,20 @@
   setTimeout(sizeGridLines, 500);
   var navButtons = Array.prototype.slice.call(document.querySelectorAll('#progress-nav button'));
 
+  // Case-study sections now have a big empty runway above and below the
+  // card, so "go to section" must center the section (= center the card)
+  // rather than align its top edge with the top of the screen.
+  function centerSection(el, smooth){
+    var root = document.documentElement, prev = root.style.scrollBehavior;
+    var animate = smooth && !reduceMotion;
+    if (!animate) root.style.scrollBehavior = 'auto';
+    el.scrollIntoView({ block: 'center', behavior: animate ? 'smooth' : 'auto' });
+    if (!animate) root.style.scrollBehavior = prev;
+  }
+
   navButtons.forEach(function(btn){
     btn.addEventListener('click', function(){
-      var target = document.getElementById(btn.dataset.target);
-      target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+      centerSection(document.getElementById(btn.dataset.target), true);
     });
   });
 
@@ -825,27 +879,62 @@
     var isDesktop = window.innerWidth > 720;
     iconLinks.forEach(function(a){
       if (a.classList.contains('active')) return;
-      a.style.backgroundColor = isDesktop ? fillColor : '';
+      a.style.backgroundColor = fillColor;
       a.style.setProperty('--halo-color', isDesktop ? color : 'transparent');
     });
   }
 
+  // The active section is whichever one is crossing the middle of the
+  // screen. With the empty runway around each card, that moment falls in
+  // the gap between cards, so the background finishes changing before the
+  // next case study scrolls into view.
   var observer = new IntersectionObserver(function(entries){
-    // Among sections currently crossing the threshold, pick whichever
-    // has the largest share of the viewport right now.
-    var winner = null;
     entries.forEach(function(entry){
-      if (entry.isIntersecting){
-        if (!winner || entry.intersectionRatio > winner.intersectionRatio){
-          winner = entry;
-        }
-      }
+      if (entry.isIntersecting) setActive(entry.target.id);
     });
-    if (winner) setActive(winner.target.id);
-  }, { threshold: [0.5] });
+  }, { rootMargin: '-50% 0px -50% 0px', threshold: 0 });
 
   Object.keys(sectionColors).forEach(function(id){
     observer.observe(document.getElementById(id));
+  });
+
+  // In-page anchors (e.g. the intro's "See the work") and #hash arrivals
+  // (the "Back to home" buttons) land with the card centered.
+  Array.prototype.forEach.call(document.querySelectorAll('a[href^="#"]'), function(a){
+    a.addEventListener('click', function(e){
+      var id = a.getAttribute('href').slice(1), el = document.getElementById(id);
+      if (el && sectionColors[id]){
+        e.preventDefault();
+        centerSection(el, true);
+        if (history.replaceState) history.replaceState(null, '', '#' + id);
+      }
+    });
+  });
+  function goToHash(){
+    var id = location.hash.slice(1), el = id && document.getElementById(id);
+    if (el && sectionColors[id]) centerSection(el, false);
+  }
+  window.addEventListener('load', goToHash);
+  window.addEventListener('hashchange', goToHash);
+  if (document.fonts && document.fonts.ready && location.hash){
+    document.fonts.ready.then(goToHash);
+  }
+
+  // Heading to a case study: the five middle nav buttons fade away and the
+  // outer two tilt into previous/next arrows, then we navigate. (Skipped on
+  // phones, where the nav is a row of dots, and for reduced motion.)
+  var progressNav = document.getElementById('progress-nav');
+  Array.prototype.forEach.call(document.querySelectorAll('.case a[href$=".html"]'), function(a){
+    a.addEventListener('click', function(e){
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      if (reduceMotion || window.innerWidth <= 720) return;
+      e.preventDefault();
+      progressNav.classList.add('collapsed');
+      setTimeout(function(){ window.location.href = a.href; }, 950);
+    });
+  });
+  window.addEventListener('pageshow', function(ev){
+    if (ev.persisted) progressNav.classList.remove('collapsed');
   });
 
   setActive('intro');

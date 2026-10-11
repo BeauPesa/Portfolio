@@ -16,6 +16,7 @@
   --nav-fg-soft: rgba(255,255,255,0.55);
   --grid-line-fg: rgba(255,255,255,0.15);
   --grid-inset: 4vw;
+  --grid-gap: calc((100vw - 2 * var(--grid-inset)) / 6); /* spacing between the 7 lines */
   --mobile-grid-gap: calc((100vw - 2 * var(--grid-inset)) / 4);
   --ease: cubic-bezier(.22,.61,.36,1);
 }
@@ -99,9 +100,13 @@ h1,h2,h3{
 .page-hero .cta{
   display:inline-flex;
   align-items:center;
+  justify-content:center;
+  width: var(--grid-gap); /* pinstripe 2 -> 3 */
+  min-width:max-content;
+  white-space:nowrap;
   height:35px;
   margin-top:1.5rem;
-  padding:0 1.5rem;
+  padding:0 0.5rem;
   border-radius:999px;
   border:1px solid var(--accent-personal);
   background: var(--ink);
@@ -125,6 +130,7 @@ h1,h2,h3{
     padding-right: 1.5rem;
   }
   .page-hero p{ max-width:none; }
+  .page-hero .cta{ width:min(188px, 100%); padding:0 0.75rem; }
 }
 
 /* ---------- Shared tooltip (rounded bubble, arrow pointing at its icon) ---------- */
@@ -241,10 +247,8 @@ h1,h2,h3{
     transform:translateX(-50%);
     flex-direction:row;
     gap:0.6rem;
-    background: rgba(16,17,20,0.35);
     padding:0.4rem 0.6rem;
     border-radius:999px;
-    backdrop-filter: blur(6px);
   }
   #social-nav{
     position:fixed;
@@ -254,13 +258,11 @@ h1,h2,h3{
     transform:translateX(-50%);
     flex-direction:row;
     gap:0.6rem;
-    background: rgba(16,17,20,0.35);
     padding:0.4rem 0.6rem;
     border-radius:999px;
-    backdrop-filter: blur(6px);
   }
   #icon-nav a,
-  #social-nav a{ width:26px; height:26px; background:transparent; }
+  #social-nav a{ width:26px; height:26px; background:var(--ink); }
   #social-nav a::before{ display:none; }
   #social-nav a svg{ width:13px; height:13px; }
   #social-nav a .tooltip{ display:none; }
@@ -341,6 +343,39 @@ h1,h2,h3{
   position:relative;
   z-index:1;
 }
+/* ---------- Gallery grid (Photography, Screen Printing, Sketchbooks) ---------- */
+.gallery-grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  width: calc(3 * var(--grid-gap)); /* line 2 -> line 5, so every gallery matches */
+  max-width: none;
+  margin-top: 2.5rem;
+  position:relative;
+  z-index:1;
+}
+.gallery-grid .tile{
+  aspect-ratio: 1;
+  border: 1px dashed rgba(255,255,255,0.25);
+  border-radius: 4px;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color: rgba(255,255,255,0.35);
+  font-size: 0.75rem;
+  text-align:center;
+  padding: 0.5rem;
+}
+.gallery-grid .tile img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+@media (max-width:720px){
+  .gallery-grid{ grid-template-columns: repeat(2, 1fr); width:auto; }
+}
 .card{
   background: #222327;
   border: 1px solid rgba(255,255,255,0.14);
@@ -362,4 +397,94 @@ h1,h2,h3{
 }
 @media (max-width:600px){
   .card-grid{ grid-template-columns: 1fr; }
+}
+
+
+/* ---------- Standalone work pages: card, text and back button ----------
+   The card runs from the midpoint between pinstripes 1 & 2 to the midpoint
+   between 5 & 6 (same as the homepage cards). Its left padding is half a
+   column, so the badge, title, dividers, text and button all start exactly
+   on pinstripe 2. Classes (not inline styles) so mobile can tighten them. */
+.case-page-card{
+  width: calc(4 * var(--grid-gap));
+  margin-left: calc(-0.5 * var(--grid-gap));
+  padding: 2.5rem 2.5rem 2.5rem calc(0.5 * var(--grid-gap));
+  max-width:none;
+}
+.page-hero .case-page-card p{ max-width:52ch; } /* same measure as the homepage cards */
+.case-page-title{ font-size: clamp(2.25rem, 5vw, 3.5rem); }
+.case-page-cta{ width: var(--grid-gap); min-width:max-content; white-space:nowrap; padding:0 0.5rem; } /* pinstripe 2 -> 3 */
+@media (max-width: 720px){
+  .case-page-card{
+    width: calc(3 * var(--mobile-grid-gap));
+    margin-left: calc(-0.5 * var(--mobile-grid-gap));
+    padding: 1.5rem 1.5rem 1.5rem calc(0.5 * var(--mobile-grid-gap));
+  }
+  .page-hero .case-page-card p{ max-width:none; }
+  /* One title line, always (longest title "Cisco Systems" = 5.46em); and two lines
+     reserved for the role so every page's divider and text sit at the same height. */
+  .case-page-title{ white-space:nowrap; font-size: min(2.25rem, calc((57.5vw - 24px) / 5.6)); }
+  .case-page-role{ min-height: 3.3em; }
+  .case-page-cta{ width:min(188px, 100%); padding:0 0.75rem; }
+}
+
+/* ---------- Case-study carousel nav (right-hand pinstripe) ----------
+   On the homepage, clicking into a case study fades the five middle dots
+   away and tilts the top and bottom ones: up-left arrow = previous case
+   study, down-right arrow = next. This is that pair, at rest. */
+.tip-right{ right:40px; }
+.tip-right::after{
+  content:'';
+  position:absolute;
+  left:100%;
+  top:50%;
+  transform:translateY(-50%);
+  width:0; height:0;
+  border-style:solid;
+  border-width:6px 0 6px 6px;
+  border-color: transparent transparent transparent rgba(16,17,20,0.85);
+}
+#case-nav{
+  position:fixed;
+  right: calc(var(--grid-inset) - 15px);
+  top:50%;
+  transform: translateY(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:1.1rem;
+  z-index:10;
+}
+#case-nav a{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  border:1.5px solid var(--nav-fg-soft);
+  background: var(--ink);
+  color: var(--nav-fg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  text-decoration:none;
+  transition: transform 0.25s var(--ease), background-color 0.35s var(--ease), border-color 0.25s var(--ease);
+  animation: caseNavIn 0.6s var(--ease) backwards;
+}
+#case-nav .case-next{ animation-delay:0.08s; }
+#case-nav a svg{ width:13px; height:13px; }
+#case-nav .case-prev svg{ transform: rotate(-45deg); animation: caseNavTiltPrev 0.9s var(--ease) 0.15s backwards; }  /* points up-left */
+#case-nav .case-next svg{ transform: rotate(135deg); animation: caseNavTiltNext 0.9s var(--ease) 0.15s backwards; } /* points down-right */
+#case-nav a:hover,
+#case-nav a:focus-visible{ transform: scale(1.12); }
+#case-nav a:focus-visible{ outline:2px solid #fff; outline-offset:3px; }
+#case-nav a:hover .tooltip,
+#case-nav a:focus-visible .tooltip{ opacity:1; }
+@keyframes caseNavIn{ from{ opacity:0; transform: scale(0.6); } }
+@keyframes caseNavTiltPrev{ from{ transform: rotate(0deg); } }
+@keyframes caseNavTiltNext{ from{ transform: rotate(180deg); } }
+@media (max-width: 720px){
+  #case-nav{ right: calc(var(--grid-inset) - 13px); gap:0.65rem; }
+  #case-nav a{ width:26px; height:26px; }
+  #case-nav a svg{ width:12px; height:12px; }
+  #case-nav a .tooltip{ display:none; }
 }
