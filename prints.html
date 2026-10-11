@@ -6,7 +6,7 @@
 <title>Screen Printing — Beau Pesa</title>
 <link rel="stylesheet" href="shared.css">
 </head>
-<body>
+<body class="has-page-card">
 
 <div id="grid-lines-global" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 
@@ -49,26 +49,45 @@
 </nav>
 
 <section class="page-hero">
-  <div>
+  <div class="page-card">
     <p class="eyebrow">Creative Endeavors</p>
     <h1>Screen printing.</h1>
     <p>There's something grounding about a process with real physical constraints — one layer, one color, no undo button. It's the opposite of iterating in Figma, and that's exactly why I like it.</p>
 
-    <!-- Gallery: each tile is a placeholder. To add a real print, replace
-         the tile's inner text with: <img src="prints/your-file.jpg" alt="Describe the print">
-         Images auto-crop to a square via object-fit: cover. -->
+    <!-- Gallery: each tile is one big link, currently a placeholder. To add a real print, replace
+         the tile's text with:  <img src="prints/your-file.jpg" alt="Describe the print">
+         The tile then links to that image automatically (opens in a new tab), and the image
+         auto-crops to a square. For a larger version on click, add data-full="prints/big/your-file.jpg" to the img. -->
     <div class="gallery-grid">
-      <div class="tile">print-1.jpg</div>
-      <div class="tile">print-2.jpg</div>
-      <div class="tile">print-3.jpg</div>
-      <div class="tile">print-4.jpg</div>
-      <div class="tile">print-5.jpg</div>
-      <div class="tile">print-6.jpg</div>
+      <a class="tile" href="#" aria-label="Open print 1">print-1.jpg</a>
+      <a class="tile" href="#" aria-label="Open print 2">print-2.jpg</a>
+      <a class="tile" href="#" aria-label="Open print 3">print-3.jpg</a>
+      <a class="tile" href="#" aria-label="Open print 4">print-4.jpg</a>
+      <a class="tile" href="#" aria-label="Open print 5">print-5.jpg</a>
+      <a class="tile" href="#" aria-label="Open print 6">print-6.jpg</a>
     </div>
 
-    <a class="cta" href="art.html" style="border-color:var(--accent-personal); color:var(--accent-personal);">Back to Endeavors ←</a>
+    <a class="case-page-cta" href="art.html" style="--cta-rest:#4D4D4D; --cta-fill:#ADD944;">Back to Endeavors ←</a>
   </div>
 </section>
 
+<script>
+(function(){
+  // Every tile is one big link. Put an <img> inside a tile and the tile links to that
+  // image (opens in a new tab). A tile with no image yet is a placeholder and does nothing.
+  Array.prototype.forEach.call(document.querySelectorAll('a.tile'), function(a){
+    var img = a.querySelector('img');
+    if (img){
+      a.href = img.getAttribute('data-full') || img.getAttribute('src');
+      a.target = '_blank';
+      a.rel = 'noopener';
+    } else {
+      a.addEventListener('click', function(e){ e.preventDefault(); });
+    }
+  });
+})();
+</script>
+
+<script src="gallery.js"></script>
 </body>
 </html>

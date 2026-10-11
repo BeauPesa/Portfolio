@@ -6,7 +6,7 @@
 <title>Sketchbooks — Beau Pesa</title>
 <link rel="stylesheet" href="shared.css">
 </head>
-<body>
+<body class="has-page-card">
 
 <div id="grid-lines-global" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 
@@ -49,26 +49,45 @@
 </nav>
 
 <section class="page-hero">
-  <div>
+  <div class="page-card">
     <p class="eyebrow">Creative Endeavors</p>
     <h1>Sketchbooks.</h1>
     <p>Fast, rough, and constant — sketchbooks are where most of my thinking actually happens before anything gets near a screen. Ideas get worked out with a pencil first; software is just where they eventually land.</p>
 
-    <!-- Gallery: each tile is a placeholder. To add a real sketch, replace
-         the tile's inner text with: <img src="sketchs/your-file.jpg" alt="Describe the sketch">
-         Images auto-crop to a square via object-fit: cover. -->
+    <!-- Gallery: each tile is one big link, currently a placeholder. To add a real sketch, replace
+         the tile's text with:  <img src="sketchs/your-file.jpg" alt="Describe the sketch">
+         The tile then links to that image automatically (opens in a new tab), and the image
+         auto-crops to a square. For a larger version on click, add data-full="sketchs/big/your-file.jpg" to the img. -->
     <div class="gallery-grid">
-      <div class="tile">sketch-1.jpg</div>
-      <div class="tile">sketch-2.jpg</div>
-      <div class="tile">sketch-3.jpg</div>
-      <div class="tile">sketch-4.jpg</div>
-      <div class="tile">sketch-5.jpg</div>
-      <div class="tile">sketch-6.jpg</div>
+      <a class="tile" href="#" aria-label="Open sketch 1">sketch-1.jpg</a>
+      <a class="tile" href="#" aria-label="Open sketch 2">sketch-2.jpg</a>
+      <a class="tile" href="#" aria-label="Open sketch 3">sketch-3.jpg</a>
+      <a class="tile" href="#" aria-label="Open sketch 4">sketch-4.jpg</a>
+      <a class="tile" href="#" aria-label="Open sketch 5">sketch-5.jpg</a>
+      <a class="tile" href="#" aria-label="Open sketch 6">sketch-6.jpg</a>
     </div>
 
-    <a class="cta" href="art.html" style="border-color:var(--accent-personal); color:var(--accent-personal);">Back to Endeavors ←</a>
+    <a class="case-page-cta" href="art.html" style="--cta-rest:#4D4D4D; --cta-fill:#ADD944;">Back to Endeavors ←</a>
   </div>
 </section>
 
+<script>
+(function(){
+  // Every tile is one big link. Put an <img> inside a tile and the tile links to that
+  // image (opens in a new tab). A tile with no image yet is a placeholder and does nothing.
+  Array.prototype.forEach.call(document.querySelectorAll('a.tile'), function(a){
+    var img = a.querySelector('img');
+    if (img){
+      a.href = img.getAttribute('data-full') || img.getAttribute('src');
+      a.target = '_blank';
+      a.rel = 'noopener';
+    } else {
+      a.addEventListener('click', function(e){ e.preventDefault(); });
+    }
+  });
+})();
+</script>
+
+<script src="gallery.js"></script>
 </body>
 </html>
