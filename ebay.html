@@ -10,9 +10,14 @@
      dark icons on a transparent fill here — shared.css defaults to a
      dark background + white icon, built for the always-dark subpages. */
   #icon-nav a,
-  #social-nav a,
-  #case-nav a{
+  #social-nav a{
     background: #FDF4A9;
+    border-color: rgba(16,17,20,0.5);
+    color: #101114;
+  }
+  #case-nav a,
+  #case-nav .case-dot{
+    background: #FDF5B2;
     border-color: rgba(16,17,20,0.5);
     color: #101114;
   }
@@ -25,7 +30,7 @@
   }
 </style>
 </head>
-<body style="background:#FDF4A9;">
+<body class="has-case-nav" style="background:#FDF4A9;">
 
 <div id="grid-lines-global" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 
@@ -66,13 +71,18 @@
   </a>
 </nav>
 
-<nav id="case-nav" aria-label="Case studies">
+<nav id="case-nav" class="collapsed" aria-label="Case studies">
   <a class="case-prev" href="walgreens.html" aria-label="Previous case study: Walgreens">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+    <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
     <span class="tooltip tip-right">Walgreens</span>
   </a>
+  <span class="case-dot" data-dir="up" aria-hidden="true"><svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg><svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+  <span class="case-dot" data-dir="up" aria-hidden="true"><svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg><svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+  <span class="case-dot active" data-dir="current" aria-hidden="true"><svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg><svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+  <span class="case-dot" data-dir="down" aria-hidden="true"><svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg><svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+  <span class="case-dot" data-dir="down" aria-hidden="true"><svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg><svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
   <a class="case-next" href="cisco.html" aria-label="Next case study: Cisco Systems">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+    <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
     <span class="tooltip tip-right">Cisco Systems</span>
   </a>
 </nav>
@@ -84,9 +94,31 @@
     <p class="case-page-role" style="font-weight:500; margin:0 0 1.5rem; opacity:0.75; color:#FEBC32;">Two-factor authentication</p>
     <div style="width:90px; height:6px; margin-bottom:1.75rem; color:#94C634;"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
     <p style="font-size:1.02rem; line-height:1.65; margin:0 0 1.5rem; color:#1B1C1E;">Security friction usually loses to convenience. This flow made two-factor verification fast enough that sellers stopped turning it off.</p>
-    <a class="case-page-cta" href="index.html#ebay" style="display:inline-flex; align-items:center; justify-content:center; height:35px; border-radius:999px; border:1px solid #FEBC32; color:#FEBC32; text-decoration:none; font-weight:600; font-size:0.9rem;">Back to home ←</a>
+    <a class="case-page-cta" href="index.html#to-ebay" style="display:inline-flex; align-items:center; justify-content:center; height:35px; border-radius:999px; border:1px solid #FEBC32; color:#FEBC32; text-decoration:none; font-weight:600; font-size:0.9rem;">Back to home ←</a>
   </div>
 </section>
+
+<script>
+(function(){
+  var nav = document.getElementById('case-nav');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Heading back home plays the homepage's nav animation in reverse (the pair
+  // slides apart, turns back into chevrons, and the five dots fade in), then
+  // navigates. Skipped on phones and for reduced motion.
+  Array.prototype.forEach.call(document.querySelectorAll('a[href^="index.html"]'), function(a){
+    a.addEventListener('click', function(e){
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      if (!nav || reduce || window.innerWidth <= 720) return;
+      e.preventDefault();
+      nav.classList.remove('collapsed');
+      setTimeout(function(){ window.location.href = a.href; }, 950);
+    });
+  });
+  window.addEventListener('pageshow', function(ev){
+    if (ev.persisted && nav) nav.classList.add('collapsed');
+  });
+})();
+</script>
 
 </body>
 </html>

@@ -101,7 +101,7 @@ h1,h2,h3{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  width: var(--grid-gap); /* pinstripe 2 -> 3 */
+  width: calc(2 * var(--grid-gap)); /* pinstripe 2 -> 4 */
   min-width:max-content;
   white-space:nowrap;
   height:35px;
@@ -413,7 +413,7 @@ h1,h2,h3{
 }
 .page-hero .case-page-card p{ max-width:52ch; } /* same measure as the homepage cards */
 .case-page-title{ font-size: clamp(2.25rem, 5vw, 3.5rem); }
-.case-page-cta{ width: var(--grid-gap); min-width:max-content; white-space:nowrap; padding:0 0.5rem; } /* pinstripe 2 -> 3 */
+.case-page-cta{ width: calc(2 * var(--grid-gap)); min-width:max-content; white-space:nowrap; padding:0 0.5rem; } /* pinstripe 2 -> 4 */
 @media (max-width: 720px){
   .case-page-card{
     width: calc(3 * var(--mobile-grid-gap));
@@ -429,9 +429,13 @@ h1,h2,h3{
 }
 
 /* ---------- Case-study carousel nav (right-hand pinstripe) ----------
-   On the homepage, clicking into a case study fades the five middle dots
-   away and tilts the top and bottom ones: up-left arrow = previous case
-   study, down-right arrow = next. This is that pair, at rest. */
+   The same seven-slot column as the homepage's progress dots. At rest it is
+   "collapsed": the five middle dots are invisible and the outer two have slid
+   together and turned 90deg: < (previous) above > (next). Heading back home
+   removes .collapsed (see the script on each page), which plays the homepage
+   animation in reverse: the pair slides apart and turns back into up/down
+   chevrons while the five dots fade in. The slide uses the separate
+   `translate` property so the hover `scale` doesn't multiply it. */
 .tip-right{ right:40px; }
 .tip-right::after{
   content:'';
@@ -445,6 +449,7 @@ h1,h2,h3{
   border-color: transparent transparent transparent rgba(16,17,20,0.85);
 }
 #case-nav{
+  --step: calc(30px + 1.1rem);
   position:fixed;
   right: calc(var(--grid-inset) - 15px);
   top:50%;
@@ -455,7 +460,8 @@ h1,h2,h3{
   gap:1.1rem;
   z-index:10;
 }
-#case-nav a{
+#case-nav a,
+#case-nav .case-dot{
   width:30px;
   height:30px;
   border-radius:50%;
@@ -467,24 +473,71 @@ h1,h2,h3{
   justify-content:center;
   position:relative;
   text-decoration:none;
-  transition: transform 0.25s var(--ease), background-color 0.35s var(--ease), border-color 0.25s var(--ease);
-  animation: caseNavIn 0.6s var(--ease) backwards;
 }
-#case-nav .case-next{ animation-delay:0.08s; }
-#case-nav a svg{ width:13px; height:13px; }
-#case-nav .case-prev svg{ transform: rotate(-45deg); animation: caseNavTiltPrev 0.9s var(--ease) 0.15s backwards; }  /* points up-left */
-#case-nav .case-next svg{ transform: rotate(135deg); animation: caseNavTiltNext 0.9s var(--ease) 0.15s backwards; } /* points down-right */
+#case-nav a{
+  transition: translate 0.8s var(--ease), scale 0.25s var(--ease), background-color 0.35s var(--ease), border-color 0.25s var(--ease);
+}
+#case-nav .case-dot{
+  pointer-events:none;
+  transition: opacity 0.35s var(--ease) 0.3s, transform 0.5s var(--ease) 0.3s, background-color 0.35s var(--ease), border-color 0.25s var(--ease);
+}
+#case-nav svg{
+  position:absolute;
+  inset:0;
+  margin:auto;
+  width:13px;
+  height:13px;
+  transition: transform 0.8s var(--ease), opacity 0.4s var(--ease);
+}
+/* Expanded (homepage look): chevrons point away from the current case */
+#case-nav .case-prev svg.chevron-icon,
+#case-nav .case-dot[data-dir="up"] svg.chevron-icon{ transform: rotate(0deg); opacity:0.85; }
+#case-nav .case-next svg.chevron-icon,
+#case-nav .case-dot[data-dir="down"] svg.chevron-icon{ transform: rotate(180deg); opacity:0.85; }
+#case-nav .case-dot[data-dir="current"] svg.chevron-icon{ opacity:0; transform: rotate(90deg); }
+#case-nav svg.eye-icon{ opacity:0; color: var(--ink); }
+#case-nav .case-dot.active svg.eye-icon{ opacity:1; }
+#case-nav .case-dot.active{
+  background: rgb(255,255,255);
+  border-color: transparent;
+  color: var(--ink);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  transform: scale(1.15);
+}
 #case-nav a:hover,
-#case-nav a:focus-visible{ transform: scale(1.12); }
+#case-nav a:focus-visible{ scale:1.12; }
 #case-nav a:focus-visible{ outline:2px solid #fff; outline-offset:3px; }
 #case-nav a:hover .tooltip,
 #case-nav a:focus-visible .tooltip{ opacity:1; }
-@keyframes caseNavIn{ from{ opacity:0; transform: scale(0.6); } }
-@keyframes caseNavTiltPrev{ from{ transform: rotate(0deg); } }
-@keyframes caseNavTiltNext{ from{ transform: rotate(180deg); } }
+/* Collapsed (the resting state): same pose the homepage animation ends in */
+#case-nav.collapsed .case-dot{ opacity:0; transform: scale(0.4); transition-delay: 0s, 0s, 0s, 0s; }
+#case-nav.collapsed .case-prev{ translate: 0 calc(2.5 * var(--step)); }
+#case-nav.collapsed .case-next{ translate: 0 calc(-2.5 * var(--step)); }
+#case-nav.collapsed .case-prev svg.chevron-icon{ transform: rotate(-90deg); opacity:1; }
+#case-nav.collapsed .case-next svg.chevron-icon{ transform: rotate(90deg); opacity:1; }
+#case-nav:not(.collapsed) .tooltip{ opacity:0 !important; }
+
 @media (max-width: 720px){
-  #case-nav{ right: calc(var(--grid-inset) - 13px); gap:0.65rem; }
+  /* Phones: same convention as the homepage. Nav pill at the bottom, socials above it. */
+  #case-nav{
+    top:auto;
+    left:0;
+    right:0;
+    bottom:0.9rem;
+    margin:0 auto;
+    width:fit-content;
+    transform:none;
+    flex-direction:row;
+    gap:0.65rem;
+    background: rgba(16,17,20,0.35);
+    padding:0.4rem 0.6rem;
+    border-radius:999px;
+  }
+  #case-nav .case-dot{ display:none; }
   #case-nav a{ width:26px; height:26px; }
-  #case-nav a svg{ width:12px; height:12px; }
+  #case-nav svg{ width:12px; height:12px; }
   #case-nav a .tooltip{ display:none; }
+  #case-nav.collapsed .case-prev,
+  #case-nav.collapsed .case-next{ translate:none; }
+  body.has-case-nav #social-nav{ bottom:3.4rem; }
 }

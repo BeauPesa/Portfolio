@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-anim">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -97,6 +97,11 @@
     transition: background-color 0.35s var(--ease);
   }
 
+  /* No transitions on the very first frame, so a page you arrive on (e.g. "Back to
+     home" from a case study) appears already in its final state instead of
+     animating into it. The class is removed by the script once it has set things up. */
+  html.no-anim *, html.no-anim *::before, html.no-anim *::after{ transition:none !important; }
+
   section{
     min-height:100vh;
     display:flex;
@@ -159,7 +164,7 @@
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    width: var(--grid-gap); /* pinstripe 2 -> 3 */
+    width: calc(2 * var(--grid-gap)); /* pinstripe 2 -> 4 */
     min-width:max-content;
     white-space:nowrap;
     height:35px;
@@ -178,7 +183,7 @@
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    width: var(--grid-gap); /* pinstripe 2 -> 3 */
+    width: calc(2 * var(--grid-gap)); /* pinstripe 2 -> 4 */
     min-width:max-content;
     white-space:nowrap;
     height:35px;
@@ -202,12 +207,12 @@
   .case{
     justify-content:flex-start;
     padding-left: var(--card-left);
-    /* A full viewport of empty runway above and below each card, so the
-       next case study can't appear until the background has finished
-       changing (the script switches color when the section crosses the
-       middle of the screen, which now happens in the empty gap). */
-    padding-top: calc(50vh + 10rem);
-    padding-bottom: calc(50vh + 10rem);
+    /* Half a screen of runway above and below each card (plus 5rem of
+       buffer), so two cards can never be on screen together. The script
+       switches the background when a section crosses the middle of the
+       screen, which lands in the gap between cards. */
+    padding-top: calc(50vh + 5rem);
+    padding-bottom: calc(50vh + 5rem);
   }
   .case-card{
     background: var(--paper);
@@ -372,9 +377,10 @@
   #progress-nav button.active svg.eye-icon{ opacity:1; }
 
   /* "See the work" / case-study click: the five middle buttons fade away,
-     the top one tilts 45deg left (up-left arrow = previous) and the
-     bottom one tilts to point down-right (= next). They slide together
-     and become the carousel controls on the case-study pages. */
+     the top one turns 90deg left (< = previous) and the bottom one turns
+     90deg right (> = next). They slide together and become the carousel
+     controls on the case-study pages. The same animation runs in reverse
+     when you head back home (see the work pages). */
   #progress-nav{ --step: calc(30px + 1.1rem); }
   #progress-nav.collapsed button{
     pointer-events:none;
@@ -384,8 +390,8 @@
   #progress-nav.collapsed button:not(:first-child):not(:last-child){ opacity:0; transform: scale(0.4); }
   #progress-nav.collapsed button:first-child{ transform: translateY(calc(2.5 * var(--step))); }
   #progress-nav.collapsed button:last-child{ transform: translateY(calc(-2.5 * var(--step))); }
-  #progress-nav.collapsed button:first-child svg.chevron-icon{ transform: rotate(-45deg); opacity:1; }
-  #progress-nav.collapsed button:last-child svg.chevron-icon{ transform: rotate(135deg); opacity:1; }
+  #progress-nav.collapsed button:first-child svg.chevron-icon{ transform: rotate(-90deg); opacity:1; }
+  #progress-nav.collapsed button:last-child svg.chevron-icon{ transform: rotate(90deg); opacity:1; }
   #progress-nav.collapsed .tooltip{ opacity:0 !important; }
   /* A transformed button becomes its own stacking context, which would paint
      its blurred halo OVER its own border and wash the ring out. The work-page
@@ -906,18 +912,38 @@
       if (el && sectionColors[id]){
         e.preventDefault();
         centerSection(el, true);
-        if (history.replaceState) history.replaceState(null, '', '#' + id);
       }
     });
   });
-  function goToHash(){
-    var id = location.hash.slice(1), el = id && document.getElementById(id);
-    if (el && sectionColors[id]) centerSection(el, false);
+  // "Back to home" links use #to-<case>. That deliberately does NOT match an
+  // element id, so the browser doesn't run its own jump-to-fragment scroll
+  // (which, with smooth scrolling on, animates the section's top edge to the
+  // top of the screen and fights the centering below). Plain #<case> works too.
+  function hashTarget(){
+    var h = location.hash.slice(1);
+    if (h.indexOf('to-') === 0) h = h.slice(3);
+    return sectionColors[h] ? h : null;
   }
+  function goToHash(){
+    var id = hashTarget();
+    if (id) centerSection(document.getElementById(id), false);
+  }
+  // Arriving from a case study: center that card right away and start with ITS
+  // color and nav state, instead of fading in from the intro.
+  var startId = hashTarget() || 'intro';
   window.addEventListener('load', goToHash);
   window.addEventListener('hashchange', goToHash);
   if (document.fonts && document.fonts.ready && location.hash){
     document.fonts.ready.then(goToHash);
+  }
+  // Insurance for plain #<case> links: if the browser's own fragment scroll
+  // lands after ours, re-center (unless the visitor has already started scrolling).
+  var userMoved = false;
+  ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function(ev){
+    window.addEventListener(ev, function(){ userMoved = true; }, { passive: true, once: true });
+  });
+  if (hashTarget()){
+    [350, 900].forEach(function(ms){ setTimeout(function(){ if (!userMoved) goToHash(); }, ms); });
   }
 
   // Heading to a case study: the five middle nav buttons fade away and the
@@ -937,7 +963,11 @@
     if (ev.persisted) progressNav.classList.remove('collapsed');
   });
 
-  setActive('intro');
+  setActive(startId);
+  if (startId !== 'intro') goToHash();
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){ document.documentElement.classList.remove('no-anim'); });
+  });
 })();
 </script>
 
