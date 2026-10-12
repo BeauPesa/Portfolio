@@ -22,9 +22,11 @@
     --text-light: #F2F1EC;
     --accent-personal: #ADD944; /* signature lime — WCAG-friendly, nods to hi-vis warehouse gear */
 
-    --liteload-tint:   #E4F5A1; /* lightest of the three swatches */
-    --liteload-accent: #ADD944; /* leftmost swatch */
-    --liteload-thread: #E4853C; /* rightmost swatch */
+    /* Every case has three colors: PRIMARY (No. button, subhead, See-the-work button),
+       THREAD (the Morse breaks) and TINT (the page background). */
+    --liteload-tint:   #C6ECD1; /* cool light green */
+    --liteload-accent: #001C38; /* logo navy */
+    --liteload-thread: #63AA2A; /* logo green */
 
     --walgreens-tint:   #C2E8FF; /* lightest of the three swatches */
     --walgreens-accent: #323264; /* leftmost swatch */
@@ -35,8 +37,9 @@
     --ebay-accent: #FEBC32;
     --ebay-thread: #FEBC32;
 
-    --cisco-tint:   #80CCEC; /* updated: saturated */
-    --cisco-accent: #049FD9;
+    --cisco-tint:   #80CCEC;
+    --cisco-accent: #06485C; /* logo blue */
+    --cisco-thread: #E31332; /* logo red */
 
     --urban-tint:   #D6EEE5; /* light tint derived from the new teal accent */
     --urban-accent: #32A87B; /* official brand teal, Urban's own now */
@@ -325,9 +328,9 @@
     overflow:visible;
   }
 
-  #liteload  .role{ color: #4D4D4D; }
-  #liteload  .cta{ border-color: #4D4D4D; color: #4D4D4D; }
-  #liteload  .cta:hover, #liteload  .cta:focus-visible{ background: var(--liteload-accent); border-color: var(--liteload-accent); color: var(--paper); }
+  #liteload  .role{ color: var(--liteload-accent); }
+  #liteload  .cta{ border-color: var(--liteload-accent); color: var(--liteload-accent); }
+  #liteload  .cta:hover, #liteload  .cta:focus-visible{ background: var(--liteload-accent); color: var(--paper); }
   #liteload  .thread{ color: var(--liteload-thread); }
 
   #walgreens .role{ color: var(--walgreens-accent); }
@@ -343,7 +346,7 @@
   #cisco     .role{ color: var(--cisco-accent); }
   #cisco     .cta{ border-color: var(--cisco-accent); color: var(--cisco-accent); }
   #cisco     .cta:hover, #cisco     .cta:focus-visible{ background: var(--cisco-accent); color: var(--paper); }
-  #cisco     .thread{ color: #D63F00; }
+  #cisco     .thread{ color: var(--cisco-thread); }
 
   #urban     .role{ color: var(--urban-accent); }
   #urban     .cta{ border-color: var(--urban-accent); color: var(--urban-accent); }
@@ -749,7 +752,7 @@
 
 <section id="liteload" class="case">
     <div class="case-card">
-    <a class="case-index badge-link" href="liteload.html" style="--badge-color:#617F1A; --badge-color-30:rgba(173,217,68,0.3); --badge-text:#fff;" aria-label="View the liteload case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">1</span></span></a>
+    <a class="case-index badge-link" href="liteload.html" style="--badge-color:#001C38; --badge-color-30:rgba(0,28,56,0.3); --badge-text:#fff;" aria-label="View the liteload case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">1</span></span></a>
     <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
     <h2>LiteLoad</h2>
     <p class="role">Founder &amp; designer, in progress</p>
@@ -785,7 +788,7 @@
 
 <section id="cisco" class="case">
     <div class="case-card">
-    <a class="case-index badge-link" href="cisco.html" style="--badge-color:#049FD9; --badge-color-30:rgba(4,159,217,0.3); --badge-text:#fff;" aria-label="View the cisco case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">4</span></span></a>
+    <a class="case-index badge-link" href="cisco.html" style="--badge-color:#06485C; --badge-color-30:rgba(6,72,92,0.3); --badge-text:#fff;" aria-label="View the cisco case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">4</span></span></a>
     <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
     <h2>Cisco Systems</h2>
     <p class="role">Network diagnostic tools</p>
@@ -825,7 +828,7 @@
   // of the viewport, matching the Figma mockup's hard-cut behavior.
   var sectionColors = {
     intro:     'rgb(16,17,20)',
-    liteload:  'rgb(228,245,161)',
+    liteload:  'rgb(198,236,209)',
     walgreens: 'rgb(194,232,255)',
     ebay:      'rgb(253,244,169)',
     cisco:     'rgb(128,204,236)',
