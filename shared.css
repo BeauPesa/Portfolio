@@ -12,6 +12,7 @@
   --ink: #101114;
   --text-light: #F2F1EC;
   --paper: #F2F1EC;
+  --nav-fill: #22242B; /* nav button fill on dark pages: ink lightened 8% */
   --accent-personal: #ADD944;
   --nav-fg: #ffffff;
   --nav-fg-soft: rgba(255,255,255,0.55);
@@ -196,7 +197,7 @@ h1,h2,h3{
   width:30px;
   height:30px;
   border-radius:50%;
-  background: var(--ink);
+  background: var(--nav-fill);
   border: 1.5px solid var(--nav-fg-soft);
   display:flex;
   align-items:center;
@@ -270,7 +271,7 @@ h1,h2,h3{
     border-radius:999px;
   }
   #icon-nav a,
-  #social-nav a{ width:26px; height:26px; background:var(--ink); }
+  #social-nav a{ width:26px; height:26px; background:var(--nav-fill); }
   #social-nav a::before{ display:none; }
   #social-nav a svg{ width:13px; height:13px; }
   #social-nav a .tooltip{ display:none; }
@@ -558,7 +559,7 @@ h1,h2,h3{
   height:30px;
   border-radius:50%;
   border:1.5px solid var(--nav-fg-soft);
-  background: var(--ink);
+  background: var(--nav-fill);
   color: var(--nav-fg);
   display:flex;
   align-items:center;

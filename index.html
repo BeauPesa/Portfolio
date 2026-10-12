@@ -24,25 +24,26 @@
 
     /* Every case has three colors: PRIMARY (No. button, subhead, See-the-work button),
        THREAD (the Morse breaks) and TINT (the page background). */
-    --liteload-tint:   #C6ECD1; /* cool light green */
+    --liteload-tint:   #C9B8FF; /* blue-violet at the same lightness as the other backgrounds (true navy at that lightness = Walgreens' color) */
     --liteload-accent: #001C38; /* logo navy */
     --liteload-thread: #63AA2A; /* logo green */
 
-    --walgreens-tint:   #C2E8FF; /* lightest of the three swatches */
+    --walgreens-tint:   #96C5FF; /* lightest of the three swatches */
     --walgreens-accent: #323264; /* leftmost swatch */
     --walgreens-thread: #E62600; /* rightmost swatch */
     --walgreens-detail: #D2232A; /* sparing red accent — the "easter egg" cue */
 
-    --ebay-tint:   #FDF4A9;
-    --ebay-accent: #FEBC32;
-    --ebay-thread: #FEBC32;
+    --ebay-tint:   #B1CC72; /* eBay logo green */
+    --ebay-accent: #0064D2; /* eBay logo blue */
+    --ebay-thread: #F5AF02; /* eBay logo yellow */
 
     --cisco-tint:   #80CCEC;
     --cisco-accent: #06485C; /* logo blue */
     --cisco-thread: #E31332; /* logo red */
 
-    --urban-tint:   #D6EEE5; /* light tint derived from the new teal accent */
+    --urban-tint:   #74D3B5; /* light tint derived from the new teal accent */
     --urban-accent: #32A87B; /* official brand teal, Urban's own now */
+    --nav-fill: #22242B; /* nav button fill before the script runs, on dark: ink lightened 8% */
     --urban-thread: #2F4F44; /* kept from Urban's existing dark-green accent */
 
     /* Equal-height cards: these two are hidden copies of the LONGEST case blurbs. Each card's
@@ -71,7 +72,7 @@
     --nav-fg: #101114;
     --nav-fg-soft: rgba(16,17,20,0.5);
     --nav-line-soft: rgba(16,17,20,0.35);
-    --grid-line-fg: rgba(16,17,20,0.1);
+    --grid-line-fg: rgba(255,255,255,0.55); /* pinstripes are white on every section */
   }
 
   *{ box-sizing: border-box; }
@@ -370,7 +371,7 @@
     height:30px;
     border-radius:50%;
     border:1.5px solid var(--nav-fg-soft);
-    background: var(--ink); /* JS overrides this to match whatever's behind it */
+    background: var(--nav-fill); /* JS overrides this to match the background, lightened 8% */
     padding:0;
     cursor:pointer;
     position:relative;
@@ -525,7 +526,7 @@
     width:30px;
     height:30px;
     border-radius:50%;
-    background: var(--ink); /* JS overrides this to match whatever's behind it, like the progress dots */
+    background: var(--nav-fill); /* JS overrides this to match the background, lightened 8% */
     border: 1.5px solid var(--nav-fg-soft);
     display:flex;
     align-items:center;
@@ -649,7 +650,7 @@
       border-radius:999px;
     }
     #icon-nav a,
-    #social-nav a{ width:26px; height:26px; background:var(--ink); }
+    #social-nav a{ width:26px; height:26px; background:var(--nav-fill); }
     #social-nav a::before{ display:none; }
     #social-nav a svg{ width:13px; height:13px; }
     #social-nav a .tooltip{ display:none; }
@@ -776,7 +777,7 @@
 
 <section id="ebay" class="case">
     <div class="case-card">
-    <a class="case-index badge-link" href="ebay.html" style="--badge-color:#986701; --badge-color-30:rgba(254,188,50,0.3); --badge-text:#fff;" aria-label="View the ebay case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">3</span></span></a>
+    <a class="case-index badge-link" href="ebay.html" style="--badge-color:#0064D2; --badge-color-30:rgba(0,100,210,0.3); --badge-text:#fff;" aria-label="View the ebay case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">3</span></span></a>
     <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
     <h2>eBay</h2>
     <p class="role">Two-factor authentication</p>
@@ -828,11 +829,11 @@
   // of the viewport, matching the Figma mockup's hard-cut behavior.
   var sectionColors = {
     intro:     'rgb(16,17,20)',
-    liteload:  'rgb(198,236,209)',
-    walgreens: 'rgb(194,232,255)',
-    ebay:      'rgb(253,244,169)',
+    liteload:  'rgb(201,184,255)',
+    walgreens: 'rgb(150,197,255)',
+    ebay:      'rgb(177,204,114)',
     cisco:     'rgb(128,204,236)',
-    urban:     'rgb(214,238,229)',
+    urban:     'rgb(116,211,181)',
     outro:     'rgb(16,17,20)'
   };
 
@@ -885,17 +886,37 @@
   // stand out slightly instead of camouflaging perfectly invisible.
   // The halo (which softens the grid line) still uses the true color,
   // since ITS job is to blend in, not stand out.
+  // Lighten a color by `amount` of HSL lightness (0.08 = 8 percentage points), keeping its hue and saturation.
   function lighten(rgbString, amount){
     var m = rgbString.match(/\d+/g).map(Number);
-    var r = Math.round(m[0] + (255 - m[0]) * amount);
-    var g = Math.round(m[1] + (255 - m[1]) * amount);
-    var b = Math.round(m[2] + (255 - m[2]) * amount);
-    return 'rgb(' + r + ',' + g + ',' + b + ')';
+    var r = m[0] / 255, g = m[1] / 255, b = m[2] / 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min, l = (max + min) / 2, h = 0, s = 0;
+    if (d){
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+      else if (max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h /= 6;
+    }
+    l = Math.min(1, l + amount);
+    function chan(p, q, t){
+      if (t < 0) t += 1; if (t > 1) t -= 1;
+      if (t < 1/6) return p + (q - p) * 6 * t;
+      if (t < 1/2) return q;
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    }
+    var R = l, G = l, B = l;
+    if (s){
+      var q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+      R = chan(p, q, h + 1/3); G = chan(p, q, h); B = chan(p, q, h - 1/3);
+    }
+    return 'rgb(' + Math.round(R * 255) + ',' + Math.round(G * 255) + ',' + Math.round(B * 255) + ')';
   }
 
   function setActive(id){
     var color = sectionColors[id];
-    var fillColor = lighten(color, 0.10);
+    var fillColor = lighten(color, 0.08);
     bgLayer.style.backgroundColor = color;
     document.documentElement.dataset.theme = isDarkColor(color) ? 'dark' : 'light';
     var activeIndex = navButtons.findIndex(function(btn){ return btn.dataset.target === id; });
