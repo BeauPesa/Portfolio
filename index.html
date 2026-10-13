@@ -58,6 +58,7 @@
     --card-left: calc(var(--grid-inset) + 0.5 * var(--grid-gap)); /* midpoint between line 1 and 2 */
     --card-right: calc(var(--grid-inset) + 5.5 * var(--grid-gap)); /* midpoint between line 6 and 7 (mirrors the left edge, midway between 1 and 2) */
     --mobile-grid-gap: calc((100vw - 2 * var(--grid-inset)) / 4); /* spacing once 2 lines are hidden on mobile */
+    --thread-w: calc(2 * var(--grid-gap)); /* the Morse breaks run from pinstripe 2 to pinstripe 4 */
     --ease: cubic-bezier(.22,.61,.36,1);
 
     /* Nav foreground — flips per active section so borders/icons/lines
@@ -317,7 +318,7 @@
   .case-text::before{ content: var(--ruler-a); }
   .case-text::after{ content: var(--ruler-b); }
   .case .thread{
-    width:90px;
+    width: var(--thread-w);
     height:6px;
     margin:1.5rem 0 1.75rem;
     display:block;
@@ -659,6 +660,19 @@
     #icon-nav a svg{ width:13px; height:13px; }
     #icon-nav a .tooltip{ display:none; }
   }
+  /* Each part of a card arrives in turn, rising into place. Slow on purpose: 1.2s per part, 0.14s apart. */
+  .case-card.is-in > *{
+    animation: partIn 1.2s cubic-bezier(0.25, 1, 0.5, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 0.14s);
+  }
+  @keyframes partIn{
+    from{ opacity:0; translate: 0 56px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .case-card.is-in > *{ animation-name: partFade; animation-duration: 0.4s; animation-delay: 0s; }
+    @keyframes partFade{ from{ opacity:0; } }
+  }
+  @media (max-width: 720px){ :root{ --thread-w: calc(2 * var(--mobile-grid-gap)); } }
 </style>
 </head>
 <body>
@@ -958,10 +972,17 @@
   // FADE_HOLD px of scrolling to finish. That is what lets the runway between
   // cards be short without two case studies (or the wrong color) ever showing.
   var leaving = false;   // set when heading into a case study: stops the scroll fade from touching the card
+  // Inside each card the parts arrive one after another, top to bottom (the animation is .case-card.is-in in the
+  // CSS: timed, not tied to scroll speed). A card is "active" once it has started to appear and goes inactive when
+  // it is gone, so the sequence replays every time you come back to it. On arrival from a case-study page
+  // (firstPass) the card is already in place, so nothing replays.
+  var firstPass = true;
   var FADE_HOLD = 100;
   var FADE_RAMP = 180;
   var fadeCards = Array.prototype.map.call(document.querySelectorAll('.case'), function(sec){
-    return { sec: sec, card: sec.querySelector('.case-card') };
+    var card = sec.querySelector('.case-card');
+    Array.prototype.forEach.call(card.children, function(el, k){ el.style.setProperty('--i', k); });   // order of arrival: badge, break, title, subhead, break, text, button
+    return { sec: sec, card: card, active: false };
   });
   function updateFades(){
     if (leaving) return;
@@ -973,7 +994,15 @@
       t = t * t * (3 - 2 * t);                            // smoothstep
       f.card.style.opacity = t;
       f.card.style.pointerEvents = t < 0.05 ? 'none' : '';
+      if (!f.active && edge > FADE_HOLD + 30){
+        f.active = true;
+        if (!firstPass) f.card.classList.add('is-in');
+      } else if (f.active && edge < FADE_HOLD + 6){
+        f.active = false;
+        f.card.classList.remove('is-in');
+      }
     });
+    firstPass = false;
   }
   var fadeQueued = false;
   function queueFades(){
@@ -1062,5 +1091,6 @@
 })();
 </script>
 
+<script src="site.js"></script>
 </body>
 </html>
