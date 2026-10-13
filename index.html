@@ -24,7 +24,7 @@
 
     /* Every case has three colors: PRIMARY (No. button, subhead, See-the-work button),
        THREAD (the Morse breaks) and TINT (the page background). */
-    --liteload-tint:   #C9B8FF; /* blue-violet at the same lightness as the other backgrounds (true navy at that lightness = Walgreens' color) */
+    --liteload-tint:   #C2C2C2; /* neutral grey at the same lightness as the other backgrounds */
     --liteload-accent: #001C38; /* logo navy */
     --liteload-thread: #63AA2A; /* logo green */
 
@@ -41,10 +41,10 @@
     --cisco-accent: #06485C; /* logo blue */
     --cisco-thread: #E31332; /* logo red */
 
-    --urban-tint:   #74D3B5; /* light tint derived from the new teal accent */
-    --urban-accent: #32A87B; /* official brand teal, Urban's own now */
+    --urban-tint:   #D0C267; /* the yellow contour line on the notebook cover */
+    --urban-accent: #1C1C1C; /* the notebook cover black */
     --nav-fill: #22242B; /* nav button fill before the script runs, on dark: ink lightened 8% */
-    --urban-thread: #2F4F44; /* kept from Urban's existing dark-green accent */
+    --urban-thread: #9CAA75; /* the green contour line */
 
     /* Equal-height cards: these two are hidden copies of the LONGEST case blurbs. Each card's
        text block is as tall as the tallest of {its own text, these two} at the current width,
@@ -801,7 +801,7 @@
 
 <section id="urban" class="case">
     <div class="case-card">
-    <a class="case-index badge-link" href="urban.html" style="--badge-color:#32A87B; --badge-color-30:rgba(50,168,123,0.3); --badge-text:#fff;" aria-label="View the urban case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">5</span></span></a>
+    <a class="case-index badge-link" href="urban.html" style="--badge-color:#1C1C1C; --badge-color-30:rgba(28,28,28,0.3); --badge-text:#fff;" aria-label="View the urban case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">5</span></span></a>
     <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
     <h2>Urban Design</h2>
     <p class="role">São Paulo watershed thesis</p>
@@ -829,11 +829,11 @@
   // of the viewport, matching the Figma mockup's hard-cut behavior.
   var sectionColors = {
     intro:     'rgb(16,17,20)',
-    liteload:  'rgb(201,184,255)',
+    liteload:  'rgb(194,194,194)',
     walgreens: 'rgb(150,197,255)',
     ebay:      'rgb(177,204,114)',
     cisco:     'rgb(128,204,236)',
-    urban:     'rgb(116,211,181)',
+    urban:     'rgb(208,194,103)',
     outro:     'rgb(16,17,20)'
   };
 
@@ -957,12 +957,14 @@
   // starts changing, and the next one only fades in AFTER the change has had
   // FADE_HOLD px of scrolling to finish. That is what lets the runway between
   // cards be short without two case studies (or the wrong color) ever showing.
+  var leaving = false;   // set when heading into a case study: stops the scroll fade from touching the card
   var FADE_HOLD = 100;
   var FADE_RAMP = 180;
   var fadeCards = Array.prototype.map.call(document.querySelectorAll('.case'), function(sec){
     return { sec: sec, card: sec.querySelector('.case-card') };
   });
   function updateFades(){
+    if (leaving) return;
     var mid = window.innerHeight / 2;
     fadeCards.forEach(function(f){
       var r = f.sec.getBoundingClientRect();
@@ -1036,11 +1038,19 @@
       if (reduceMotion || window.innerWidth <= 720) return;
       e.preventDefault();
       progressNav.classList.add('collapsed');
+      // the card fades out while the nav animates; the case-study page fades it back in
+      var card = a.closest('.case-card');
+      if (card){ leaving = true; card.style.transition = 'opacity 0.45s ease'; card.style.opacity = '0'; card.style.pointerEvents = 'none'; }
       setTimeout(function(){ window.location.href = a.href; }, 950);
     });
   });
   window.addEventListener('pageshow', function(ev){
-    if (ev.persisted) progressNav.classList.remove('collapsed');
+    if (ev.persisted){
+      progressNav.classList.remove('collapsed');
+      leaving = false;
+      fadeCards.forEach(function(f){ f.card.style.transition = ''; });
+      updateFades();
+    }
   });
 
   setActive(startId);

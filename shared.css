@@ -315,8 +315,8 @@ h1,h2,h3{
 .badge-link:focus-visible,
 .card:hover .badge-link,
 .card:focus-visible .badge-link{
-  background: var(--badge-text, #fff);
-  color: var(--badge-color);
+  background: var(--badge-hover-bg, var(--badge-text, #fff));
+  color: var(--badge-hover-text, var(--badge-color));
   border-width: 6px;
   border-color: var(--badge-color-30);
   transform: scale(1.08);
@@ -521,6 +521,16 @@ h1,h2,h3{
   .case-page-cta{ font-size:0.85rem; padding:0 0.5rem; }
 }
 
+/* The case-study card fades in once the web fonts are ready (see the script on each page), so
+   the text never visibly swaps typefaces on screen, and the page doesn't "pop" in. Without
+   JavaScript the .js class is never set and the card is simply visible. */
+.js .case-page-card{ opacity:0; }
+/* An animation (not a transition) so it plays even when the fonts are already cached and the card
+   is revealed before the browser has drawn its hidden state: a transition would have nothing to
+   transition from, and the card would pop in. */
+.js .case-page-card.is-in{ opacity:1; animation: caseCardIn 0.6s var(--ease) backwards; }
+@keyframes caseCardIn{ from{ opacity:0; } }
+
 /* ---------- Case-study carousel nav (right-hand pinstripe) ----------
    The same seven-slot column as the homepage's progress dots. At rest it is
    "collapsed": the five middle dots are invisible and the outer two have slid
@@ -651,6 +661,8 @@ h1,h2,h3{
   box-shadow: 0 30px 60px -20px rgba(0,0,0,0.55);
 }
 .page-card .eyebrow{ color:#4D4D4D; }
+.page-card .thread{ width:90px; height:6px; margin:1.5rem 0 1.75rem; display:block; }
+.page-card .thread svg{ display:block; width:100%; height:100%; overflow:visible; }
 .page-card h1{ color: var(--ink); }
 .page-hero .page-card p{ color:#1B1C1E; max-width:52ch; }
 /* the card hides the pinstripes where it sits, so the fade-out patch isn't needed */
@@ -670,21 +682,34 @@ h1,h2,h3{
   .page-hero h1.long-word{ font-size: min(clamp(3rem, 8vw, 6rem), calc((73vw - 24px) / 5.6)); }
 }
 
-/* ---------- Résumé thumbnail ----------
-   Same span as the cards (midpoint of pinstripes 1-2 to midpoint of 6-7). The whole
-   thing is one link to the PDF (opens in the browser's PDF viewer, which has its own
-   download button). Hover lifts it and frames it in the accent color. */
+/* ---------- Résumé card ----------
+   A paper card with the same footprint as the homepage cards (midpoint of pinstripes 1-2 to the
+   midpoint of 6-7) and the proportions of the page (8.5 x 11), holding the résumé itself exactly
+   from pinstripe 2 to pinstripe 6. The whole card is one link to the PDF (it opens in the browser's
+   PDF viewer, which has its own download button). Hover lifts the résumé and casts a drop shadow
+   onto the card. */
 .resume-thumb{
   position:relative;
-  display:block;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   width: calc(5 * var(--grid-gap));
-  margin: 2.5rem 0 0 calc(-0.5 * var(--grid-gap));
-  background:#fff;
+  aspect-ratio: 8.5 / 11;
+  margin: 4rem 0 0 calc(-0.5 * var(--grid-gap));
+  background: var(--paper);
   box-shadow: 0 30px 60px -20px rgba(0,0,0,0.55);
+  text-decoration:none;
+}
+.resume-sheet{
+  position:relative;
+  display:block;
+  width: calc(100% - var(--grid-gap)); /* pinstripe 2 -> 6 */
+  background:#fff;
+  box-shadow: 0 1px 3px rgba(16,17,20,0.18); /* hairline, so the white page reads against the paper card */
   transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
 }
-.resume-thumb img{ display:block; width:100%; height:auto; }
-.resume-thumb::after{
+.resume-sheet img{ display:block; width:100%; height:auto; }
+.resume-sheet::after{
   content:'';
   position:absolute;
   inset:0;
@@ -692,18 +717,18 @@ h1,h2,h3{
   pointer-events:none;
   transition: border-color 0.25s var(--ease);
 }
-.resume-thumb:hover,
-.resume-thumb:focus-visible{
+.resume-thumb:hover .resume-sheet,
+.resume-thumb:focus-visible .resume-sheet{
   transform: translateY(-6px);
-  box-shadow: 0 44px 80px -24px rgba(0,0,0,0.7);
+  box-shadow: 0 26px 44px -14px rgba(16,17,20,0.55);
 }
-.resume-thumb:hover::after,
-.resume-thumb:focus-visible::after{ border-color: var(--accent-personal); }
+.resume-thumb:hover .resume-sheet::after,
+.resume-thumb:focus-visible .resume-sheet::after{ border-color: var(--accent-personal); }
 .resume-thumb:focus-visible{ outline:2px solid #fff; outline-offset:4px; }
 .resume-thumb-chip{
   position:absolute;
-  top:1.25rem;
-  right:1.25rem;
+  top:1rem;
+  right:1rem;
   padding:0.55rem 1rem;
   border-radius:999px;
   background: var(--accent-personal);
@@ -722,4 +747,5 @@ h1,h2,h3{
     width: calc(3 * var(--mobile-grid-gap));
     margin-left: calc(-0.5 * var(--mobile-grid-gap));
   }
+  .resume-sheet{ width: calc(100% - var(--mobile-grid-gap)); } /* pinstripe 2 -> 4 of the 5 visible lines */
 }

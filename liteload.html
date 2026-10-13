@@ -12,7 +12,7 @@
   #social-nav a,
   #case-nav a,
   #case-nav .case-dot{
-    background: #E8E1FF;
+    background: #D6D6D6;
     border-color: rgba(16,17,20,0.5);
     color: #101114;
   }
@@ -24,8 +24,9 @@
     border-left-color: rgba(255,255,255,0.55);
   }
 </style>
+<script>document.documentElement.classList.add('js');</script>
 </head>
-<body class="has-case-nav" style="background:#C9B8FF;">
+<body class="has-case-nav" style="background:#C2C2C2;">
 
 <div id="grid-lines-global" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 
@@ -113,6 +114,13 @@
   window.addEventListener('pageshow', function(ev){
     if (ev.persisted && nav) nav.classList.add('collapsed');
   });
+  // Fade the card in once the web fonts are ready (or after 0.8s at the latest), so there is no visible font swap.
+  var card = document.querySelector('.case-page-card');
+  function reveal(){ if (card) requestAnimationFrame(function(){ card.classList.add('is-in'); }); }
+  if (document.fonts && document.fonts.load){
+    var loads = ['800 1em "Big Shoulders Display"', '400 1em "IBM Plex Sans"', '600 1em "IBM Plex Sans"', '700 1em "Playfair Display"'].map(function(f){ return document.fonts.load(f); });
+    Promise.race([Promise.all(loads), new Promise(function(r){ setTimeout(r, 800); })]).then(reveal, reveal);
+  } else { reveal(); }
 })();
 </script>
 

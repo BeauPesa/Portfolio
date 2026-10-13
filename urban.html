@@ -11,13 +11,13 @@
      dark background + white icon, built for the always-dark subpages. */
   #icon-nav a,
   #social-nav a{
-    background: #93DDC5;
+    background: #DACF86;
     border-color: rgba(16,17,20,0.5);
     color: #101114;
   }
   #case-nav a,
   #case-nav .case-dot{
-    background: #93DDC5;
+    background: #DACF86;
     border-color: rgba(16,17,20,0.5);
     color: #101114;
   }
@@ -29,8 +29,9 @@
     border-left-color: rgba(255,255,255,0.55);
   }
 </style>
+<script>document.documentElement.classList.add('js');</script>
 </head>
-<body class="has-case-nav" style="background:#74D3B5;">
+<body class="has-case-nav" style="background:#D0C267;">
 
 <div id="grid-lines-global" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 
@@ -89,13 +90,13 @@
 
 <section class="page-hero" style="background:transparent; min-height:100vh;">
   <div class="case-page-card" style="background:#F2F1EC; color:#1B1C1E; box-shadow:0 30px 60px -20px rgba(0,0,0,0.35);">
-    <a class="case-index badge-link" href="urban.html" style="--badge-color:#32A87B; --badge-color-30:rgba(50,168,123,0.3); --badge-text:#fff; margin-bottom:1rem;" aria-label="urban case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">5</span></span></a>
-    <div class="thread" style="color:#2F4F44;"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
+    <a class="case-index badge-link" href="urban.html" style="--badge-color:#1C1C1C; --badge-color-30:rgba(28,28,28,0.3); --badge-text:#fff; margin-bottom:1rem;" aria-label="urban case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">5</span></span></a>
+    <div class="thread" style="color:#9CAA75;"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
     <h2 class="case-page-title">Urban Design</h2>
-    <p class="role case-page-role" style="color:#32A87B;">São Paulo watershed thesis</p>
-    <div class="thread" style="color:#2F4F44;"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
+    <p class="role case-page-role" style="color:#1C1C1C;">São Paulo watershed thesis</p>
+    <div class="thread" style="color:#9CAA75;"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
     <div class="case-text"><p>Before software, the same instinct: a thesis proposing constructed wetlands to filter urban runoff before it reached a contaminated creek in eastern São Paulo — systems thinking applied to water instead of software.</p></div>
-    <a class="case-page-cta" href="index.html#to-urban" style="--cta-rest:#32A87B; --cta-fill:#32A87B;">Back to home ←</a>
+    <a class="case-page-cta" href="index.html#to-urban" style="--cta-rest:#1C1C1C; --cta-fill:#1C1C1C;">Back to home ←</a>
   </div>
 </section>
 
@@ -118,6 +119,13 @@
   window.addEventListener('pageshow', function(ev){
     if (ev.persisted && nav) nav.classList.add('collapsed');
   });
+  // Fade the card in once the web fonts are ready (or after 0.8s at the latest), so there is no visible font swap.
+  var card = document.querySelector('.case-page-card');
+  function reveal(){ if (card) requestAnimationFrame(function(){ card.classList.add('is-in'); }); }
+  if (document.fonts && document.fonts.load){
+    var loads = ['800 1em "Big Shoulders Display"', '400 1em "IBM Plex Sans"', '600 1em "IBM Plex Sans"', '700 1em "Playfair Display"'].map(function(f){ return document.fonts.load(f); });
+    Promise.race([Promise.all(loads), new Promise(function(r){ setTimeout(r, 800); })]).then(reveal, reveal);
+  } else { reveal(); }
 })();
 </script>
 
