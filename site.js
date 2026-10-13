@@ -1,12 +1,16 @@
 // Site-wide helpers.
-// 1. Morse breaks: a single "BP" (dash-dot-dot-dot, dot-dash-dash-dot), stretched so the line runs the full
-//    width of the break (pinstripe 2 -> 4). Dots, dashes and gaps all lengthen in proportion (a dot stays a
-//    third of a dash); the thickness of the line stays 3px.
+// 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
+//    pinstripe it is stretched to (pinstripe 2 -> 4).
 // 2. Phones: a thin lime progress bar beside the Creative Endeavors card, which scrolls inside a fixed height.
-// 3. Case-study pages: the card's parts arrive in turn, and anything further down arrives as you scroll to it.
+// 3. Every page: cards fade in, and every element rises into place as it enters (and as you scroll to it).
+// 4. Case-study pages: the card is one long sheet. From the homepage it keeps going where the homepage card
+//    left off and unrolls downwards; "Back to home" rolls it back up to the homepage card's size first.
 (function(){
-  // One "BP" (dash-dot-dot-dot, dot-dash-dash-dot, even gaps = 21 units), stretched along the line so it runs the
-  // full width of the break. The stroke stays 3px thick with round ends; only the lengths stretch.
+  window.__siteReady = 2;   // the page's <head> script checks this; without it everything is simply shown
+  var root = document.documentElement;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var isPhone = window.matchMedia('(max-width: 720px)');
+
   var BP = [3,1,1,1,1,1,1,1,1,1,3,1,3,1,1];
   var SW = 3;
 
@@ -29,42 +33,114 @@
   window.addEventListener('load', drawAll);
   window.addEventListener('resize', queueDraw);
 
-  // 3. Case-study pages: the card's parts arrive in turn, like the homepage, and anything further down arrives as you
-  //    scroll to it. Everything directly inside the card takes part, and so does anything marked data-reveal.
-  var cc = document.querySelector('.case-page-card');
-  if (cc){
-    window.__rvReady = true;   // tells the page's safety timer that this script loaded
-    var targets = Array.prototype.slice.call(cc.children);
-    Array.prototype.forEach.call(cc.querySelectorAll('[data-reveal]'), function(el){ if (targets.indexOf(el) < 0) targets.push(el); });
-    var firstBatch = true;
-    var beginReveal = function(){
-      if (!('IntersectionObserver' in window)){
-        targets.forEach(function(el){ el.classList.add('is-shown'); });
-        return;
-      }
-      var io = new IntersectionObserver(function(entries){
-        var batch = entries.filter(function(e){ return e.isIntersecting; })
-          .sort(function(a, b){ return a.boundingClientRect.top - b.boundingClientRect.top; });
-        batch.forEach(function(e, i){
-          var el = e.target;
-          el.style.setProperty('--d', i);                           // order within the group that arrives together
-          el.style.setProperty('--b', firstBatch ? '0.35s' : '0s'); // the first screen waits for the card to appear
-          el.classList.add('is-shown');
-          io.unobserve(el);
-        });
-        if (batch.length) firstBatch = false;
-      }, { rootMargin: '0px 0px -8% 0px' });
-      targets.forEach(function(el){ io.observe(el); });
-    };
-    if (cc.classList.contains('is-in')) beginReveal();
-    else {
-      var cardWatch = new MutationObserver(function(){
-        if (cc.classList.contains('is-in')){ cardWatch.disconnect(); beginReveal(); }
-      });
-      cardWatch.observe(cc, { attributes: true, attributeFilter: ['class'] });
-    }
+
+  /* ---------------- 3. Cards and the reveal engine ---------------- */
+  var caseCard = document.querySelector('.case-page-card');
+  var pageCard = document.querySelector('.page-card');
+  var cardEl = caseCard || pageCard;
+  var flight = root.classList.contains('flight') && !!caseCard;   // arriving from the homepage card
+  if (flight){ try { sessionStorage.removeItem('cardFlight'); } catch (e) {} }
+
+  function whenFontsReady(cb){   // wait for the web fonts (0.8s at most) so text never visibly swaps typefaces
+    var done = false;
+    function go(){ if (!done){ done = true; cb(); } }
+    if (document.fonts && document.fonts.load){
+      var loads = ['800 1em "Big Shoulders Display"', '400 1em "IBM Plex Sans"', '600 1em "IBM Plex Sans"', '700 1em "Playfair Display"']
+        .map(function(f){ return document.fonts.load(f); });
+      Promise.race([Promise.all(loads), new Promise(function(r){ setTimeout(r, 800); })]).then(go, go);
+    } else go();
   }
 
+  // What takes part: everything directly inside a page's container, the tiles inside a grid, and [data-reveal].
+  var GRIDS = '.gallery-grid, .card-grid';
+  var targets = [];
+  function addTarget(el){ if (targets.indexOf(el) < 0) targets.push(el); }
+  Array.prototype.forEach.call(document.querySelectorAll('.page-hero > div, .bookend > div'), function(c){
+    Array.prototype.forEach.call(c.children, function(ch){ if (!ch.matches(GRIDS)) addTarget(ch); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(GRIDS), function(g){ Array.prototype.forEach.call(g.children, addTarget); });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-reveal]'), addTarget);
+
+  var firstBatch = true, baseDelay = 0.1;
+  function show(el, order, delay, instant){
+    el.classList.remove('rv-hide');
+    el.style.setProperty('--d', order);
+    el.style.setProperty('--b', delay + 's');
+    if (instant) el.classList.add('rv-static');
+    el.classList.add('is-shown');
+  }
+  function watch(list, scroller){
+    if (!('IntersectionObserver' in window)){ list.forEach(function(el){ show(el, 0, 0, true); }); return; }
+    var io = new IntersectionObserver(function(entries){
+      var batch = entries.filter(function(e){ return e.isIntersecting; })
+        .sort(function(a, b){ return a.boundingClientRect.top - b.boundingClientRect.top; });
+      batch.forEach(function(e, i){
+        show(e.target, i, firstBatch ? baseDelay : 0, false);   // the first screen waits for the card; later ones don't
+        io.unobserve(e.target);
+      });
+      if (batch.length) firstBatch = false;
+    }, { root: scroller || null, rootMargin: '0px 0px -8% 0px' });
+    list.forEach(function(el){ io.observe(el); });
+  }
+
+  if (flight){
+    // The homepage card was on screen a moment ago and must not vanish: everything on the first screen is simply
+    // there, the sheet unrolls from the card's bottom edge, and only what is further down arrives as you scroll.
+    var vh = window.innerHeight, below = [];
+    targets.forEach(function(el){
+      var r = el.getBoundingClientRect();
+      if (r.top < vh * 0.92 && r.bottom > 0) show(el, 0, 0, true);
+      else { el.classList.add('rv-hide'); below.push(el); }
+    });
+    watch(below, null);
+    var cr = caseCard.getBoundingClientRect();
+    caseCard.style.setProperty('--roll-stop', Math.max(60, vh - cr.bottom + 12) + 'px');
+    caseCard.classList.add('is-unrolling');
+  } else {
+    whenFontsReady(function(){
+      requestAnimationFrame(function(){
+        if (cardEl) cardEl.classList.add('is-in');
+        baseDelay = cardEl ? 0.35 : 0.1;                     // with a card, wait for it to appear first
+        var scroller = (pageCard && window.getComputedStyle(pageCard).overflowY === 'auto') ? pageCard : null;   // phones: the card scrolls
+        watch(targets, scroller);
+      });
+    });
+  }
+
+  /* ---------------- 4. Case-study pages: heading back home ---------------- */
+  if (caseCard){
+    var nav = document.getElementById('case-nav'), leaving = false;
+    Array.prototype.forEach.call(document.querySelectorAll('a[href^="index.html"]'), function(a){
+      a.addEventListener('click', function(e){
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        if (reduce) return;
+        var rollUp = a.getAttribute('href').indexOf('#to-') > -1;     // "Back to home" returns to the card; the Home icon doesn't
+        if (!rollUp && (!nav || isPhone.matches)) return;
+        e.preventDefault();
+        if (leaving) return;
+        leaving = true;
+        var href = a.href;
+        if (nav && !isPhone.matches) nav.classList.remove('collapsed');   // the nav plays its animation in reverse
+        if (!rollUp){ setTimeout(function(){ window.location.href = href; }, 950); return; }
+        var roll = function(){
+          var r = caseCard.getBoundingClientRect();
+          caseCard.style.setProperty('--roll-stop', Math.max(60, window.innerHeight - r.bottom + 4) + 'px');
+          caseCard.classList.remove('is-unrolling');
+          caseCard.classList.add('is-rolling-up');
+          setTimeout(function(){ window.location.href = href; }, 950);
+        };
+        if (window.scrollY > 4){   // back to the top first, so the roll-up happens where you can see it
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          setTimeout(roll, Math.min(900, 250 + window.scrollY * 0.3));
+        } else roll();
+      });
+    });
+    window.addEventListener('pageshow', function(ev){
+      if (ev.persisted){ leaving = false; caseCard.classList.remove('is-rolling-up'); if (nav) nav.classList.add('collapsed'); }
+    });
+  }
+
+  /* ---------------- 2. Phones: progress bar ---------------- */
   var card = document.querySelector('.page-card');
   if (card){
     var bar = document.createElement('div');
@@ -72,7 +148,7 @@
     bar.setAttribute('aria-hidden', 'true');
     bar.innerHTML = '<div class="card-progress-thumb"></div>';
     document.body.appendChild(bar);
-    var thumb = bar.firstChild, phone = window.matchMedia('(max-width: 720px)');
+    var thumb = bar.firstChild, phone = isPhone;
     var layout = function(){
       var scrollable = phone.matches && card.scrollHeight > card.clientHeight + 1;
       bar.style.display = scrollable ? 'block' : 'none';

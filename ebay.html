@@ -29,7 +29,7 @@
     border-left-color: rgba(255,255,255,0.55);
   }
 </style>
-<script>document.documentElement.classList.add('js','rv');setTimeout(function(){if(!window.__rvReady)document.documentElement.classList.remove('rv');},2500);</script>
+<script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight');},2500);})();</script>
 </head>
 <body class="has-case-nav" style="background:#B1CC72;">
 
@@ -100,34 +100,6 @@
   </div>
 </section>
 
-<script>
-(function(){
-  var nav = document.getElementById('case-nav');
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // Heading back home plays the homepage's nav animation in reverse (the pair
-  // slides apart, turns back into chevrons, and the five dots fade in), then
-  // navigates. Skipped on phones and for reduced motion.
-  Array.prototype.forEach.call(document.querySelectorAll('a[href^="index.html"]'), function(a){
-    a.addEventListener('click', function(e){
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-      if (!nav || reduce || window.innerWidth <= 720) return;
-      e.preventDefault();
-      nav.classList.remove('collapsed');
-      setTimeout(function(){ window.location.href = a.href; }, 950);
-    });
-  });
-  window.addEventListener('pageshow', function(ev){
-    if (ev.persisted && nav) nav.classList.add('collapsed');
-  });
-  // Fade the card in once the web fonts are ready (or after 0.8s at the latest), so there is no visible font swap.
-  var card = document.querySelector('.case-page-card');
-  function reveal(){ if (card) requestAnimationFrame(function(){ card.classList.add('is-in'); }); }
-  if (document.fonts && document.fonts.load){
-    var loads = ['800 1em "Big Shoulders Display"', '400 1em "IBM Plex Sans"', '600 1em "IBM Plex Sans"', '700 1em "Playfair Display"'].map(function(f){ return document.fonts.load(f); });
-    Promise.race([Promise.all(loads), new Promise(function(r){ setTimeout(r, 800); })]).then(reveal, reveal);
-  } else { reveal(); }
-})();
-</script>
 
 <script src="site.js"></script>
 </body>

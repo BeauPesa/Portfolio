@@ -672,8 +672,17 @@
     .case-card.is-in > *{ animation-name: partFade; animation-duration: 0.4s; animation-delay: 0s; }
     @keyframes partFade{ from{ opacity:0; } }
   }
+  /* The intro and outro rise into place too: each element in turn, as it enters (site.js). */
+  .js .bookend > div > *:not(.is-shown){ opacity:0; }
+  .is-shown{
+    animation: partIn 1.2s cubic-bezier(0.25, 1, 0.5, 1) backwards;
+    animation-delay: calc(var(--b, 0s) + var(--d, 0) * 0.14s);
+  }
+  .is-shown.rv-static{ animation:none; }
+  @media (prefers-reduced-motion: reduce){ .is-shown{ animation-name: partFade; animation-duration: 0.4s; animation-delay: 0s; } }
   @media (max-width: 720px){ :root{ --thread-w: calc(2 * var(--mobile-grid-gap)); } }
 </style>
+<script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight');},2500);})();</script>
 </head>
 <body>
 
@@ -1064,12 +1073,12 @@
   Array.prototype.forEach.call(document.querySelectorAll('.case a[href$=".html"]'), function(a){
     a.addEventListener('click', function(e){
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      // Tell the case-study page the card is on its way, so it carries on from exactly here instead of starting over.
+      try { sessionStorage.setItem('cardFlight', JSON.stringify({ id: a.getAttribute('href').replace(/\.html.*$/, ''), t: Date.now() })); } catch (err) {}
       if (reduceMotion || window.innerWidth <= 720) return;
       e.preventDefault();
       progressNav.classList.add('collapsed');
-      // the card fades out while the nav animates; the case-study page fades it back in
-      var card = a.closest('.case-card');
-      if (card){ leaving = true; card.style.transition = 'opacity 0.45s ease'; card.style.opacity = '0'; card.style.pointerEvents = 'none'; }
+      leaving = true;   // the card stays exactly as it is; the next page picks it up and extends it downwards
       setTimeout(function(){ window.location.href = a.href; }, 950);
     });
   });
@@ -1077,7 +1086,6 @@
     if (ev.persisted){
       progressNav.classList.remove('collapsed');
       leaving = false;
-      fadeCards.forEach(function(f){ f.card.style.transition = ''; });
       updateFades();
     }
   });
