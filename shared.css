@@ -542,7 +542,7 @@ h1,h2,h3{
    shadow) that continues --case-extend below it, off the bottom of the screen: this is where the case study
    content will go. Coming from the homepage the sheet unrolls from the card's bottom edge; going back it rolls
    up to the homepage card's size. The card never disappears. */
-:root{ --case-extend: 140vh; }
+:root{ --case-extend: 140vh; --card-top: calc(2.5rem + 30px); }   /* --card-top: the line a case study card's top sits on: the bottom of the Home nav circle */
 .case-page-card{ position:relative; isolation:isolate; box-shadow:none !important; }
 .case-page-card::before{
   content:'';
@@ -557,6 +557,8 @@ h1,h2,h3{
   pointer-events:none;
 }
 body.has-case-nav::after{ content:''; display:block; height: var(--case-extend); } /* room to scroll down the card */
+/* The card's top edge sits on the same line as on the homepage (not centered), so it never jumps between the two pages. */
+body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-top); padding-bottom: var(--card-top); min-height:0 !important; }
 /* arriving from the homepage: the sheet starts rolled up (the homepage card's size), then unrolls */
 .flight .case-page-card::before{ bottom:0; }
 .case-page-card.is-in::before{ animation: caseUnroll 1.6s linear 0.2s both; }
@@ -809,7 +811,7 @@ body.has-case-nav::after{ content:''; display:block; height: var(--case-extend);
   /* The card's frame: its top is as far below the nav circles as they are from the top of the screen (20.8 + 26 + 20.8),
      and its bottom is as far above the dots as they are from the bottom of the screen. site.js refines these from the
      real elements on the case studies. */
-  :root{ --thread-w: calc(2 * var(--mobile-grid-gap)); --frame-top: calc(2.6rem + 26px); --frame-bottom: calc(1.8rem + 25px); }
+  :root{ --thread-w: calc(2 * var(--mobile-grid-gap)); --frame-top: calc(2.6rem + 26px); --frame-bottom: calc(1.8rem + 25px); --card-top: calc(2.6rem + 26px); }
   body.has-page-card{ overflow:hidden; }
   body.has-page-card .page-hero{
     min-height:100vh;
@@ -889,7 +891,7 @@ body.has-case-nav::after{ content:''; display:block; height: var(--case-extend);
     transform: scale(1.15);
   }
   #case-dots a:focus-visible{ outline:2px solid #fff; outline-offset:3px; }
-  body.has-case-nav .page-hero{ padding-top:0; padding-bottom:0; height:100vh; }   /* centered like the homepage card, even when the card is taller than the screen */
+  body.has-case-nav .page-hero{ padding-bottom:0; }   /* the card's top is on the line (--card-top), exactly where the homepage card is */
 }
 
 /* ---------- Phones: the case-study card is a fixed frame ----------

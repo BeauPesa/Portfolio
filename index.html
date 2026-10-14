@@ -871,12 +871,47 @@
   // Case-study sections now have a big empty runway above and below the
   // card, so "go to section" must center the section (= center the card)
   // rather than align its top edge with the top of the screen.
-  function centerSection(el, smooth){
+  // The canonical line for a case study card's top edge: the bottom of the Home nav circle (on phones, as far below it
+  // as it is from the top of the screen). The case-study pages put their card on the same line, so a card never
+  // jumps when you go from one page to the other.
+  function cardTopLine(){
+    var c = document.querySelector('#icon-nav a');
+    if (!c) return 0;
+    var r = c.getBoundingClientRect();
+    return window.innerWidth <= 720 ? r.bottom + r.top : r.bottom;
+  }
+  // Where the middle of a case section sits when its card is on the line (the section is symmetric around the card).
+  function anchorY(){ return cardTopLine() + fadeCards[0].card.offsetHeight / 2; }
+  function scrollToY(y, smooth){
     var root = document.documentElement, prev = root.style.scrollBehavior;
+    var animate = smooth && !reduceMotion;
+    if (!animate) root.style.scrollBehavior = 'auto';
+    window.scrollTo({ top: y, behavior: animate ? 'smooth' : 'auto' });
+    if (!animate) root.style.scrollBehavior = prev;
+  }
+  function centerSection(el, smooth){
+    var card = el.querySelector('.case-card');
+    if (card){   // a case study: put its card exactly on the line
+      scrollToY(card.getBoundingClientRect().top + window.scrollY - cardTopLine(), smooth);
+      return;
+    }
+    var root = document.documentElement, prev = root.style.scrollBehavior;   // the intro and the outro: centered, as before
     var animate = smooth && !reduceMotion;
     if (!animate) root.style.scrollBehavior = 'auto';
     el.scrollIntoView({ block: 'center', behavior: animate ? 'smooth' : 'auto' });
     if (!animate) root.style.scrollBehavior = prev;
+  }
+  // A short, eased scroll by dy pixels (used to settle a card onto the line after "See the work" is clicked).
+  function glideBy(dy, ms, done){
+    var root = document.documentElement, prev = root.style.scrollBehavior, y0 = window.scrollY, t0 = null;
+    root.style.scrollBehavior = 'auto';
+    function step(now){
+      if (t0 === null) t0 = now;
+      var p = Math.min(1, (now - t0) / ms), e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      window.scrollTo(0, y0 + dy * e);
+      if (p < 1) requestAnimationFrame(step); else { root.style.scrollBehavior = prev; if (done) done(); }
+    }
+    requestAnimationFrame(step);
   }
 
   navButtons.forEach(function(btn){
@@ -953,15 +988,7 @@
   // screen. With the empty runway around each card, that moment falls in
   // the gap between cards, so the background finishes changing before the
   // next case study scrolls into view.
-  var observer = new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if (entry.isIntersecting) setActive(entry.target.id);
-    });
-  }, { rootMargin: '-50% 0px -50% 0px', threshold: 0 });
-
-  Object.keys(sectionColors).forEach(function(id){
-    observer.observe(document.getElementById(id));
-  });
+  var observer = null;   // built by watchSections() below, once the cards exist
 
   // ---- Fade the case-study cards with scroll position ----
   // Only the card whose section is crossing the middle of the screen is visible.
@@ -986,7 +1013,7 @@
   });
   function updateFades(){
     if (leaving) return;
-    var mid = window.innerHeight / 2;
+    var mid = anchorY();   // a section's middle sits here when its card is on the line (it used to be the middle of the screen)
     fadeCards.forEach(function(f){
       var r = f.sec.getBoundingClientRect();
       var edge = Math.min(mid - r.top, r.bottom - mid);   // distance from the middle line to the nearest section edge (negative = outside)
@@ -1014,6 +1041,26 @@
   window.addEventListener('resize', queueFades);
   window.addEventListener('load', updateFades);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateFades);
+
+  // The active section is whichever one is crossing the anchor line (see anchorY): the line a case card's middle sits
+  // on when the card is on its canonical position. That moment falls in the gap between cards, exactly as it used to
+  // at the middle of the screen, so the background finishes changing before the next card fades in.
+  function watchSections(){
+    if (observer) observer.disconnect();
+    var vh = window.innerHeight, top = Math.max(0, Math.min(vh - 2, Math.round(anchorY())));
+    observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting) setActive(entry.target.id);
+      });
+    }, { rootMargin: '-' + top + 'px 0px -' + (vh - top - 1) + 'px 0px', threshold: 0 });
+    Object.keys(sectionColors).forEach(function(id){
+      observer.observe(document.getElementById(id));
+    });
+  }
+  watchSections();
+  window.addEventListener('resize', watchSections);
+  window.addEventListener('load', watchSections);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(watchSections);
 
   // In-page anchors (e.g. the intro's "See the work") and #hash arrivals
   // (the "Back to home" buttons) land with the card centered.
@@ -1066,10 +1113,23 @@
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
       // Tell the case-study page the card is on its way, so it carries on from exactly here instead of starting over.
       try { sessionStorage.setItem('cardFlight', JSON.stringify({ id: a.getAttribute('href').replace(/\.html.*$/, ''), t: Date.now() })); } catch (err) {}
-      if (reduceMotion || window.innerWidth <= 720) return;
+      // We can't choose where the card is when it is clicked, but we can choose what happens next: settle it onto the
+      // canonical line (a few pixels, eased) before the page changes, so the case study's card is exactly where it is.
+      var cardNow = a.closest('.case-card');
+      var dy = cardNow ? cardNow.getBoundingClientRect().top - cardTopLine() : 0;
+      var needGlide = Math.abs(dy) > 0.5;
+      if (reduceMotion){ if (needGlide) scrollToY(window.scrollY + dy, false); return; }
+      if (window.innerWidth <= 720){
+        if (!needGlide) return;                       // already on the line: a plain navigation
+        e.preventDefault();
+        leaving = true;
+        glideBy(dy, 380, function(){ window.location.href = a.href; });
+        return;
+      }
       e.preventDefault();
       progressNav.classList.add('collapsed');
       leaving = true;   // the card stays exactly as it is; the next page picks it up and extends it downwards
+      if (needGlide) glideBy(dy, 450);
       setTimeout(function(){ window.location.href = a.href; }, 950);
     });
   });
