@@ -39,7 +39,7 @@
   var caseCard = document.querySelector('.case-page-card');
   var pageCard = document.querySelector('.page-card');
   var cardEl = caseCard || pageCard;
-  var flight = root.classList.contains('flight') && !!caseCard;   // arriving from the homepage card
+  var flight = root.classList.contains('flight') && !!cardEl;   // arriving with the card already on screen: from the homepage card, or by a swipe
   if (flight){ try { sessionStorage.removeItem('cardFlight'); } catch (e) {} }
   var bar = null;                    // the progress bar (section 2)
   var framed = false, homeRect = null, frameInfo = null, pendingFrameAnim = null;
@@ -82,7 +82,7 @@
         io.unobserve(e.target);
       });
       if (batch.length) firstBatch = false;
-    }, { root: scroller || null, rootMargin: '0px 0px -8% 0px' });
+    }, { root: scroller || null, rootMargin: scroller ? '0px' : '0px 0px -8% 0px' });   // a card that scrolls inside itself: its own edge is the boundary, so a button at its foot is revealed at once
     list.forEach(function(el){ io.observe(el); });
   }
 
@@ -96,10 +96,6 @@
     var T = cr.bottom + cr.top;                          // as far below the nav circles as they are from the top of the screen
     var B = 2 * (vh - pr.bottom) + pr.height;            // as far above the dots as they are from the bottom of the screen
     var basePad = parseFloat(window.getComputedStyle(caseCard).paddingTop);
-    caseCard.style.minHeight = '0px';                    // is the content taller than the frame? (a short phone) then the button must stay in the flow
-    var natural = caseCard.offsetHeight;
-    caseCard.style.minHeight = '';
-    root.classList.toggle('frame-tall', natural > (vh - T - B) + 0.5);
     var finalPad = Math.max(0, basePad + (r.top - T));   // the paper grows above the content, so the content stays where it is
     homeRect = { top: r.top, bottom: vh - r.bottom };    // where the homepage card is, for the roll-up
     frameInfo = { T: T, B: B, basePad: basePad, finalPad: finalPad };
@@ -115,6 +111,11 @@
     ], { duration: 750, easing: FRAME_EASE, delay: 80, fill: 'backwards' });
   }
   function rollUpFrame(done){
+    if (bar) bar.classList.remove('is-in');
+    if (Math.abs(frameInfo.T - homeRect.top) < 1 && Math.abs(frameInfo.B - homeRect.bottom) < 1 && Math.abs(frameInfo.finalPad - frameInfo.basePad) < 1){
+      setTimeout(done, 200);   // already exactly the homepage's card: nothing to roll up
+      return;
+    }
     caseCard.animate([
       { top: frameInfo.T + 'px', bottom: frameInfo.B + 'px', paddingTop: frameInfo.finalPad + 'px' },
       { top: homeRect.top + 'px', bottom: homeRect.bottom + 'px', paddingTop: frameInfo.basePad + 'px' }
@@ -140,16 +141,16 @@
       else { el.classList.add('rv-hide'); below.push(el); }
     });
     if (isPhone.matches){
-      pendingFrameAnim = enterFrame();
-      scroller0 = caseCard;
+      pendingFrameAnim = enterFrame();   // (case studies only; it does nothing without a case-study card)
+      scroller0 = cardEl;
       var arrived = null;   // arrived by a swipe: slide in from the side it came from
       try { arrived = JSON.parse(sessionStorage.getItem('caseSwipe') || 'null'); sessionStorage.removeItem('caseSwipe'); } catch (e) {}
-      if (arrived && arrived.dir && Date.now() - arrived.t < 5000 && !reduce && caseCard.animate){
-        var inAnim = caseCard.animate([{ transform: 'translateX(' + (arrived.dir === 'next' ? '110vw' : '-110vw') + ')' }, { transform: 'none' }],
+      if (arrived && arrived.dir && Date.now() - arrived.t < 5000 && !reduce && cardEl.animate){
+        var inAnim = cardEl.animate([{ transform: 'translateX(' + (arrived.dir === 'next' ? '110vw' : '-110vw') + ')' }, { transform: 'none' }],
           { duration: 400, easing: FRAME_EASE, fill: 'both' });
         inAnim.finished.then(function(){ inAnim.cancel(); }, function(){});
       }
-    } else {
+    } else if (caseCard){
       var cr0 = caseCard.getBoundingClientRect();
       caseCard.style.setProperty('--roll-stop', Math.max(60, vh0 - cr0.bottom + 12) + 'px');
       caseCard.classList.add('is-unrolling');
@@ -176,7 +177,7 @@
                                     // 'gutter': the middle of the space beyond the card, between its edge and pinstripe 7
   var dock = null, dockLabel = null, dockArrow = null, dockState = 'idle', dockMix = 0, dockRaf = 0;
   var cta = caseCard ? caseCard.querySelector('.case-page-cta') : null;
-  if (cta && !isPhone.matches){
+  if (cta){
     dock = document.createElement('a');
     dock.className = 'case-page-cta back-dock';
     dock.href = cta.getAttribute('href');
@@ -193,6 +194,10 @@
   function homeCircle(){ return document.querySelector('#icon-nav a').getBoundingClientRect(); }
   function circleRect(){
     var h = homeCircle(), size = h.width;
+    if (isPhone.matches){   // phones: on the card's left edge, as far below the card's top as the card's top is below the nav
+      var pc = caseCard.getBoundingClientRect();
+      return { left: pc.left - size / 2, top: pc.top + (pc.top - h.bottom), width: size, height: size };
+    }
     var lines = Array.prototype.map.call(document.querySelectorAll('#grid-lines-global span'), function(e){ return e.getBoundingClientRect().x; });
     var cx = DOCK_COLUMN === 'gutter' ? (caseCard.getBoundingClientRect().right + lines[6]) / 2 : (lines[5] + lines[6]) / 2;
     return { left: cx - size / 2, top: (h.top + h.bottom) / 2 - size / 2, width: size, height: size };
@@ -240,19 +245,27 @@
     morphDock(ctaRect, 0, 450, finish);
   }
   function checkDock(){
-    if (!dock || leaving || isPhone.matches) return;
+    if (!dock || leaving) return;
     var r = cta.getBoundingClientRect(), cy = r.top + r.height / 2, hr = homeCircle(), hy = (hr.top + hr.bottom) / 2;
+    if (isPhone.matches){   // phones: when the button's top is as far below the card's top as the card's top is below the nav
+      if (!framed) return;
+      var fr = caseCard.getBoundingClientRect(), gap = fr.top - hr.bottom, off = r.top - fr.top;
+      if (dockState === 'idle' && off <= gap) dockIn(false);
+      else if (dockState === 'docked' && off > gap + 8) dockOut();
+      return;
+    }
     if (dockState === 'idle' && cy <= hy) dockIn(false);
     else if (dockState === 'docked' && cy > hy + 8) dockOut();   // a little slack, so it can't flicker at the threshold
   }
   if (dock){
     window.addEventListener('scroll', checkDock, { passive: true });
+    caseCard.addEventListener('scroll', checkDock, { passive: true });   // phones: the card scrolls, not the page
     window.addEventListener('resize', function(){
-      if (isPhone.matches){ dock.style.display = 'none'; cta.style.visibility = ''; dockState = 'idle'; return; }
+      if (isPhone.matches && !framed){ dock.style.display = 'none'; cta.style.visibility = ''; dockState = 'idle'; return; }
       if (dockState === 'docked' && dockMix === 1) paintDock(circleRect(), 1);
       checkDock();
     });
-    (function(){   // arrived already scrolled down (e.g. a reload): dock straight away
+    if (!isPhone.matches) (function(){   // arrived already scrolled down (e.g. a reload): dock straight away
       var r = cta.getBoundingClientRect(), hr = homeCircle();
       if (r.top + r.height / 2 <= (hr.top + hr.bottom) / 2) dockIn(true);
     })();
@@ -266,8 +279,13 @@
   // past a quarter of the screen (or flick) and the card slides away and the next one slides in. Let go early and it
   // springs back. The outer 24px of the screen are left to the browser's own back/forward swipe.
   var CASE_BG = { liteload: '#C2C2C2', walgreens: '#96C5FF', ebay: '#B1CC72', cisco: '#80CCEC', urban: '#D0C267' };
-  if (caseCard){
-    var prevLink = document.querySelector('#case-nav .case-prev'), nextLink = document.querySelector('#case-nav .case-next');
+  var swipeEl = caseCard || (document.getElementById('case-dots') ? pageCard : null);   // the case studies, and the Creative Endeavors pages that have the dots (not the hub)
+  if (swipeEl){
+    var dotLinks = Array.prototype.slice.call(document.querySelectorAll('#case-dots a'));   // the order of the dots is the order of the loop
+    var hereIdx = -1; dotLinks.forEach(function(d, i){ if (d.classList.contains('active')) hereIdx = i; });
+    var prevLink = hereIdx < 0 ? null : dotLinks[(hereIdx - 1 + dotLinks.length) % dotLinks.length];
+    var nextLink = hereIdx < 0 ? null : dotLinks[(hereIdx + 1) % dotLinks.length];
+    var canSwipe = function(){ return caseCard ? framed : isPhone.matches; };
     var origBg = document.body.style.backgroundColor, gesture = null, swallowClick = false;
     var hexRgb = function(h){ return [1, 3, 5].map(function(i){ return parseInt(h.substr(i, 2), 16); }); };
     var mixBg = function(a, b, t){
@@ -280,16 +298,16 @@
     var targetFor = function(dx){ var l = dx < 0 ? nextLink : prevLink; return l ? CASE_BG[pageIdOf(l)] : null; };
     var drag = function(dx){
       var w = window.innerWidth, p = Math.min(1, Math.abs(dx) / w), tgt = targetFor(dx);
-      caseCard.style.transform = 'translateX(' + dx + 'px)';
-      caseCard.style.opacity = String(1 - p * 0.35);
+      swipeEl.style.transform = 'translateX(' + dx + 'px)';
+      swipeEl.style.opacity = String(1 - p * 0.35);
       if (tgt && hereBg) document.body.style.backgroundColor = mixBg(hereBg, tgt, Math.min(1, p / 0.6));
     };
     var springBack = function(dx){
       document.body.style.transition = 'background-color 0.26s ease';
       document.body.style.backgroundColor = origBg;
-      if (reduce || !caseCard.animate){ caseCard.style.transform = ''; caseCard.style.opacity = ''; return; }
-      var a = caseCard.animate([{ transform: 'translateX(' + dx + 'px)' }, { transform: 'none' }], { duration: 280, easing: FRAME_EASE });
-      caseCard.style.transform = ''; caseCard.style.opacity = '';
+      if (reduce || !swipeEl.animate){ swipeEl.style.transform = ''; swipeEl.style.opacity = ''; return; }
+      var a = swipeEl.animate([{ transform: 'translateX(' + dx + 'px)' }, { transform: 'none' }], { duration: 280, easing: FRAME_EASE });
+      swipeEl.style.transform = ''; swipeEl.style.opacity = '';
       a.finished.then(function(){ document.body.style.transition = ''; }, function(){});
     };
     var commit = function(dx, link, dir){
@@ -304,15 +322,15 @@
       var tgt = CASE_BG[pageIdOf(link)];
       document.body.style.transition = 'background-color 0.24s linear';
       if (tgt) document.body.style.backgroundColor = tgt;
-      if (reduce || !caseCard.animate){ go(); return; }
+      if (reduce || !swipeEl.animate){ go(); return; }
       var off = (dx < 0 ? -1 : 1) * window.innerWidth * 1.1;
-      var a = caseCard.animate([{ transform: 'translateX(' + dx + 'px)', opacity: caseCard.style.opacity || 1 }, { transform: 'translateX(' + off + 'px)', opacity: 0.4 }],
+      var a = swipeEl.animate([{ transform: 'translateX(' + dx + 'px)', opacity: swipeEl.style.opacity || 1 }, { transform: 'translateX(' + off + 'px)', opacity: 0.4 }],
         { duration: 240, easing: 'cubic-bezier(0.4, 0, 1, 1)', fill: 'forwards' });
       a.finished.then(go, go);
       setTimeout(go, 400);   // belt and braces
     };
     document.addEventListener('pointerdown', function(e){
-      if (!framed || leaving || e.pointerType !== 'touch' || !e.isPrimary) return;
+      if (!canSwipe() || leaving || e.pointerType !== 'touch' || !e.isPrimary) return;
       if (e.clientX < 24 || e.clientX > window.innerWidth - 24) return;
       if (e.target.closest && e.target.closest('[data-no-swipe], input, textarea, select')) return;   // e.g. a future carousel inside the card
       gesture = { id: e.pointerId, x0: e.clientX, y0: e.clientY, t0: e.timeStamp, dx: 0, axis: null };
@@ -323,7 +341,7 @@
       if (gesture.axis === null){
         if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
         gesture.axis = Math.abs(dx) > Math.abs(dy) * 1.2 ? 'x' : 'y';   // decided once, in the first few pixels
-        if (gesture.axis === 'x'){ document.body.style.transition = ''; if (caseCard.getAnimations) caseCard.getAnimations().forEach(function(an){ an.cancel(); }); }
+        if (gesture.axis === 'x'){ document.body.style.transition = ''; if (swipeEl.getAnimations) swipeEl.getAnimations().forEach(function(an){ an.cancel(); }); }
       }
       if (gesture.axis !== 'x') return;
       gesture.dx = dx;
@@ -341,6 +359,7 @@
     };
     document.addEventListener('pointerup', finish);
     document.addEventListener('pointercancel', finish);
+    window.addEventListener('pageshow', function(ev){ if (ev.persisted){ swipeEl.style.transform = ''; swipeEl.style.opacity = ''; document.body.style.transition = ''; document.body.style.backgroundColor = origBg; } });
     document.addEventListener('click', function(e){ if (swallowClick){ e.preventDefault(); e.stopPropagation(); } }, true);
   }
 

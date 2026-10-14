@@ -677,8 +677,26 @@
     /* Each card is as tall as the case study's frame (the screen minus the room for the nav above and the dots below),
        so the handoff changes nothing but the page. The button stays at the card's bottom edge: it leaves the flow and a
        strip is reserved for it, so extra height opens up between the text and the button and nothing else moves. */
-    .case-card{ position:relative; min-height: var(--card-h); padding-bottom: calc(1.5rem + 2rem + 35px); }
-    .case .cta{ position:absolute; left: calc(0.5 * var(--mobile-grid-gap)); bottom:1.5rem; margin:0; }
+    .case-card{ min-height: var(--card-h); }
+    .case-text{ flex: 1 0 auto; }   /* any extra height goes into the text's own box: every gap stays exactly one unit and the button stays at the bottom */
+    .case .cta{ height: var(--u); }   /* the height of a nav button, so the case study's version can shrink into one */
+  }
+
+  /* ---------- One unit of vertical space on every card ----------
+     --u is the height of a nav button: 30px, or 26px on phones. Every vertical gap on a card is one unit: the card's edge
+     to its first element, each element to the next, the last element to the card's edge. A card is a column with a single
+     gap, so nothing depends on margins that do or don't collapse. */
+  :root{ --u: 30px; }
+  .case-card{ display:flex; flex-direction:column; align-items:stretch; gap: var(--u); padding-top: var(--u); padding-bottom: var(--u); }
+  .case-card > *{ margin:0 !important; flex-shrink:0; }
+  .case-card > .badge-link, .case-card > .cta{ align-self:flex-start; }
+  @media (max-width: 720px){
+    :root{ --u: 26px; --col: calc(2 * var(--mobile-grid-gap)); --card-fs: clamp(0.85rem, calc(0.85rem + (100vh - 700px) * 0.025), 0.94rem); }
+    @supports (height: 100svh){ :root{ --card-fs: clamp(0.85rem, calc(0.85rem + (100svh - 700px) * 0.025), 0.94rem); } }
+    .case-card{ padding-right: calc(0.5 * var(--mobile-grid-gap)); }
+    .case h2{ font-size: min(2.25rem, calc(var(--col) / 5.6)); }
+    .case p, .case-text{ font-size: var(--card-fs); }
+    .case .role{ font-size: 1rem; }
   }
 </style>
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight');},2500);})();</script>
