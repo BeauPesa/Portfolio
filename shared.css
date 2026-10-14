@@ -253,7 +253,7 @@ h1,h2,h3{
   #icon-nav{
     position:fixed;
     left:50%;
-    top:0.9rem;
+    top:0.5rem;
     transform:translateX(-50%);
     flex-direction:row;
     gap:0.6rem;
@@ -561,8 +561,8 @@ body.has-case-nav::after{ content:''; display:block; height: var(--case-extend);
 body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-top); padding-bottom: var(--card-top); min-height:0 !important; }
 /* arriving from the homepage: the sheet starts rolled up (the homepage card's size), then unrolls */
 .flight .case-page-card::before{ bottom:0; }
-.case-page-card.is-in::before{ animation: caseUnroll 1.6s linear 0.2s both; }
-.case-page-card.is-unrolling::before{ animation: caseUnroll 1.6s linear 0.05s both; }
+.case-page-card.is-in::before{ animation: caseUnroll 1.12s linear 0.2s both; }
+.case-page-card.is-unrolling::before{ animation: caseUnroll 1.12s linear 0.05s both; }
 .case-page-card.is-rolling-up::before{ animation: caseRollUp 1.1s linear both; }
 /* --roll-stop is how far the sheet reaches when its edge leaves the bottom of the screen (set by site.js) */
 @keyframes caseUnroll{
@@ -808,10 +808,11 @@ body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-to
    so a grid from pinstripe 2 to 4 has an equal half-column of margin on both sides. */
 .card-progress{ display:none; }
 @media (max-width: 720px){
-  /* The card's frame: its top is as far below the nav circles as they are from the top of the screen (20.8 + 26 + 20.8),
-     and its bottom is as far above the dots as they are from the bottom of the screen. site.js refines these from the
+  /* The card's frame: every gap is the same 0.9rem (14.4px): screen edge -> nav circles -> card -> dots -> screen edge.
+     So the card's top is 0.9rem + 26px (the circles) + 0.9rem down, and its bottom is 0.9rem + 25px (the dots) + 0.9rem up. site.js refines these from the
      real elements on the case studies. */
-  :root{ --thread-w: calc(2 * var(--mobile-grid-gap)); --frame-top: calc(2.6rem + 26px); --frame-bottom: calc(1.8rem + 25px); --card-top: calc(2.6rem + 26px); }
+  :root{ --thread-w: calc(2 * var(--mobile-grid-gap)); --frame-top: calc(1.8rem + 26px); --frame-bottom: calc(1.8rem + 25px); --card-top: calc(1.8rem + 26px); --card-h: calc(100vh - var(--frame-top) - var(--frame-bottom)); }
+  @supports (height: 100svh){ :root{ --card-h: calc(100svh - var(--frame-top) - var(--frame-bottom)); } }
   body.has-page-card{ overflow:hidden; }
   body.has-page-card .page-hero{
     min-height:100vh;
@@ -929,3 +930,17 @@ body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-to
 .back-dock.is-circle{ background: var(--paper); }
 .back-dock.is-circle:hover, .back-dock.is-circle:focus-visible{ background: var(--cta-fill); border-color: var(--cta-fill); color: var(--paper); }
 @media (max-width: 720px){ .back-dock{ display:none !important; } }
+
+/* ---------- Phones: the case-study card is exactly as tall as the frame, and so is the homepage card ----------
+   --card-h is the frame's height (the screen minus the room for the nav above and the dots below). Both cards are at
+   least that tall, so going from one to the other changes nothing but the page. The button stays at the card's bottom
+   edge, where it has always been: it is taken out of the flow and a strip is reserved for it, so any extra height
+   opens up between the text and the button and nothing else moves. */
+@media (max-width: 720px){
+  .case-page-card{ min-height: var(--card-h); padding-bottom: calc(1.5rem + 2rem + 35px); }
+  .case-page-cta{ position:absolute; left: calc(0.5 * var(--mobile-grid-gap)); bottom:1.5rem; margin:0; }
+  html.frame .case-page-card{ min-height:0; }
+  /* a phone too short for the card's content: the button goes back into the flow so it can't sit on top of the text */
+  html.frame-tall .case-page-card{ padding-bottom:1.5rem; }
+  html.frame-tall .case-page-cta{ position:static; margin-top:2rem; }
+}

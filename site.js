@@ -96,6 +96,10 @@
     var T = cr.bottom + cr.top;                          // as far below the nav circles as they are from the top of the screen
     var B = 2 * (vh - pr.bottom) + pr.height;            // as far above the dots as they are from the bottom of the screen
     var basePad = parseFloat(window.getComputedStyle(caseCard).paddingTop);
+    caseCard.style.minHeight = '0px';                    // is the content taller than the frame? (a short phone) then the button must stay in the flow
+    var natural = caseCard.offsetHeight;
+    caseCard.style.minHeight = '';
+    root.classList.toggle('frame-tall', natural > (vh - T - B) + 0.5);
     var finalPad = Math.max(0, basePad + (r.top - T));   // the paper grows above the content, so the content stays where it is
     homeRect = { top: r.top, bottom: vh - r.bottom };    // where the homepage card is, for the roll-up
     frameInfo = { T: T, B: B, basePad: basePad, finalPad: finalPad };
