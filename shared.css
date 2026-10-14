@@ -944,3 +944,20 @@ body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-to
   html.frame-tall .case-page-card{ padding-bottom:1.5rem; }
   html.frame-tall .case-page-cta{ position:static; margin-top:2rem; }
 }
+
+/* ---------- Phones: swipe between case studies ----------
+   A page that was arrived at by a swipe starts with its card just off the screen on the side the swipe came from
+   (site.js, and the script in each page's <head>, which sets html.swipe-next / html.swipe-prev), then slides it in.
+   touch-action: pan-y hands vertical scrolling to the browser and leaves horizontal drags to the swipe. */
+@media (max-width: 720px){
+  html.swipe-next, html.swipe-prev{ overflow-x:hidden; }
+  html.swipe-next .case-page-card{ transform: translateX(110vw); }
+  html.swipe-prev .case-page-card{ transform: translateX(-110vw); }
+  html.frame body, html.frame .case-page-card{ touch-action: pan-y; }
+}
+
+/* ---------- Desktop: the docked circle's tooltip (the same bubble as every other nav button) ---------- */
+.back-dock.is-circle{ overflow:visible; }
+.back-dock:focus-visible{ outline:2px solid var(--cta-rest); outline-offset:2px; }   /* traces the circle only (the browser's own ring would also wrap the tooltip) */
+.back-dock.is-circle .dock-label{ display:none; }   /* invisible by now, but its box would stretch the keyboard focus ring */
+.back-dock.is-circle:hover .tooltip, .back-dock.is-circle:focus-visible .tooltip{ opacity:1; }

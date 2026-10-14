@@ -142,6 +142,13 @@
     if (isPhone.matches){
       pendingFrameAnim = enterFrame();
       scroller0 = caseCard;
+      var arrived = null;   // arrived by a swipe: slide in from the side it came from
+      try { arrived = JSON.parse(sessionStorage.getItem('caseSwipe') || 'null'); sessionStorage.removeItem('caseSwipe'); } catch (e) {}
+      if (arrived && arrived.dir && Date.now() - arrived.t < 5000 && !reduce && caseCard.animate){
+        var inAnim = caseCard.animate([{ transform: 'translateX(' + (arrived.dir === 'next' ? '110vw' : '-110vw') + ')' }, { transform: 'none' }],
+          { duration: 400, easing: FRAME_EASE, fill: 'both' });
+        inAnim.finished.then(function(){ inAnim.cancel(); }, function(){});
+      }
     } else {
       var cr0 = caseCard.getBoundingClientRect();
       caseCard.style.setProperty('--roll-stop', Math.max(60, vh0 - cr0.bottom + 12) + 'px');
@@ -174,14 +181,14 @@
     dock.className = 'case-page-cta back-dock';
     dock.href = cta.getAttribute('href');
     dock.setAttribute('aria-label', 'Back to home');
-    dock.title = 'Back to home';
     dock.setAttribute('style', cta.getAttribute('style') || '');   // carries the case study's colors (--cta-rest, --cta-fill)
     dock.innerHTML = '<span class="dock-label">' + cta.innerHTML + '</span>' +
-      '<svg class="dock-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
+      '<svg class="dock-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>' +
+      '<span class="tooltip tip-right">Back to home</span>';   // the same bubble as the right-hand nav buttons: on the left of the button, arrow pointing at it
     dock.style.display = 'none';
     document.body.appendChild(dock);   // created before the click handlers below are attached, so it gets the roll-up too
-    dockLabel = dock.firstChild;
-    dockArrow = dock.lastChild;
+    dockLabel = dock.querySelector('.dock-label');
+    dockArrow = dock.querySelector('.dock-arrow');
   }
   function homeCircle(){ return document.querySelector('#icon-nav a').getBoundingClientRect(); }
   function circleRect(){
@@ -251,6 +258,92 @@
     })();
   }
 
+  root.classList.remove('swipe-next', 'swipe-prev');   // the animation (or nothing, for a normal arrival) takes over from here
+
+  /* ---------------- 6. Phones: swipe between case studies ---------------- */
+  // Swipe left for the next case study and right for the previous one (the order of the dots and of the desktop
+  // arrows). The card follows the finger while the background color blends toward the next case study's; let go
+  // past a quarter of the screen (or flick) and the card slides away and the next one slides in. Let go early and it
+  // springs back. The outer 24px of the screen are left to the browser's own back/forward swipe.
+  var CASE_BG = { liteload: '#C2C2C2', walgreens: '#96C5FF', ebay: '#B1CC72', cisco: '#80CCEC', urban: '#D0C267' };
+  if (caseCard){
+    var prevLink = document.querySelector('#case-nav .case-prev'), nextLink = document.querySelector('#case-nav .case-next');
+    var origBg = document.body.style.backgroundColor, gesture = null, swallowClick = false;
+    var hexRgb = function(h){ return [1, 3, 5].map(function(i){ return parseInt(h.substr(i, 2), 16); }); };
+    var mixBg = function(a, b, t){
+      var x = hexRgb(a), y = hexRgb(b);
+      return 'rgb(' + x.map(function(v, i){ return Math.round(v + (y[i] - v) * t); }).join(',') + ')';
+    };
+    var pageIdOf = function(link){ return link.getAttribute('href').split('/').pop().replace(/\.html.*$/, ''); };
+    var hereId = window.location.pathname.split('/').pop().replace(/\.html$/, '');
+    var hereBg = CASE_BG[hereId];
+    var targetFor = function(dx){ var l = dx < 0 ? nextLink : prevLink; return l ? CASE_BG[pageIdOf(l)] : null; };
+    var drag = function(dx){
+      var w = window.innerWidth, p = Math.min(1, Math.abs(dx) / w), tgt = targetFor(dx);
+      caseCard.style.transform = 'translateX(' + dx + 'px)';
+      caseCard.style.opacity = String(1 - p * 0.35);
+      if (tgt && hereBg) document.body.style.backgroundColor = mixBg(hereBg, tgt, Math.min(1, p / 0.6));
+    };
+    var springBack = function(dx){
+      document.body.style.transition = 'background-color 0.26s ease';
+      document.body.style.backgroundColor = origBg;
+      if (reduce || !caseCard.animate){ caseCard.style.transform = ''; caseCard.style.opacity = ''; return; }
+      var a = caseCard.animate([{ transform: 'translateX(' + dx + 'px)' }, { transform: 'none' }], { duration: 280, easing: FRAME_EASE });
+      caseCard.style.transform = ''; caseCard.style.opacity = '';
+      a.finished.then(function(){ document.body.style.transition = ''; }, function(){});
+    };
+    var commit = function(dx, link, dir){
+      leaving = true;
+      if (dock) dock.style.display = 'none';
+      if (bar) bar.classList.remove('is-in');
+      try {
+        sessionStorage.setItem('cardFlight', JSON.stringify({ id: pageIdOf(link), t: Date.now() }));   // the next page arrives with its card already on screen
+        sessionStorage.setItem('caseSwipe', JSON.stringify({ dir: dir, t: Date.now() }));
+      } catch (e) {}
+      var go = function(){ window.location.href = link.href; };
+      var tgt = CASE_BG[pageIdOf(link)];
+      document.body.style.transition = 'background-color 0.24s linear';
+      if (tgt) document.body.style.backgroundColor = tgt;
+      if (reduce || !caseCard.animate){ go(); return; }
+      var off = (dx < 0 ? -1 : 1) * window.innerWidth * 1.1;
+      var a = caseCard.animate([{ transform: 'translateX(' + dx + 'px)', opacity: caseCard.style.opacity || 1 }, { transform: 'translateX(' + off + 'px)', opacity: 0.4 }],
+        { duration: 240, easing: 'cubic-bezier(0.4, 0, 1, 1)', fill: 'forwards' });
+      a.finished.then(go, go);
+      setTimeout(go, 400);   // belt and braces
+    };
+    document.addEventListener('pointerdown', function(e){
+      if (!framed || leaving || e.pointerType !== 'touch' || !e.isPrimary) return;
+      if (e.clientX < 24 || e.clientX > window.innerWidth - 24) return;
+      if (e.target.closest && e.target.closest('[data-no-swipe], input, textarea, select')) return;   // e.g. a future carousel inside the card
+      gesture = { id: e.pointerId, x0: e.clientX, y0: e.clientY, t0: e.timeStamp, dx: 0, axis: null };
+    }, { passive: true });
+    document.addEventListener('pointermove', function(e){
+      if (!gesture || e.pointerId !== gesture.id) return;
+      var dx = e.clientX - gesture.x0, dy = e.clientY - gesture.y0;
+      if (gesture.axis === null){
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+        gesture.axis = Math.abs(dx) > Math.abs(dy) * 1.2 ? 'x' : 'y';   // decided once, in the first few pixels
+        if (gesture.axis === 'x'){ document.body.style.transition = ''; if (caseCard.getAnimations) caseCard.getAnimations().forEach(function(an){ an.cancel(); }); }
+      }
+      if (gesture.axis !== 'x') return;
+      gesture.dx = dx;
+      drag(dx);
+    }, { passive: true });
+    var finish = function(e){
+      if (!gesture || e.pointerId !== gesture.id) return;
+      var g = gesture; gesture = null;
+      if (g.axis !== 'x') return;
+      swallowClick = true; setTimeout(function(){ swallowClick = false; }, 400);   // a drag that ends on a link is not a tap on it
+      var v = g.dx / Math.max(1, e.timeStamp - g.t0);
+      var go = Math.abs(g.dx) > window.innerWidth * 0.25 || (Math.abs(v) > 0.5 && Math.abs(g.dx) > 40);
+      var link = g.dx < 0 ? nextLink : prevLink;
+      if (e.type === 'pointerup' && go && link) commit(g.dx, link, g.dx < 0 ? 'next' : 'prev'); else springBack(g.dx);
+    };
+    document.addEventListener('pointerup', finish);
+    document.addEventListener('pointercancel', finish);
+    document.addEventListener('click', function(e){ if (swallowClick){ e.preventDefault(); e.stopPropagation(); } }, true);
+  }
+
   /* ---------------- 4. Case-study pages: heading back home ---------------- */
   if (caseCard){
     var nav = document.getElementById('case-nav'), leaving = false;
@@ -286,7 +379,9 @@
     window.addEventListener('pageshow', function(ev){
       if (ev.persisted){
         leaving = false;
-        if (dock) dock.style.opacity = '';
+        if (dock){ dock.style.opacity = ''; }
+        caseCard.style.transform = ''; caseCard.style.opacity = '';
+        document.body.style.transition = ''; if (typeof origBg !== 'undefined') document.body.style.backgroundColor = origBg;
         caseCard.classList.remove('is-rolling-up');
         if (framed) caseCard.getAnimations().forEach(function(an){ an.cancel(); });
         if (nav) nav.classList.add('collapsed');
