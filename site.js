@@ -157,6 +157,96 @@
     });
   }
 
+  /* ---------------- 5. Desktop: the "Back to home" button docks into a circle ---------------- */
+  // When the button scrolls up to the height of the Home nav circle it stops there and morphs: it shrinks to a circle
+  // the size of the nav buttons (the label gives way to an arrow) while travelling to the column that pinstripes 6 and 7
+  // make, and stays fixed there. Scrolling back up reverses it into the button's own place in the card.
+  var DOCK_COLUMN = 'pinstripes';   // 'pinstripes': the middle of the column pinstripes 6 and 7 make (the card's right edge)
+                                    // 'gutter': the middle of the space beyond the card, between its edge and pinstripe 7
+  var dock = null, dockLabel = null, dockArrow = null, dockState = 'idle', dockMix = 0, dockRaf = 0;
+  var cta = caseCard ? caseCard.querySelector('.case-page-cta') : null;
+  if (cta && !isPhone.matches){
+    dock = document.createElement('a');
+    dock.className = 'case-page-cta back-dock';
+    dock.href = cta.getAttribute('href');
+    dock.setAttribute('aria-label', 'Back to home');
+    dock.title = 'Back to home';
+    dock.setAttribute('style', cta.getAttribute('style') || '');   // carries the case study's colors (--cta-rest, --cta-fill)
+    dock.innerHTML = '<span class="dock-label">' + cta.innerHTML + '</span>' +
+      '<svg class="dock-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
+    dock.style.display = 'none';
+    document.body.appendChild(dock);   // created before the click handlers below are attached, so it gets the roll-up too
+    dockLabel = dock.firstChild;
+    dockArrow = dock.lastChild;
+  }
+  function homeCircle(){ return document.querySelector('#icon-nav a').getBoundingClientRect(); }
+  function circleRect(){
+    var h = homeCircle(), size = h.width;
+    var lines = Array.prototype.map.call(document.querySelectorAll('#grid-lines-global span'), function(e){ return e.getBoundingClientRect().x; });
+    var cx = DOCK_COLUMN === 'gutter' ? (caseCard.getBoundingClientRect().right + lines[6]) / 2 : (lines[5] + lines[6]) / 2;
+    return { left: cx - size / 2, top: (h.top + h.bottom) / 2 - size / 2, width: size, height: size };
+  }
+  function ctaRect(){ var r = cta.getBoundingClientRect(); return { left: r.left, top: r.top, width: r.width, height: r.height }; }
+  function dockRect(){ return { left: parseFloat(dock.style.left), top: parseFloat(dock.style.top), width: parseFloat(dock.style.width), height: parseFloat(dock.style.height) }; }
+  function paintDock(rc, mix){   // mix: 0 = the button, 1 = the circle
+    dockMix = mix;
+    dock.style.left = rc.left + 'px';
+    dock.style.top = rc.top + 'px';
+    dock.style.width = rc.width + 'px';
+    dock.style.height = rc.height + 'px';
+    dockLabel.style.opacity = String(Math.max(0, 1 - mix / 0.4));                      // the label gives way to the arrow with a short
+    dockArrow.style.opacity = String(Math.max(0, Math.min(1, (mix - 0.25) / 0.45)));   // overlap, so the outline is never empty
+    dock.style.backgroundColor = mix > 0 ? 'rgba(242,241,236,' + mix.toFixed(3) + ')' : '';
+  }
+  function morphDock(to, mix1, ms, done){   // `to` can be a function, so the target is followed live (the button keeps scrolling)
+    cancelAnimationFrame(dockRaf);
+    var from = dockRect(), mix0 = dockMix, t0 = null;
+    dock.style.transition = 'color 0.25s var(--ease), border-color 0.25s var(--ease)';   // the fill follows the morph frame by frame, not 0.25s late
+    (function step(now){
+      if (t0 === null) t0 = now;
+      var p = Math.max(0, Math.min(1, (now - t0) / ms)), e = 1 - Math.pow(1 - p, 3), tg = typeof to === 'function' ? to() : to;
+      paintDock({ left: from.left + (tg.left - from.left) * e, top: from.top + (tg.top - from.top) * e,
+                  width: from.width + (tg.width - from.width) * e, height: from.height + (tg.height - from.height) * e }, mix0 + (mix1 - mix0) * e);
+      if (p < 1) dockRaf = requestAnimationFrame(step); else { dock.style.transition = ''; if (done) done(); }
+    })(performance.now());
+  }
+  function settleCircle(){ dock.classList.add('is-circle'); dock.style.backgroundColor = ''; }
+  function dockIn(instant){
+    if (dockState === 'docked') return;
+    dockState = 'docked';
+    if (dock.style.display === 'none'){ dock.style.display = 'flex'; paintDock(ctaRect(), 0); }   // it appears exactly over the button...
+    cta.style.visibility = 'hidden';                                                               // ...which steps aside
+    dock.classList.remove('is-circle');
+    if (instant || reduce){ paintDock(circleRect(), 1); settleCircle(); return; }
+    morphDock(circleRect, 1, 650, settleCircle);
+  }
+  function dockOut(){
+    if (dockState !== 'docked') return;
+    dockState = 'idle';
+    dock.classList.remove('is-circle');
+    var finish = function(){ dock.style.display = 'none'; cta.style.visibility = ''; };
+    if (reduce){ finish(); return; }
+    morphDock(ctaRect, 0, 450, finish);
+  }
+  function checkDock(){
+    if (!dock || leaving || isPhone.matches) return;
+    var r = cta.getBoundingClientRect(), cy = r.top + r.height / 2, hr = homeCircle(), hy = (hr.top + hr.bottom) / 2;
+    if (dockState === 'idle' && cy <= hy) dockIn(false);
+    else if (dockState === 'docked' && cy > hy + 8) dockOut();   // a little slack, so it can't flicker at the threshold
+  }
+  if (dock){
+    window.addEventListener('scroll', checkDock, { passive: true });
+    window.addEventListener('resize', function(){
+      if (isPhone.matches){ dock.style.display = 'none'; cta.style.visibility = ''; dockState = 'idle'; return; }
+      if (dockState === 'docked' && dockMix === 1) paintDock(circleRect(), 1);
+      checkDock();
+    });
+    (function(){   // arrived already scrolled down (e.g. a reload): dock straight away
+      var r = cta.getBoundingClientRect(), hr = homeCircle();
+      if (r.top + r.height / 2 <= (hr.top + hr.bottom) / 2) dockIn(true);
+    })();
+  }
+
   /* ---------------- 4. Case-study pages: heading back home ---------------- */
   if (caseCard){
     var nav = document.getElementById('case-nav'), leaving = false;
@@ -170,6 +260,7 @@
         e.preventDefault();
         if (leaving) return;
         leaving = true;
+        if (dock){ cancelAnimationFrame(dockRaf); dock.style.transition = 'opacity 0.3s ease'; dock.style.opacity = '0'; }
         var href = a.href;
         if (nav && !isPhone.matches) nav.classList.remove('collapsed');   // the nav plays its animation in reverse
         if (!rollUp){ setTimeout(function(){ window.location.href = href; }, 950); return; }
@@ -191,6 +282,7 @@
     window.addEventListener('pageshow', function(ev){
       if (ev.persisted){
         leaving = false;
+        if (dock) dock.style.opacity = '';
         caseCard.classList.remove('is-rolling-up');
         if (framed) caseCard.getAnimations().forEach(function(an){ an.cancel(); });
         if (nav) nav.classList.add('collapsed');
