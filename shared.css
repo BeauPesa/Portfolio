@@ -991,3 +991,32 @@ html.frame .case-page-card::after{ flex-shrink:0; }
   body.has-page-card, body.has-page-card .page-card{ touch-action: pan-y; }
   .js.flight .page-card{ opacity:1; }
 }
+
+/* ---------- Phones: no tooltip on the docked circle (on a touch screen it isn't doing any work) ---------- */
+@media (max-width: 720px){ .back-dock .tooltip{ display:none; } }
+
+/* ---------- A second button under the first (About) ---------- */
+.page-hero .cta.cta-stacked{ display:flex; margin-top: var(--u); }
+
+/* ---------- Phones: the swipe hint at the foot of a case study card ----------
+   Vertical scrolling ends at the foot of the card, and from there the move is sideways, so this is where the hint sits:
+   one unit above the end of the scroll. A finger sways between a left and a right arrow. site.js adds it to the card. */
+.swipe-hint{ display:none; }
+@media (max-width: 720px){
+  html.frame .swipe-hint{
+    display:flex; align-items:center; justify-content:space-between;
+    position:absolute; width:128px; height: var(--u);
+    left: calc(0.5 * var(--mobile-grid-gap) + (var(--col) - 128px) / 2);
+    top: calc(100% + var(--case-extend) - 2 * var(--u) + 1px);   /* +1px: the end-of-scroll marker below it is 1px tall */
+    color:#1B1C1E; opacity:0.8; pointer-events:none;
+  }
+  .swipe-hint svg{ display:block; fill:none; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; }
+  .swipe-hint .sh-arrow{ width:20px; height:20px; stroke-width:2.2; }
+  .swipe-hint .sh-hand{ width:26px; height:26px; stroke-width:2; animation: shSway 2.6s ease-in-out infinite; }
+  .swipe-hint .sh-left{ animation: shNudgeL 2.6s ease-in-out infinite; }
+  .swipe-hint .sh-right{ animation: shNudgeR 2.6s ease-in-out infinite; }
+}
+@keyframes shSway{ 0%, 100%{ transform: translateX(-9px); } 50%{ transform: translateX(9px); } }
+@keyframes shNudgeL{ 0%, 100%{ transform: translateX(-3px); opacity:1; } 50%{ transform: translateX(0); opacity:0.45; } }
+@keyframes shNudgeR{ 0%, 100%{ transform: translateX(0); opacity:0.45; } 50%{ transform: translateX(3px); opacity:1; } }
+@media (prefers-reduced-motion: reduce){ .swipe-hint svg{ animation:none !important; } }

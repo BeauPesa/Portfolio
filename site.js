@@ -104,6 +104,17 @@
     caseCard.style.paddingTop = finalPad + 'px';
     root.classList.add('frame');
     framed = true;
+    if (!caseCard.querySelector('.swipe-hint')){   // the hint at the foot of the card: the move from here is sideways (the hand is Lucide's "pointer" icon, ISC licence)
+      var hint = document.createElement('div'), rest = (caseCard.querySelector('.case-page-cta') || {}).style;
+      hint.className = 'swipe-hint is-shown rv-static';   // (shown at once: it is added after the reveal engine has made its list)
+      hint.setAttribute('role', 'img');
+      hint.setAttribute('aria-label', 'Swipe left or right for the previous or next case study');
+      if (rest && rest.getPropertyValue('--cta-rest')) hint.style.color = rest.getPropertyValue('--cta-rest');   // the case study's own color
+      hint.innerHTML = '<svg class="sh-arrow sh-left" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>' +
+        '<svg class="sh-hand" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 14a8 8 0 0 1-8 8"/><path d="M18 11v-1a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1"/><path d="M10 9.5V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v10"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>' +
+        '<svg class="sh-arrow sh-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+      caseCard.appendChild(hint);
+    }
     if (reduce || !caseCard.animate) return null;
     return caseCard.animate([
       { top: r.top + 'px', bottom: homeRect.bottom + 'px', paddingTop: basePad + 'px' },
@@ -278,7 +289,7 @@
   // arrows). The card follows the finger while the background color blends toward the next case study's; let go
   // past a quarter of the screen (or flick) and the card slides away and the next one slides in. Let go early and it
   // springs back. The outer 24px of the screen are left to the browser's own back/forward swipe.
-  var CASE_BG = { liteload: '#C2C2C2', walgreens: '#96C5FF', ebay: '#B1CC72', cisco: '#80CCEC', urban: '#D0C267' };
+  var CASE_BG = { liteload: '#C2C2C2', walgreens: '#AFBFFD', ebay: '#B1CC72', cisco: '#80CCEC', urban: '#D0C267' };
   var swipeEl = caseCard || (document.getElementById('case-dots') ? pageCard : null);   // the case studies, and the Creative Endeavors pages that have the dots (not the hub)
   if (swipeEl){
     var dotLinks = Array.prototype.slice.call(document.querySelectorAll('#case-dots a'));   // the order of the dots is the order of the loop
