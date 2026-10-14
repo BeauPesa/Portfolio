@@ -260,17 +260,7 @@ h1,h2,h3{
     padding:0.4rem 0.6rem;
     border-radius:999px;
   }
-  #social-nav{
-    position:fixed;
-    left:50%;
-    bottom:1rem;
-    top:auto;
-    transform:translateX(-50%);
-    flex-direction:row;
-    gap:0.6rem;
-    padding:0.4rem 0.6rem;
-    border-radius:999px;
-  }
+  #social-nav{ position:fixed; left: calc(var(--grid-inset) + 0.25 * var(--mobile-grid-gap) - 13px); top:50%; bottom:auto; transform: translateY(-50%); flex-direction:column; gap:0.65rem; padding:0; border-radius:0; } /* centered in the column between the first pinstripe and the card's left edge, and on the middle of the screen */
   #icon-nav a,
   #social-nav a{ width:26px; height:26px; background:var(--nav-fill); }
   #social-nav a::before{ display:none; }
@@ -701,7 +691,6 @@ body.has-case-nav::after{ content:''; display:block; height: var(--case-extend);
   #case-nav a .tooltip{ display:none; }
   #case-nav.collapsed .case-prev,
   #case-nav.collapsed .case-next{ translate:none; }
-  body.has-case-nav #social-nav{ bottom:3.4rem; }
 }
 
 
@@ -817,17 +806,20 @@ body.has-case-nav::after{ content:''; display:block; height: var(--case-extend);
    so a grid from pinstripe 2 to 4 has an equal half-column of margin on both sides. */
 .card-progress{ display:none; }
 @media (max-width: 720px){
-  :root{ --thread-w: calc(2 * var(--mobile-grid-gap)); }
+  /* The card's frame: its top is as far below the nav circles as they are from the top of the screen (20.8 + 26 + 20.8),
+     and its bottom is as far above the dots as they are from the bottom of the screen. site.js refines these from the
+     real elements on the case studies. */
+  :root{ --thread-w: calc(2 * var(--mobile-grid-gap)); --frame-top: calc(2.6rem + 26px); --frame-bottom: calc(1.8rem + 25px); }
   body.has-page-card{ overflow:hidden; }
   body.has-page-card .page-hero{
     min-height:100vh;
     min-height:100dvh;
-    padding-top:4.5rem;
-    padding-bottom:5rem;
+    padding-top: var(--frame-top);
+    padding-bottom: var(--frame-bottom);
   }
   .page-card{
-    max-height: calc(100vh - 9.5rem);
-    max-height: calc(100dvh - 9.5rem);
+    max-height: calc(100vh - var(--frame-top) - var(--frame-bottom));
+    max-height: calc(100dvh - var(--frame-top) - var(--frame-bottom));
     overflow-y:auto;
     overscroll-behavior:contain;
     scrollbar-width:none;
@@ -843,10 +835,85 @@ body.has-case-nav::after{ content:''; display:block; height: var(--case-extend);
     border-radius:3px;
     background: rgba(255,255,255,0.16);
     pointer-events:none;
+    opacity:0;
+    transition: opacity 0.6s var(--ease);
   }
+  .card-progress.is-in{ opacity:1; }
+  body.has-case-nav .card-progress{ background: rgba(255,255,255,0.5); }   /* lighter pages: a lighter track */
   .card-progress-thumb{
     width:100%;
     border-radius:3px;
-    background: var(--accent-personal);
+    background: var(--bar, var(--accent-personal));   /* case studies set --bar to their No. button's color */
   }
+}
+
+/* ---------- Phones: case studies use the same dots as the homepage ----------
+   One pill of seven dots (intro, the five case studies, contact), identical to the homepage's in size, spacing,
+   colors and position, with the current case study lit. The bigger arrow pill is gone on phones: it took more room
+   and made the two pages look different at the bottom of the screen. The sheet of the card is centered in the
+   screen exactly as the homepage card is, so the card doesn't move when you go from one to the other. */
+#case-dots{ display:none; }
+@media (max-width: 720px){
+  #case-nav{ display:none; }
+  #case-dots{
+    display:flex;
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0.9rem;
+    margin:0 auto;
+    width:fit-content;
+    flex-direction:row;
+    gap:0.65rem;
+    background: rgba(16,17,20,0.35);
+    padding:0.5rem 0.75rem;
+    border-radius:999px;
+    z-index:10;
+  }
+  #case-dots a{
+    position:relative;
+    display:block;
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    border:1px solid var(--nav-fg-soft);
+    background: var(--nav-fill);
+    transition: transform 0.25s var(--ease), background-color 0.35s var(--ease), border-color 0.25s var(--ease);
+  }
+  #case-dots a::after{ content:''; position:absolute; inset:-9px -4px; }   /* a bigger tap area; the look is unchanged */
+  #case-dots a.active{
+    background: rgb(255,255,255);
+    border-width:1.5px;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transform: scale(1.15);
+  }
+  #case-dots a:focus-visible{ outline:2px solid #fff; outline-offset:3px; }
+  body.has-case-nav .page-hero{ padding-top:0; padding-bottom:0; height:100vh; }   /* centered like the homepage card, even when the card is taller than the screen */
+}
+
+/* ---------- Phones: the case-study card is a fixed frame ----------
+   site.js adds html.frame on phones. The card then sits between the nav circles and the dots, exactly like the
+   Creative Endeavors card, and its content scrolls INSIDE it while everything around it stays put: the progress bar
+   on the right shows how far through you are. Coming from the homepage the card expands to the frame around its
+   content (the text doesn't move); "Back to home" rolls it back to the homepage card's size first. Without
+   JavaScript the card stays in the page exactly as before. */
+@media (max-width: 720px){
+  html.frame body.has-case-nav{ overflow:hidden; }
+  html.frame body.has-case-nav::after{ display:none; }
+  html.frame .case-page-card{
+    position:fixed;
+    left: calc(var(--grid-inset) + 0.5 * var(--mobile-grid-gap));
+    width: calc(3 * var(--mobile-grid-gap));
+    top: var(--frame-top);
+    bottom: var(--frame-bottom);
+    margin:0;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.25) !important;
+  }
+  html.frame .case-page-card::-webkit-scrollbar{ display:none; }
+  html.frame .case-page-card::before{ display:none; }
+  html.frame .case-page-card::after{ content:''; display:block; height: var(--case-extend); }   /* placeholder scroll length until the real content is in */
 }

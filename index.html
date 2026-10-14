@@ -627,6 +627,7 @@
     #progress-nav button::before{ display:none; }
     #progress-nav button.active{ border-width:1.5px; }
     #progress-nav button .tooltip{ display:none; }
+    #progress-nav button::after{ content:''; position:absolute; inset:-9px -4px; }   /* a bigger tap area; the look is unchanged */
 
     /* Site icon rail becomes a matching horizontal bar pinned to the top. */
     #icon-nav{
@@ -639,17 +640,7 @@
       padding:0.4rem 0.6rem;
       border-radius:999px;
     }
-    #social-nav{
-      position:fixed;
-      left:50%;
-      bottom:3.4rem;
-      top:auto;
-      transform:translateX(-50%);
-      flex-direction:row;
-      gap:0.6rem;
-      padding:0.4rem 0.6rem;
-      border-radius:999px;
-    }
+    #social-nav{ position:fixed; left: calc(var(--grid-inset) + 0.25 * var(--mobile-grid-gap) - 13px); top:50%; bottom:auto; transform: translateY(-50%); flex-direction:column; gap:0.65rem; padding:0; border-radius:0; } /* centered in the column between the first pinstripe and the card's left edge, and on the middle of the screen */
     #icon-nav a,
     #social-nav a{ width:26px; height:26px; background:var(--nav-fill); }
     #social-nav a::before{ display:none; }

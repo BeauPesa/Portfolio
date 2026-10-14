@@ -1,10 +1,11 @@
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
-// 2. Phones: a thin lime progress bar beside the Creative Endeavors card, which scrolls inside a fixed height.
+// 2. Phones: a thin progress bar beside the card (lime on Creative Endeavors, the No. button's color on a case study).
 // 3. Every page: cards fade in, and every element rises into place as it enters (and as you scroll to it).
-// 4. Case-study pages: the card is one long sheet. From the homepage it keeps going where the homepage card
-//    left off and unrolls downwards; "Back to home" rolls it back up to the homepage card's size first.
+// 4. Case-study pages: from the homepage the card keeps going where the homepage card left off. On desktop it unrolls
+//    into one long sheet; on phones it expands around its content into a fixed frame that its content scrolls inside.
+//    "Back to home" rolls it back up to the homepage card's size first.
 (function(){
   window.__siteReady = 2;   // the page's <head> script checks this; without it everything is simply shown
   var root = document.documentElement;
@@ -40,6 +41,8 @@
   var cardEl = caseCard || pageCard;
   var flight = root.classList.contains('flight') && !!caseCard;   // arriving from the homepage card
   if (flight){ try { sessionStorage.removeItem('cardFlight'); } catch (e) {} }
+  var bar = null;                    // the progress bar (section 2)
+  var framed = false, homeRect = null, frameInfo = null, pendingFrameAnim = null;
 
   function whenFontsReady(cb){   // wait for the web fonts (0.8s at most) so text never visibly swaps typefaces
     var done = false;
@@ -83,26 +86,73 @@
     list.forEach(function(el){ io.observe(el); });
   }
 
+  /* ---- phones: the case-study card becomes a fixed frame ---- */
+  var FRAME_EASE = 'cubic-bezier(0.22, 0.61, 0.36, 1)';
+  function enterFrame(){
+    if (framed || !caseCard || !isPhone.matches) return null;
+    var circle = document.querySelector('#icon-nav a'), pill = document.getElementById('case-dots');
+    if (!circle || !pill) return null;
+    var vh = window.innerHeight, r = caseCard.getBoundingClientRect(), cr = circle.getBoundingClientRect(), pr = pill.getBoundingClientRect();
+    var T = cr.bottom + cr.top;                          // as far below the nav circles as they are from the top of the screen
+    var B = 2 * (vh - pr.bottom) + pr.height;            // as far above the dots as they are from the bottom of the screen
+    var basePad = parseFloat(window.getComputedStyle(caseCard).paddingTop);
+    var finalPad = Math.max(0, basePad + (r.top - T));   // the paper grows above the content, so the content stays where it is
+    homeRect = { top: r.top, bottom: vh - r.bottom };    // where the homepage card is, for the roll-up
+    frameInfo = { T: T, B: B, basePad: basePad, finalPad: finalPad };
+    root.style.setProperty('--frame-top', T + 'px');
+    root.style.setProperty('--frame-bottom', B + 'px');
+    caseCard.style.paddingTop = finalPad + 'px';
+    root.classList.add('frame');
+    framed = true;
+    if (reduce || !caseCard.animate) return null;
+    return caseCard.animate([
+      { top: r.top + 'px', bottom: homeRect.bottom + 'px', paddingTop: basePad + 'px' },
+      { top: T + 'px', bottom: B + 'px', paddingTop: finalPad + 'px' }
+    ], { duration: 750, easing: FRAME_EASE, delay: 80, fill: 'backwards' });
+  }
+  function rollUpFrame(done){
+    caseCard.animate([
+      { top: frameInfo.T + 'px', bottom: frameInfo.B + 'px', paddingTop: frameInfo.finalPad + 'px' },
+      { top: homeRect.top + 'px', bottom: homeRect.bottom + 'px', paddingTop: frameInfo.basePad + 'px' }
+    ], { duration: 700, easing: FRAME_EASE, fill: 'forwards' });
+    if (bar) bar.classList.remove('is-in');
+    setTimeout(done, 750);
+  }
+  function revealBar(anim){   // the bar arrives once the card has settled into its frame
+    var go = function(){ if (bar){ bar.classList.add('is-in'); layoutBar(); } };
+    if (anim && anim.finished){
+      (function tick(){ layoutBar(); if (anim.playState === 'running' || anim.playState === 'pending') requestAnimationFrame(tick); })();
+      anim.finished.then(go, go);
+    } else go();
+  }
+
   if (flight){
     // The homepage card was on screen a moment ago and must not vanish: everything on the first screen is simply
-    // there, the sheet unrolls from the card's bottom edge, and only what is further down arrives as you scroll.
-    var vh = window.innerHeight, below = [];
+    // there, the card expands from where it is, and only what is further down arrives as you scroll.
+    var vh0 = window.innerHeight, below = [], scroller0 = null;
     targets.forEach(function(el){
       var r = el.getBoundingClientRect();
-      if (r.top < vh * 0.92 && r.bottom > 0) show(el, 0, 0, true);
+      if (r.top < vh0 * 0.92 && r.bottom > 0) show(el, 0, 0, true);
       else { el.classList.add('rv-hide'); below.push(el); }
     });
-    watch(below, null);
-    var cr = caseCard.getBoundingClientRect();
-    caseCard.style.setProperty('--roll-stop', Math.max(60, vh - cr.bottom + 12) + 'px');
-    caseCard.classList.add('is-unrolling');
+    if (isPhone.matches){
+      pendingFrameAnim = enterFrame();
+      scroller0 = caseCard;
+    } else {
+      var cr0 = caseCard.getBoundingClientRect();
+      caseCard.style.setProperty('--roll-stop', Math.max(60, vh0 - cr0.bottom + 12) + 'px');
+      caseCard.classList.add('is-unrolling');
+    }
+    watch(below, scroller0);
   } else {
     whenFontsReady(function(){
       requestAnimationFrame(function(){
         if (cardEl) cardEl.classList.add('is-in');
         baseDelay = cardEl ? 0.35 : 0.1;                     // with a card, wait for it to appear first
-        var scroller = (pageCard && window.getComputedStyle(pageCard).overflowY === 'auto') ? pageCard : null;   // phones: the card scrolls
+        var anim = caseCard ? enterFrame() : null;           // measured after the fonts, since the card's height depends on them
+        var scroller = (cardEl && window.getComputedStyle(cardEl).overflowY === 'auto') ? cardEl : null;   // phones: the card scrolls
         watch(targets, scroller);
+        if (framed) revealBar(anim);
       });
     });
   }
@@ -114,7 +164,8 @@
       a.addEventListener('click', function(e){
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
         if (reduce) return;
-        var rollUp = a.getAttribute('href').indexOf('#to-') > -1;     // "Back to home" returns to the card; the Home icon doesn't
+        var here = window.location.pathname.split('/').pop().replace(/\.html$/, '');
+        var rollUp = a.getAttribute('href') === 'index.html#to-' + here;   // "Back to home" returns to this card; the Home icon and the contact dot don't
         if (!rollUp && (!nav || isPhone.matches)) return;
         e.preventDefault();
         if (leaving) return;
@@ -123,53 +174,89 @@
         if (nav && !isPhone.matches) nav.classList.remove('collapsed');   // the nav plays its animation in reverse
         if (!rollUp){ setTimeout(function(){ window.location.href = href; }, 950); return; }
         var roll = function(){
+          if (framed){ rollUpFrame(function(){ window.location.href = href; }); return; }
           var r = caseCard.getBoundingClientRect();
           caseCard.style.setProperty('--roll-stop', Math.max(60, window.innerHeight - r.bottom + 4) + 'px');
           caseCard.classList.remove('is-unrolling');
           caseCard.classList.add('is-rolling-up');
           setTimeout(function(){ window.location.href = href; }, 950);
         };
-        if (window.scrollY > 4){   // back to the top first, so the roll-up happens where you can see it
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          setTimeout(roll, Math.min(900, 250 + window.scrollY * 0.3));
+        var y = framed ? caseCard.scrollTop : window.scrollY;
+        if (y > 4){   // back to the top first, so the roll-up happens where you can see it
+          (framed ? caseCard : window).scrollTo({ top: 0, behavior: 'smooth' });
+          setTimeout(roll, Math.min(900, 250 + y * 0.3));
         } else roll();
       });
     });
     window.addEventListener('pageshow', function(ev){
-      if (ev.persisted){ leaving = false; caseCard.classList.remove('is-rolling-up'); if (nav) nav.classList.add('collapsed'); }
+      if (ev.persisted){
+        leaving = false;
+        caseCard.classList.remove('is-rolling-up');
+        if (framed) caseCard.getAnimations().forEach(function(an){ an.cancel(); });
+        if (nav) nav.classList.add('collapsed');
+        if (bar) bar.classList.add('is-in');
+      }
     });
   }
 
-  /* ---------------- 2. Phones: progress bar ---------------- */
-  var card = document.querySelector('.page-card');
-  if (card){
-    var bar = document.createElement('div');
+  /* ---------------- 2. Phones: a scroll progress bar beside the card ---------------- */
+  // Creative Endeavors, and the case studies on phones: the card scrolls inside its frame. On a desktop-sized
+  // case study the page scrolls. Either way a thin bar to the right of the card shows how far through you are:
+  // lime on Creative Endeavors, and the color of the case study's No. button on a case study.
+  var barHost = pageCard || caseCard;
+  function layoutBar(){
+    if (!bar) return;
+    var scroller = pageCard || (framed ? caseCard : null);
+    var r = barHost.getBoundingClientRect(), vh = window.innerHeight, top, h, p, max, scrollable;
+    if (scroller){
+      max = scroller.scrollHeight - scroller.clientHeight;
+      scrollable = isPhone.matches && max > 1;
+      top = r.top;
+      p = max > 0 ? scroller.scrollTop / max : 0;
+      h = r.height * scroller.clientHeight / scroller.scrollHeight;
+    } else {
+      var docH = document.documentElement.scrollHeight;
+      max = docH - vh;
+      scrollable = isPhone.matches && max > 4;
+      top = r.top + window.scrollY;                       // the bar stays where the card's first screen is
+      p = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+      h = r.height * vh / docH;
+    }
+    bar.style.display = scrollable ? 'block' : 'none';
+    if (!scrollable) return;
+    h = Math.max(28, h);
+    bar.style.top = top + 'px';
+    bar.style.height = r.height + 'px';
+    bar.style.left = (r.right + 10) + 'px';
+    var thumb = bar.firstChild;
+    thumb.style.height = h + 'px';
+    thumb.style.transform = 'translateY(' + ((r.height - h) * Math.max(0, Math.min(1, p))) + 'px)';
+  }
+  if (barHost){
+    bar = document.createElement('div');
     bar.className = 'card-progress';
     bar.setAttribute('aria-hidden', 'true');
     bar.innerHTML = '<div class="card-progress-thumb"></div>';
     document.body.appendChild(bar);
-    var thumb = bar.firstChild, phone = isPhone;
-    var layout = function(){
-      var scrollable = phone.matches && card.scrollHeight > card.clientHeight + 1;
-      bar.style.display = scrollable ? 'block' : 'none';
-      if (!scrollable) return;
-      var r = card.getBoundingClientRect();
-      bar.style.top = r.top + 'px';
-      bar.style.height = r.height + 'px';
-      bar.style.left = (r.right + 10) + 'px';
-      var h = Math.max(28, r.height * card.clientHeight / card.scrollHeight);
-      var max = card.scrollHeight - card.clientHeight, p = max > 0 ? card.scrollTop / max : 0;
-      thumb.style.height = h + 'px';
-      thumb.style.transform = 'translateY(' + ((r.height - h) * p) + 'px)';
-    };
-    card.addEventListener('scroll', layout, { passive: true });
-    window.addEventListener('resize', layout);
-    window.addEventListener('load', layout);
-    if (window.ResizeObserver){
-      var ro = new ResizeObserver(layout);
-      ro.observe(card);
-      Array.prototype.forEach.call(card.children, function(c){ ro.observe(c); });
+    if (caseCard){
+      var badge = caseCard.querySelector('.badge-link');
+      if (badge) bar.style.setProperty('--bar', window.getComputedStyle(badge).backgroundColor);
     }
-    layout();
+    (pageCard || window).addEventListener('scroll', layoutBar, { passive: true });
+    if (caseCard) caseCard.addEventListener('scroll', layoutBar, { passive: true });
+    window.addEventListener('resize', layoutBar);
+    window.addEventListener('load', layoutBar);
+    if (window.ResizeObserver){
+      var ro = new ResizeObserver(layoutBar);
+      ro.observe(barHost);
+      if (pageCard) Array.prototype.forEach.call(pageCard.children, function(c){ ro.observe(c); });
+    }
+    if (framed) revealBar(pendingFrameAnim);                         // arrived from the homepage: the frame is already set
+    else if (flight || barHost.classList.contains('is-in')) revealBar(null);
+    else {
+      var barWatch = new MutationObserver(function(){ if (barHost.classList.contains('is-in')){ barWatch.disconnect(); if (!caseCard || !isPhone.matches) revealBar(null); } });
+      barWatch.observe(barHost, { attributes: true, attributeFilter: ['class'] });
+    }
+    layoutBar();
   }
 })();
