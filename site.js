@@ -88,6 +88,17 @@
 
   /* ---- phones: the case-study card becomes a fixed frame ---- */
   var FRAME_EASE = 'cubic-bezier(0.22, 0.61, 0.36, 1)';
+  function makeSwipeHint(label, colour){   // a finger between a left and a right arrow (the hand is Lucide's "pointer" icon, ISC licence)
+    var hint = document.createElement('div');
+    hint.className = 'swipe-hint is-shown rv-static';   // shown at once: it is added after the reveal engine has made its list
+    hint.setAttribute('role', 'img');
+    hint.setAttribute('aria-label', label);
+    if (colour) hint.style.color = colour;
+    hint.innerHTML = '<svg class="sh-arrow sh-left" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>' +
+      '<svg class="sh-hand" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 14a8 8 0 0 1-8 8"/><path d="M18 11v-1a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1"/><path d="M10 9.5V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v10"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>' +
+      '<svg class="sh-arrow sh-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+    return hint;
+  }
   function enterFrame(){
     if (framed || !caseCard || !isPhone.matches) return null;
     var circle = document.querySelector('#icon-nav a'), pill = document.getElementById('case-dots');
@@ -104,16 +115,9 @@
     caseCard.style.paddingTop = finalPad + 'px';
     root.classList.add('frame');
     framed = true;
-    if (!caseCard.querySelector('.swipe-hint')){   // the hint at the foot of the card: the move from here is sideways (the hand is Lucide's "pointer" icon, ISC licence)
-      var hint = document.createElement('div'), rest = (caseCard.querySelector('.case-page-cta') || {}).style;
-      hint.className = 'swipe-hint is-shown rv-static';   // (shown at once: it is added after the reveal engine has made its list)
-      hint.setAttribute('role', 'img');
-      hint.setAttribute('aria-label', 'Swipe left or right for the previous or next case study');
-      if (rest && rest.getPropertyValue('--cta-rest')) hint.style.color = rest.getPropertyValue('--cta-rest');   // the case study's own color
-      hint.innerHTML = '<svg class="sh-arrow sh-left" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>' +
-        '<svg class="sh-hand" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 14a8 8 0 0 1-8 8"/><path d="M18 11v-1a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1"/><path d="M10 9.5V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v10"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>' +
-        '<svg class="sh-arrow sh-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-      caseCard.appendChild(hint);
+    if (!caseCard.querySelector('.swipe-hint')){
+      var ctaStyle = (caseCard.querySelector('.case-page-cta') || {}).style;
+      caseCard.appendChild(makeSwipeHint('Swipe left or right for the previous or next case study', ctaStyle && ctaStyle.getPropertyValue('--cta-rest')));   // the case study's own colour
     }
     if (reduce || !caseCard.animate) return null;
     return caseCard.animate([
@@ -297,6 +301,7 @@
     var prevLink = hereIdx < 0 ? null : dotLinks[(hereIdx - 1 + dotLinks.length) % dotLinks.length];
     var nextLink = hereIdx < 0 ? null : dotLinks[(hereIdx + 1) % dotLinks.length];
     var canSwipe = function(){ return caseCard ? framed : isPhone.matches; };
+    if (!caseCard && isPhone.matches && !swipeEl.querySelector('.swipe-hint')) swipeEl.appendChild(makeSwipeHint('Swipe left or right for the previous or next page'));   // Creative Endeavors: the hint ends the card
     var origBg = document.body.style.backgroundColor, gesture = null, swallowClick = false;
     var hexRgb = function(h){ return [1, 3, 5].map(function(i){ return parseInt(h.substr(i, 2), 16); }); };
     var mixBg = function(a, b, t){

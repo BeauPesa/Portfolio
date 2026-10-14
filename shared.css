@@ -1020,3 +1020,27 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 @keyframes shNudgeL{ 0%, 100%{ transform: translateX(-3px); opacity:1; } 50%{ transform: translateX(0); opacity:0.45; } }
 @keyframes shNudgeR{ 0%, 100%{ transform: translateX(0); opacity:0.45; } 50%{ transform: translateX(3px); opacity:1; } }
 @media (prefers-reduced-motion: reduce){ .swipe-hint svg{ animation:none !important; } }
+
+/* ---------- Gallery tiles: black and white until you hover ----------
+   Hovering (or focusing) a tile lifts it (the lift is the one every tile already had), brings its picture back into colour
+   and frames it in a colour taken from that picture's own histogram (gallery.js sets --tile-border; the lime accent is the
+   fallback). The same goes for every tile with a picture on Photography, Sketchbooks and Screen Printing. */
+.gallery-grid .tile img{ filter: grayscale(1); transition: transform 0.5s var(--ease), filter 0.45s var(--ease); }
+.gallery-grid .tile:hover img, .gallery-grid .tile:focus-visible img{ filter: none; }
+.gallery-grid .tile:hover::after, .gallery-grid .tile:focus-visible::after{ border-color: var(--tile-border, var(--accent-personal)); }
+
+/* Article tiles (Writing): two to a row, the title sitting on the picture, an arrow to say it leaves the site */
+.gallery-grid.is-articles{ grid-template-columns: repeat(2, 1fr); }
+.gallery-grid .tile .tile-caption{ position:absolute; left:0; right:0; bottom:0; display:flex; flex-direction:column; align-items:flex-start; padding: 2.6rem 0.95rem 0.95rem; text-align:left; color:#fff; background: linear-gradient(to top, rgba(16,17,20,0.88), rgba(16,17,20,0.6) 55%, rgba(16,17,20,0)); }
+.gallery-grid .tile .tile-title{ font-family:'IBM Plex Sans', sans-serif; font-weight:600; font-size:1rem; line-height:1.25; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden; }
+.gallery-grid .tile .tile-arrow{ position:absolute; top:0.6rem; right:0.6rem; width:1.7rem; height:1.7rem; display:flex; align-items:center; justify-content:center; border-radius:50%; background: rgba(255,255,255,0.9); color: var(--ink); font-size:0.95rem; line-height:1; transition: background 0.25s var(--ease), color 0.25s var(--ease); }
+.gallery-grid .tile:hover .tile-arrow, .gallery-grid .tile:focus-visible .tile-arrow{ background: var(--tile-border, var(--accent-personal)); color:#fff; }
+
+@media (max-width: 720px){
+  .gallery-grid.is-articles{ grid-template-columns: 1fr; width: var(--col); }   /* one to a row: the text column's width */
+  .gallery-grid .tile .tile-caption{ padding: 1.8rem 0.7rem 0.7rem; }
+  .gallery-grid .tile .tile-title{ font-size:0.8rem; }
+  .gallery-grid .tile .tile-arrow{ width:1.5rem; height:1.5rem; font-size:0.85rem; top:0.5rem; right:0.5rem; }
+  /* the swipe hint on the Creative Endeavors pages: the last thing on the card, centred in the text column */
+  .page-card > .swipe-hint{ display:flex; align-items:center; justify-content:space-between; align-self:center; position:static; width:128px; height: var(--u); color:#1B1C1E; opacity:0.8; pointer-events:none; }
+}
