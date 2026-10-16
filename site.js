@@ -190,7 +190,7 @@
   // make, and stays fixed there. Scrolling back up reverses it into the button's own place in the card.
   var DOCK_COLUMN = 'pinstripes';   // 'pinstripes': the middle of the column pinstripes 6 and 7 make (the card's right edge)
                                     // 'gutter': the middle of the space beyond the card, between its edge and pinstripe 7
-  var dock = null, dockLabel = null, dockArrow = null, dockState = 'idle', dockMix = 0, dockRaf = 0;
+  var dock = null, dockLabel = null, dockArrow = null, dockState = 'idle', dockMix = 0, dockRaf = 0, dockBrand = [27, 28, 30];
   var cta = caseCard ? caseCard.querySelector('.case-page-cta') : null;
   if (cta){
     dock = document.createElement('a');
@@ -205,6 +205,8 @@
     document.body.appendChild(dock);   // created before the click handlers below are attached, so it gets the roll-up too
     dockLabel = dock.querySelector('.dock-label');
     dockArrow = dock.querySelector('.dock-arrow');
+    var hexBrand = /^#([0-9a-f]{6})$/i.exec((cta.style.getPropertyValue('--cta-rest') || '').trim());   // the case study's own colour (the No. button's), which the circle fills with
+    if (hexBrand) dockBrand = [0, 2, 4].map(function(i){ return parseInt(hexBrand[1].substr(i, 2), 16); });
   }
   function homeCircle(){ return document.querySelector('#icon-nav a').getBoundingClientRect(); }
   function circleRect(){
@@ -227,7 +229,8 @@
     dock.style.height = rc.height + 'px';
     dockLabel.style.opacity = String(Math.max(0, 1 - mix / 0.4));                      // the label gives way to the arrow with a short
     dockArrow.style.opacity = String(Math.max(0, Math.min(1, (mix - 0.25) / 0.45)));   // overlap, so the outline is never empty
-    dock.style.backgroundColor = mix > 0 ? 'rgba(242,241,236,' + mix.toFixed(3) + ')' : '';
+    dock.style.backgroundColor = mix > 0 ? 'rgba(' + dockBrand.join(',') + ',' + mix.toFixed(3) + ')' : '';   // the fill grows into the case study's colour...
+    dockArrow.style.color = (mix < 1 || dockState === 'idle') ? '#F2F1EC' : '';                                 // ...and the arrow is paper-coloured while it does (the CSS takes over once it is a circle)
   }
   function morphDock(to, mix1, ms, done){   // `to` can be a function, so the target is followed live (the button keeps scrolling)
     cancelAnimationFrame(dockRaf);
@@ -241,7 +244,7 @@
       if (p < 1) dockRaf = requestAnimationFrame(step); else { dock.style.transition = ''; if (done) done(); }
     })(performance.now());
   }
-  function settleCircle(){ dock.classList.add('is-circle'); dock.style.backgroundColor = ''; }
+  function settleCircle(){ dock.classList.add('is-circle'); dock.style.backgroundColor = ''; dockArrow.style.color = ''; }
   function dockIn(instant){
     if (dockState === 'docked') return;
     dockState = 'docked';
@@ -293,7 +296,7 @@
   // arrows). The card follows the finger while the background color blends toward the next case study's; let go
   // past a quarter of the screen (or flick) and the card slides away and the next one slides in. Let go early and it
   // springs back. The outer 24px of the screen are left to the browser's own back/forward swipe.
-  var CASE_BG = { liteload: '#C2C2C2', walgreens: '#AFBFFD', ebay: '#B1CC72', cisco: '#80CCEC', urban: '#D0C267' };
+  var CASE_BG = { liteload: '#C2C2C2', walgreens: '#AFBFFD', ebay: '#B1CC72', cisco: '#80CCEC', urban: '#33363A' };
   var swipeEl = caseCard || (document.getElementById('case-dots') ? pageCard : null);   // the case studies, and the Creative Endeavors pages that have the dots (not the hub)
   if (swipeEl){
     var dotLinks = Array.prototype.slice.call(document.querySelectorAll('#case-dots a'));   // the order of the dots is the order of the loop
@@ -466,7 +469,8 @@
     document.body.appendChild(bar);
     if (caseCard){
       var badge = caseCard.querySelector('.badge-link');
-      if (badge) bar.style.setProperty('--bar', window.getComputedStyle(badge).backgroundColor);
+      var barPick = badge && badge.style.getPropertyValue('--bar-color').trim();   // a page may pick a lighter colour for the bar when it sits on a dark ground
+      if (badge) bar.style.setProperty('--bar', barPick || window.getComputedStyle(badge).backgroundColor);
     }
     (pageCard || window).addEventListener('scroll', layoutBar, { passive: true });
     if (caseCard) caseCard.addEventListener('scroll', layoutBar, { passive: true });

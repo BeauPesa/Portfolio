@@ -41,10 +41,10 @@
     --cisco-accent: #06485C; /* logo blue */
     --cisco-thread: #E31332; /* logo red */
 
-    --urban-tint:   #D0C267; /* the yellow contour line on the notebook cover */
-    --urban-accent: #1C1C1C; /* the notebook cover black */
+    --urban-tint:   #33363A; /* charcoal, like the notebook cover */
+    --urban-accent: #4F7A10; /* a deep cousin of the brand green: readable on the paper card */
     --nav-fill: #22242B; /* nav button fill before the script runs, on dark: ink lightened 8% */
-    --urban-thread: #9CAA75; /* the green contour line */
+    --urban-thread: #5FA8CF; /* water: it is a watershed thesis */
 
     /* Equal-height cards: these two are hidden copies of the LONGEST case blurbs. Each card's
        text block is as tall as the tallest of {its own text, these two} at the current width,
@@ -350,7 +350,7 @@
   #cisco     .cta:hover, #cisco     .cta:focus-visible{ background: var(--cisco-accent); color: var(--paper); }
   #cisco     .thread{ color: var(--cisco-thread); }
 
-  #urban     .role{ color: var(--urban-accent); }
+  #urban     .role{ color: var(--urban-accent); opacity: 1; }
   #urban     .cta{ border-color: var(--urban-accent); color: var(--urban-accent); }
   #urban     .cta:hover, #urban     .cta:focus-visible{ background: var(--urban-accent); color: var(--paper); }
   #urban     .thread{ color: var(--urban-thread); }
@@ -841,7 +841,7 @@
 
 <section id="urban" class="case">
     <div class="case-card">
-    <a class="case-index badge-link" href="urban.html" style="--badge-color:#1C1C1C; --badge-color-30:rgba(28,28,28,0.3); --badge-text:#fff;" aria-label="View the urban case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">5</span></span></a>
+    <a class="case-index badge-link" href="urban.html" style="--badge-color:#4F7A10; --badge-color-30:rgba(79,122,16,0.3); --badge-text:#fff;" aria-label="View the urban case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">5</span></span></a>
     <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
     <h2>Urban Design</h2>
     <p class="role">São Paulo watershed thesis</p>
@@ -873,7 +873,7 @@
     walgreens: 'rgb(175,191,253)',
     ebay:      'rgb(177,204,114)',
     cisco:     'rgb(128,204,236)',
-    urban:     'rgb(208,194,103)',
+    urban:     'rgb(51,54,58)',
     outro:     'rgb(16,17,20)'
   };
 
