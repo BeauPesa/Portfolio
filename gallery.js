@@ -46,7 +46,7 @@
       hist[Math.floor(h / 360 * BINS) % BINS] += w; chroma += w; recs.push([h, w, r, g, b]);
     }
     if (!n) return null;
-    if (chroma / n < 0.04){   // black and white, more or less: a tone rather than a hue
+    if (chroma / n < 0.012){   // black and white, more or less: a tone rather than a hue (a small vivid subject on a neutral wall still counts as colour)
       lum.sort(function(a, b){ return a - b; });
       var tone = Math.round(255 * Math.max(0.18, Math.min(0.42, (lum[lum.length >> 1] / 255) * 0.7)));
       return hex(tone, tone, tone);

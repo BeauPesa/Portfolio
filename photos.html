@@ -49,6 +49,21 @@
   </a>
 </nav>
 
+<nav id="case-nav" class="collapsed" aria-label="Creative Endeavors">
+  <a class="case-prev" href="sketches.html" aria-label="Previous: Sketchbooks">
+    <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+    <span class="tooltip tip-right">Sketchbooks</span>
+  </a>
+  <span class="case-dot" data-dir="up" aria-hidden="true"><svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg><svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+  <span class="case-dot" data-dir="up" aria-hidden="true"><svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg><svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+  <span class="case-dot active" data-dir="current" aria-hidden="true"><svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg><svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+  <span class="case-dot" data-dir="down" aria-hidden="true"><svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg><svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+  <span class="case-dot" data-dir="down" aria-hidden="true"><svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg><svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+  <a class="case-next" href="prints.html" aria-label="Next: Screen Printing">
+    <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+    <span class="tooltip tip-right">Screen Printing</span>
+  </a>
+</nav>
 <nav id="case-dots" aria-label="Creative Endeavors">
   <a href="sketches.html" aria-label="Sketchbooks"></a>
   <a href="photos.html" class="active" aria-current="page" aria-label="Photography"></a>
@@ -68,12 +83,30 @@
          The tile then links to that image automatically (opens in a new tab), and the image
          auto-crops to a square. For a larger version on click, add data-full="photos/big/your-file.jpg" to the img. -->
     <div class="gallery-grid">
-      <a class="tile" href="#" aria-label="Open photo 1">photo-1.jpg</a>
-      <a class="tile" href="#" aria-label="Open photo 2">photo-2.jpg</a>
-      <a class="tile" href="#" aria-label="Open photo 3">photo-3.jpg</a>
-      <a class="tile" href="#" aria-label="Open photo 4">photo-4.jpg</a>
-      <a class="tile" href="#" aria-label="Open photo 5">photo-5.jpg</a>
-      <a class="tile" href="#" aria-label="Open photo 6">photo-6.jpg</a>
+      <a class="tile" href="images/photography/fox-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/fox.jpg" data-full="images/photography/fox-full.jpg" alt="A red fox trotting along a road beside a torn chain-link fence, with the bay behind it" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" href="images/photography/hallway-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/hallway.jpg" data-full="images/photography/hallway-full.jpg" alt="Three people silhouetted at a tall window at the end of a concrete corridor" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" href="images/photography/birds-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/birds.jpg" data-full="images/photography/birds-full.jpg" alt="Colorful paper birds in flight on a white wall above an antique gramophone horn, casting long shadows" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" href="images/photography/lobby-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/lobby.jpg" data-full="images/photography/lobby-full.jpg" alt="A warmly lit lobby with a curtained white room, potted plants and a plaid lounge chair" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" href="images/photography/abalone-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/abalone.jpg" data-full="images/photography/abalone-full.jpg" alt="Shelves of glass jars of dried abalone with handwritten Chinese price signs" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" href="images/photography/organ-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/organ.jpg" data-full="images/photography/organ-full.jpg" alt="A vintage white electric organ with a black bench on a terrazzo floor" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" href="images/photography/fire-hose-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/fire-hose.jpg" data-full="images/photography/fire-hose-full.jpg" alt="A fire hose cabinet and two fire extinguishers on a white concrete wall" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" href="images/photography/friends-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/friends.jpg" data-full="images/photography/friends-full.jpg" alt="Two friends posing in front of a framed photograph of a pink car" width="640" height="640" loading="lazy" decoding="async">
+      </a>
     </div>
 
     <a class="case-page-cta" href="art.html" style="--cta-rest:#4D4D4D; --cta-fill:#ADD944;">Back to Endeavors ←</a>
