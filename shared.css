@@ -1,3 +1,4 @@
+/* Beau.0 · v0.5.0 */
 /* ===================================================================
    SHARED STYLESHEET
    Used by every page except the homepage (which is self-contained
@@ -561,8 +562,8 @@ body.has-case-nav::after{ content:''; display:block; height: var(--case-extend);
 body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-top); padding-bottom: var(--card-top); min-height:0 !important; }
 /* arriving from the homepage: the sheet starts rolled up (the homepage card's size), then unrolls */
 .flight .case-page-card::before{ bottom:0; }
-.case-page-card.is-in::before{ animation: caseUnroll 1.12s linear 0.2s both; }
-.case-page-card.is-unrolling::before{ animation: caseUnroll 1.12s linear 0.05s both; }
+.case-page-card.is-in::before{ animation: caseUnroll 0.84s linear 0.2s both; }
+.case-page-card.is-unrolling::before{ animation: caseUnroll 0.84s linear 0.05s both; }
 .case-page-card.is-rolling-up::before{ animation: caseRollUp 1.1s linear both; }
 /* --roll-stop is how far the sheet reaches when its edge leaves the bottom of the screen (set by site.js) */
 @keyframes caseUnroll{
@@ -1044,3 +1045,73 @@ html.frame .case-page-card::after{ flex-shrink:0; }
   /* the swipe hint on the Creative Endeavors pages: the last thing on the card, centred in the text column */
   .page-card > .swipe-hint{ display:flex; align-items:center; justify-content:space-between; align-self:center; position:static; width:128px; height: var(--u); color:#1B1C1E; opacity:0.8; pointer-events:none; }
 }
+
+/* ---------- Version ---------- (read by siteVersion() in site.js) */
+:root{ --site-version: "0.5.0"; }
+
+/* ---------- Gallery: a caption on hover, and the photo viewer ----------
+   A tile with data-caption shows its title over the picture on hover or focus (touch screens have no hover: they get the
+   caption in the viewer). Clicking opens the viewer: the picture over a see-through, blurred backdrop. */
+/* The hover caption: a darker gradient fades up along the bottom edge, and the title eases in over it (a beat later). */
+.gallery-grid .tile .tile-caption.is-hover{ background:none; padding: 0 0.95rem 0.95rem; pointer-events:none; }
+.gallery-grid .tile .tile-caption.is-hover::before{ content:''; position:absolute; left:0; right:0; bottom:0; height: calc(100% + 3.4rem); background: linear-gradient(to top, rgba(8,9,11,0.96) 0%, rgba(8,9,11,0.86) 38%, rgba(8,9,11,0.45) 72%, rgba(8,9,11,0) 100%); opacity:0; transition: opacity 0.4s var(--ease); }
+.gallery-grid .tile .tile-caption.is-hover .tile-title, .gallery-grid .tile .tile-caption.is-hover .tile-meta{ position:relative; opacity:0; transform: translateY(12px); transition: opacity 0.45s var(--ease) 0.08s, transform 0.55s var(--ease) 0.08s; }
+.gallery-grid .tile .tile-caption.is-hover .tile-meta{ transition-delay: 0.14s; }
+.gallery-grid .tile:hover .tile-caption.is-hover::before, .gallery-grid .tile:focus-visible .tile-caption.is-hover::before{ opacity:1; }
+.gallery-grid .tile:hover .tile-caption.is-hover .tile-title, .gallery-grid .tile:focus-visible .tile-caption.is-hover .tile-title{ opacity:1; transform:none; }
+.gallery-grid .tile:hover .tile-caption.is-hover .tile-meta, .gallery-grid .tile:focus-visible .tile-caption.is-hover .tile-meta{ opacity:0.85; transform:none; }
+.gallery-grid .tile .tile-meta{ font-family:'IBM Plex Sans', sans-serif; font-size:0.72rem; letter-spacing:0.04em; opacity:0.85; margin-top:0.2rem; }
+@media (hover: none){ .gallery-grid .tile .tile-caption.is-hover{ display:none; } }
+
+.lb{ position:fixed; inset:0; z-index:60000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition: opacity 0.24s var(--ease), visibility 0s linear 0.24s; touch-action:none; overscroll-behavior:contain; user-select:none; -webkit-user-select:none; }
+.lb[hidden]{ display:none; }
+.lb.is-open{ opacity:1; visibility:visible; transition: opacity 0.24s var(--ease); }
+.lb-backdrop{ position:absolute; inset:0; background: rgba(16,17,20,0.6); -webkit-backdrop-filter: blur(14px) saturate(1.15); backdrop-filter: blur(14px) saturate(1.15); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))){ .lb-backdrop{ background: rgba(16,17,20,0.88); } }
+/* --lb-w is the widest the picture's frame may be: 1100px at most, and never wide enough to slide under the side buttons */
+.lb{ --lb-w: min(calc(100vw - 2 * (max(16px, 2.5vw) + 60px)), 1100px); }
+.lb-fig{ position:relative; margin:0; display:flex; flex-direction:column; align-items:stretch; gap: 0.9rem; width:max-content; max-width: var(--lb-w); transform: scale(0.97); transition: transform 0.28s var(--ease); }
+.lb.is-open .lb-fig{ transform:none; }
+.lb-frame{ border: 3px solid var(--lb-accent, #ADD944); background: rgba(0,0,0,0.25); box-shadow: 0 30px 80px rgba(0,0,0,0.5); line-height:0; will-change: transform; }
+.lb-img{ display:block; max-width: calc(var(--lb-w) - 6px); max-height: calc(100vh - 186px); max-height: calc(100dvh - 186px); width:auto; height:auto; object-fit:contain; pointer-events:none; }   /* the 6px is the frame's two 3px borders */
+.lb-cap{ display:flex; align-items:baseline; justify-content:space-between; gap: 1rem; flex-wrap:wrap; color:#fff; font-family:'IBM Plex Sans', sans-serif; }
+.lb-text{ display:flex; flex-direction:column; gap:0.15rem; min-width:0; }
+.lb-title{ font-weight:600; font-size:1.05rem; line-height:1.25; }
+.lb-meta{ font-size:0.8rem; letter-spacing:0.04em; opacity:0.8; }
+.lb-tools{ display:flex; align-items:baseline; gap:1rem; font-size:0.8rem; }
+.lb-full{ color:#fff; text-decoration:none; opacity:0.85; border-bottom:1px solid rgba(255,255,255,0.4); }
+.lb-full:hover, .lb-full:focus-visible{ opacity:1; border-bottom-color:#fff; outline:none; }
+.lb-count{ font-variant-numeric: tabular-nums; letter-spacing:0.06em; color:#fff; font-weight:600; }   /* white: a dark picture colour (the organ's blue) would vanish on the dark backdrop */
+.lb-count::before{ content:''; display:inline-block; width:0.5em; height:0.5em; margin-right:0.55em; border-radius:50%; background: var(--lb-accent, #ADD944); box-shadow: 0 0 0 1.5px rgba(255,255,255,0.75); vertical-align:0.05em; }   /* the picture's colour, as a dot */
+.lb-btn{ position:absolute; width:44px; height:44px; display:flex; align-items:center; justify-content:center; padding:0; border-radius:50%; background: rgba(255,255,255,0.14); border:1.5px solid rgba(255,255,255,0.55); color:#fff; cursor:pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: background 0.2s var(--ease), color 0.2s var(--ease), transform 0.2s var(--ease); }
+.lb-btn svg{ width:20px; height:20px; }
+.lb-btn:hover, .lb-btn:focus-visible{ background:#fff; color: var(--ink); outline:none; }
+.lb-btn:focus-visible{ box-shadow: 0 0 0 3px #fff; }
+.lb-prev{ left: max(16px, 2.5vw); top:50%; margin-top:-22px; }
+.lb-next{ right: max(16px, 2.5vw); top:50%; margin-top:-22px; }
+.lb-close{ top: 20px; right: 20px; }
+@media (max-width: 900px){   /* phones and tablets: the two arrows move to the bottom corners, so the picture can use the full width */
+  .lb{ --lb-w: 92vw; }
+  .lb-fig{ gap:0.7rem; }
+  .lb-img{ max-height: calc(100vh - 216px); max-height: calc(100dvh - 216px); }
+  .lb-btn{ width:40px; height:40px; }
+  .lb-prev, .lb-next{ top:auto; bottom: 20px; margin-top:0; }
+  .lb-prev{ left: 20px; } .lb-next{ right: 20px; }
+  .lb-close{ top: 14px; right: 14px; }
+}
+/* the swipe clue inside the viewer: the same finger and arrows as on the pages, in white, between the two arrow buttons (phones only) */
+@media (max-width: 720px){
+  html .lb .swipe-hint.lb-hint{ display:flex; align-items:center; justify-content:space-between; position:absolute; top:auto; left:50%; bottom:27px; width:128px; height: var(--u); transform: translateX(-50%); color:#fff; opacity:0.9; pointer-events:none; }
+}
+@media (prefers-reduced-motion: reduce){
+  .lb, .lb-fig{ transition:none; }
+  .gallery-grid .tile .tile-caption.is-hover::before, .gallery-grid .tile .tile-caption.is-hover .tile-title, .gallery-grid .tile .tile-caption.is-hover .tile-meta{ transition:none; }
+}
+
+/* ---------- A tile for something that is not out yet (data-soon) ----------
+   Its picture, its title and a "Coming soon" label where the arrow would be. It keeps the colour reveal on hover, but not the lift or the
+   pointer: those say "click me". */
+.gallery-grid .tile.is-soon{ cursor:default; }
+.gallery-grid .tile.is-soon:hover{ transform:none; box-shadow:none; background:none; }
+.gallery-grid .tile .tile-soon{ position:absolute; top:0.6rem; right:0.6rem; padding:0.3rem 0.7rem; border-radius:999px; background: rgba(16,17,20,0.78); color:#fff; font-family:'IBM Plex Sans', sans-serif; font-size:0.66rem; font-weight:600; letter-spacing:0.09em; text-transform:uppercase; line-height:1.2; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+@media (max-width: 720px){ .gallery-grid .tile .tile-soon{ top:0.5rem; right:0.5rem; padding:0.26rem 0.58rem; font-size:0.6rem; } }

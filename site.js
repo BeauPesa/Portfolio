@@ -1,3 +1,4 @@
+// Beau.0 · v0.5.0
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -9,6 +10,32 @@
 (function(){
   window.__siteReady = 2;   // the page's <head> script checks this; without it everything is simply shown
   var root = document.documentElement;
+
+  /* ---------------- Versioning: which release is this page really running? ----------------
+     In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
+     names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
+     On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
+  var SITE = { release: 'Beau.0', version: '0.5.0' };
+  window.__siteVersion = SITE.version;
+  function versionReport(){
+    var meta = document.querySelector('meta[name="site-version"]');
+    var css = String(window.getComputedStyle(root).getPropertyValue('--site-version') || '').replace(/["'\s]/g, '');
+    var parts = { 'this page (html)': meta ? meta.getAttribute('content') : '(missing)', 'site.js': SITE.version, 'stylesheet': css || '(missing)' };
+    if (document.querySelector('script[src^="gallery.js"]')) parts['gallery.js'] = window.__galleryVersion || '(missing)';
+    var bad = Object.keys(parts).filter(function(k){ return parts[k] !== SITE.version; });
+    var said = Object.keys(parts).map(function(k){ return k + ' ' + parts[k]; }).join(', ');   // each part's own claim: whichever differs is the one that is behind
+    return { parts: parts, bad: bad, text: SITE.release + ' v' + SITE.version + (bad.length ? ' - MISMATCH: ' + said + ' (an old copy is being served, or a file was not uploaded)' : ' - every part matches') };
+  }
+  window.siteVersion = function(){ var r = versionReport(); if (window.console && console.table) console.table(r.parts); return r.text; };
+  if (window.console && console.info) console.info('%c' + SITE.release + '%c v' + SITE.version + '  (siteVersion() checks this page)', 'font-weight:700;color:#4F7A10', 'color:inherit');
+  if (/[?&]version(=|&|$)/.test(window.location.search)){
+    var pill = document.createElement('div'), vr = versionReport();
+    pill.textContent = vr.text;
+    pill.style.cssText = 'position:fixed; top:6px; left:50%; transform:translateX(-50%); z-index:99999; max-width:92vw; padding:6px 14px; border-radius:999px; font:600 12px/1.3 "IBM Plex Sans", sans-serif; text-align:center; color:#fff; background:#101114; border:2px solid ' + (vr.bad.length ? '#E62600' : '#ADD944') + '; box-shadow:0 4px 16px rgba(0,0,0,0.35);';
+    pill.addEventListener('click', function(){ pill.remove(); });
+    setTimeout(function(){ if (pill.parentNode) pill.parentNode.removeChild(pill); }, 9000);
+    (document.body || root).appendChild(pill);
+  }
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var isPhone = window.matchMedia('(max-width: 720px)');
 
@@ -99,6 +126,7 @@
       '<svg class="sh-arrow sh-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
     return hint;
   }
+  window.makeSwipeHint = makeSwipeHint;   // gallery.js uses the same clue inside the photo viewer
   function enterFrame(){
     if (framed || !caseCard || !isPhone.matches) return null;
     var circle = document.querySelector('#icon-nav a'), pill = document.getElementById('case-dots');

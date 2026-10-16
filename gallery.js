@@ -4,8 +4,15 @@
 // you hover, when it lifts, goes to colour, and is framed in a colour taken from the picture itself.
 //
 //  - Where it goes: a tile whose <a> has data-link (an article, say) keeps its own href and opens in a new tab.
-//    Any other tile with a picture opens that picture full size in a new tab (add data-full="path/to/bigger.jpg"
-//    on the <img> to open a larger version than the thumbnail). Placeholder tiles (no <img> yet) do nothing.
+//    Any other tile with a picture opens the VIEWER: the picture large over a see-through backdrop, with previous / next
+//    (looping), a counter, swipe or drag between pictures, swipe down or Esc to close, and the arrow keys. The viewer
+//    steps through every such tile on the page. Add data-full="path/to/bigger.jpg" on the <img> for a larger version
+//    than the thumbnail. Cmd/Ctrl-click, or no JavaScript, still opens the full picture in its own tab.
+//    Placeholder tiles (no <img> yet) do nothing.
+//  - A tile marked data-soon (on a <div>, with a .tile-soon label inside) is for something that is not out yet: it shows its picture,
+//    title and frame colour, and does nothing when clicked. Drop data-soon and add an <a href> when it is published.
+//  - Captions: data-caption="A short title" on the <a> shows that title over the tile on hover (and focus), and in the
+//    viewer. data-meta="Place - year" adds a second line. Both are optional.
 //  - The frame colour is worked out in the browser from the picture's colour histogram: every pixel votes for its
 //    hue, weighted by how saturated and bright it is (so a vivid subject outvotes a big grey wall), and the winning
 //    hue's average colour is lifted into a range that reads as a frame. Pictures with almost no colour get a dark
@@ -13,7 +20,9 @@
 //  - If the browser is not allowed to read the pixels (a picture hosted on another site that doesn't permit it), the
 //    frame falls back to the site's lime accent and the tile says so in data-frame-source. Pictures on this site
 //    always work. To pin a colour by hand, put data-frame="#RRGGBB" on the <img>.
+// Beau.0 · v0.5.0
 (function(){
+  window.__galleryVersion = '0.5.0';
   function hex(r, g, b){ return '#' + [r, g, b].map(function(v){ v = Math.max(0, Math.min(255, Math.round(v))); return (v < 16 ? '0' : '') + v.toString(16); }).join('').toUpperCase(); }
   function hueOf(r, g, b){
     var mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, h;
@@ -89,6 +98,7 @@
   }
 
   var tiles = document.querySelectorAll('.gallery-grid .tile');
+  var viewable = [];   // the tiles that open in the viewer: a picture, and no data-link
   Array.prototype.forEach.call(tiles, function(tile){
     var img = tile.querySelector('img');
     if (!img){
@@ -96,17 +106,131 @@
       return;
     }
     tile.classList.add('has-img');
-    if (!tile.hasAttribute('data-link')){
-      tile.href = img.getAttribute('data-full') || img.getAttribute('src');
+    if (tile.hasAttribute('data-soon')){   // not out yet: its picture and title, a "Coming soon" label, and nothing happens on a click
+      tile.addEventListener('click', function(e){ e.preventDefault(); });
+    } else if (!tile.hasAttribute('data-link')){
+      tile.href = img.getAttribute('data-full') || img.getAttribute('src');   // the no-JavaScript fallback, and Cmd/Ctrl-click
       tile.target = '_blank';
       tile.rel = 'noopener';
-      tile.setAttribute('aria-label', img.alt ? 'Open ' + img.alt + ' full size' : 'Open image full size');
+      viewable.push(tile);
+      var cap = tile.getAttribute('data-caption');
+      if (cap && !tile.querySelector('.tile-caption')){   // a caption that appears on hover
+        var c = document.createElement('span'), t = document.createElement('span'), m = tile.getAttribute('data-meta');
+        c.className = 'tile-caption is-hover'; c.setAttribute('aria-hidden', 'true');
+        t.className = 'tile-title'; t.textContent = cap; c.appendChild(t);
+        if (m){ var ms = document.createElement('span'); ms.className = 'tile-meta'; ms.textContent = m; c.appendChild(ms); }
+        tile.appendChild(c);
+      }
     }
     var pinned = img.getAttribute('data-frame');
     if (pinned){ setFrame(tile, pinned, 'pinned'); return; }
     var run = function(){ measure(img, function(c){ setFrame(tile, c, c ? 'histogram' : 'fallback'); }); };
     if (img.complete && img.naturalWidth) run(); else img.addEventListener('load', run, { once: true });
   });
+
+  /* ---------------- The viewer ---------------- */
+  var lb = null, lbFrame, lbImg, lbTitle, lbMeta, lbCount, lbFull, lbPrev, lbNext, lbClose, idx = 0, pushed = false, suppress = false;
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var ICON = function(d){ return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"/></svg>'; };
+  var fullOf = function(tile){ var im = tile.querySelector('img'); return im.getAttribute('data-full') || im.getAttribute('src'); };
+  var titleOf = function(tile){ return tile.getAttribute('data-caption') || (tile.querySelector('img').alt || ''); };
+  Array.prototype.forEach.call(viewable, function(tile, i){ tile.setAttribute('aria-label', 'View ' + titleOf(tile) + ', photo ' + (i + 1) + ' of ' + viewable.length); });
+
+  function build(){
+    lb = document.createElement('div');
+    lb.className = 'lb'; lb.hidden = true;
+    lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-modal', 'true'); lb.setAttribute('aria-label', 'Photo viewer');
+    lb.setAttribute('data-no-swipe', '');   // the page's own swipe between pages must not fire in here
+    lb.innerHTML = '<div class="lb-backdrop"></div>' +
+      '<figure class="lb-fig"><div class="lb-frame"><img class="lb-img" alt=""></div>' +
+      '<figcaption class="lb-cap"><span class="lb-text"><span class="lb-title"></span><span class="lb-meta"></span></span>' +
+      '<span class="lb-tools"><a class="lb-full" target="_blank" rel="noopener">Open full size &#8599;</a><span class="lb-count" aria-live="polite"></span></span></figcaption></figure>' +
+      '<button type="button" class="lb-btn lb-prev" aria-label="Previous photo">' + ICON('M15 5l-7 7 7 7') + '</button>' +
+      '<button type="button" class="lb-btn lb-next" aria-label="Next photo">' + ICON('M9 5l7 7-7 7') + '</button>' +
+      '<button type="button" class="lb-btn lb-close" aria-label="Close viewer">' + ICON('M6 6l12 12M18 6L6 18') + '</button>';
+    if (window.makeSwipeHint){   // the same finger-and-arrows clue as on the pages; the stylesheet shows it on phones only
+      var hint = window.makeSwipeHint('Swipe left or right for the previous or next photo', '#fff'); hint.className += ' lb-hint'; lb.appendChild(hint);
+    }
+    document.body.appendChild(lb);
+    var q = function(s){ return lb.querySelector(s); };
+    lbFrame = q('.lb-frame'); lbImg = q('.lb-img'); lbTitle = q('.lb-title'); lbMeta = q('.lb-meta'); lbCount = q('.lb-count'); lbFull = q('.lb-full'); lbPrev = q('.lb-prev'); lbNext = q('.lb-next'); lbClose = q('.lb-close');
+    lbPrev.addEventListener('click', function(){ show(idx - 1, -1); });
+    lbNext.addEventListener('click', function(){ show(idx + 1, 1); });
+    lbClose.addEventListener('click', function(){ close(); });
+    lb.addEventListener('click', function(e){
+      if (suppress){ suppress = false; return; }
+      if (e.target === lb || e.target.classList.contains('lb-backdrop')) close();   // a click on the see-through backdrop
+    });
+    lb.addEventListener('wheel', function(e){ e.preventDefault(); }, { passive: false });   // the page behind stays where it is
+    // swipe or drag: sideways steps through the pictures, down closes
+    var g = null;
+    lb.addEventListener('pointerdown', function(e){
+      if (e.target.closest('button, a')) return;
+      g = { id: e.pointerId, x: e.clientX, y: e.clientY, t: e.timeStamp, axis: null, dx: 0, dy: 0 };
+    });
+    lb.addEventListener('pointermove', function(e){
+      if (!g || e.pointerId !== g.id) return;
+      var dx = e.clientX - g.x, dy = e.clientY - g.y;
+      if (!g.axis){ if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return; g.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'; try { lb.setPointerCapture(e.pointerId); } catch (x) {} lbFrame.style.transition = 'none'; }
+      g.dx = dx; g.dy = dy; suppress = true;
+      if (g.axis === 'x') lbFrame.style.transform = 'translateX(' + dx * 0.7 + 'px)';
+      else if (dy > 0){ lbFrame.style.transform = 'translateY(' + dy * 0.6 + 'px)'; lbFrame.style.opacity = String(1 - Math.min(0.6, dy / 420)); }
+    });
+    var release = function(e){
+      if (!g || e.pointerId !== g.id) return;
+      var d = g; g = null; setTimeout(function(){ suppress = false; }, 0);
+      lbFrame.style.transition = 'transform 0.22s var(--ease), opacity 0.22s var(--ease)';
+      var fast = Math.abs(d.dx) / Math.max(1, e.timeStamp - d.t) > 0.5;
+      lbFrame.style.transform = ''; lbFrame.style.opacity = '';
+      setTimeout(function(){ lbFrame.style.transition = ''; }, 240);
+      if (e.type !== 'pointerup' || !d.axis) return;
+      if (d.axis === 'x' && (Math.abs(d.dx) > 60 || (fast && Math.abs(d.dx) > 30))) show(idx + (d.dx < 0 ? 1 : -1), d.dx < 0 ? 1 : -1);
+      else if (d.axis === 'y' && d.dy > 100) close();
+    };
+    lb.addEventListener('pointerup', release); lb.addEventListener('pointercancel', release);
+    document.addEventListener('keydown', function(e){
+      if (!lb || !lb.classList.contains('is-open')) return;
+      if (e.key === 'Escape'){ e.preventDefault(); close(); }
+      else if (e.key === 'ArrowRight'){ e.preventDefault(); show(idx + 1, 1); }
+      else if (e.key === 'ArrowLeft'){ e.preventDefault(); show(idx - 1, -1); }
+      else if (e.key === 'Tab'){   // keep the focus inside the viewer
+        var f = [lbClose, lbPrev, lbNext, lbFull], i = f.indexOf(document.activeElement);
+        e.preventDefault(); f[(i + (e.shiftKey ? f.length - 1 : 1)) % f.length].focus();
+      }
+    });
+    window.addEventListener('popstate', function(){ if (lb && lb.classList.contains('is-open')){ pushed = false; close(); } });   // the browser's Back closes the viewer
+  }
+  function show(i, dir){
+    var n = viewable.length; idx = ((i % n) + n) % n;
+    var tile = viewable[idx], im = tile.querySelector('img'), full = fullOf(tile), meta = tile.getAttribute('data-meta') || '';
+    lb.style.setProperty('--lb-accent', tile.getAttribute('data-frame') || '#ADD944');   // framed in the picture's own colour
+    lbTitle.textContent = titleOf(tile); lbMeta.textContent = meta; lbMeta.hidden = !meta;
+    lbCount.textContent = (idx + 1) + ' / ' + n; lbFull.href = full; lbImg.alt = im.alt || '';
+    lbImg.src = im.currentSrc || im.getAttribute('src');   // the thumbnail is already in hand: show it at once...
+    var big = new Image(); big.onload = function(){ if (viewable[idx] === tile) lbImg.src = full; }; big.src = full;   // ...then the full picture
+    if (dir && !reduce && lbFrame.animate) lbFrame.animate([{ opacity: 0, transform: 'translateX(' + (dir > 0 ? 36 : -36) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)' });
+    [1, -1].forEach(function(d){ var p = new Image(); p.src = fullOf(viewable[(idx + d + n) % n]); });   // the neighbours, ready for the next step
+  }
+  function open(i){
+    if (!lb) build();
+    lb.hidden = false; document.documentElement.classList.add('lb-open');
+    show(i, 0); void lb.offsetWidth; lb.classList.add('is-open'); lbClose.focus();
+    try { history.pushState({ viewer: 1 }, ''); pushed = true; } catch (e) { pushed = false; }
+  }
+  function close(){
+    if (!lb || !lb.classList.contains('is-open')) return;
+    lb.classList.remove('is-open'); document.documentElement.classList.remove('lb-open');
+    var tile = viewable[idx]; setTimeout(function(){ if (!lb.classList.contains('is-open')) lb.hidden = true; }, reduce ? 0 : 240);
+    if (pushed){ pushed = false; try { history.back(); } catch (e) {} }
+    if (tile) tile.focus();
+  }
+  Array.prototype.forEach.call(viewable, function(tile){
+    tile.addEventListener('click', function(e){
+      if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;   // Cmd/Ctrl-click: the full picture in its own tab
+      e.preventDefault(); open(viewable.indexOf(tile));
+    });
+  });
+
   window.tileFrames = function(){   // handy in the console: what colour each tile settled on, and how
     return Array.prototype.map.call(tiles, function(t){ return { tile: (t.querySelector('img') || {}).alt || t.textContent.trim(), colour: t.getAttribute('data-frame'), source: t.getAttribute('data-frame-source') }; });
   };
