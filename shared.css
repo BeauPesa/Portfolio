@@ -1134,3 +1134,9 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 /* ---------- About: the Polaroid ---------- */
 .about-polaroid{ display:block; width: calc(2 * var(--grid-gap)); max-width:100%; height:auto; margin: 0.5rem 0; border-radius:2px; box-shadow: 0 18px 40px -18px rgba(0,0,0,0.6); }
 @media (max-width: 720px){ .about-polaroid{ width: var(--col, 100%); } }
+
+/* ---------- A photo whose colour is the point stays in colour in the grid (data-color on the tile) ---------- */
+.gallery-grid .tile[data-color] img{ filter:none; }
+
+/* ---------- Sketchbooks: watercolor is the point, so these tiles stay in color ---------- */
+.gallery-grid.in-color .tile img{ filter:none; }
