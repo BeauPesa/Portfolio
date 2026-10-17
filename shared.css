@@ -1157,3 +1157,16 @@ html.frame .case-page-card::after{ flex-shrink:0; }
   .gallery-grid.spread-table .tile.is-half{ grid-column: 1 / -1; }
 }
 @media (prefers-reduced-motion: reduce){ .gallery-grid.spread-table .tile img{ transform:none !important; transition:none; } }
+
+/* ---------- Every card ends on the Instagram button ----------
+   Scrolled to the end, a card's bottom edge lines up with the center of the last icon in the left rail:
+   the rail sits 2.5rem from the bottom and its buttons are 30px, so the center is 2.5rem + 15px up.
+   Endeavors cards also fill at least that far, so a short page still ends on the line. Phones keep their own frame. */
+:root{ --card-end: calc(2.5rem + 15px); }
+@media (min-width: 721px){
+  body.has-page-card .page-hero{ align-items:flex-start; padding-bottom: var(--card-end); }
+  body.has-page-card .page-card{ min-height: calc(100vh - 6rem - var(--card-end)); }
+  body.has-case-nav .page-hero{ padding-bottom: var(--card-end); }
+}
+/* gallery pages: a little more air under the last row of tiles */
+.page-hero .page-card:has(> .gallery-grid:last-child){ padding-bottom: calc(2 * var(--u)); }
