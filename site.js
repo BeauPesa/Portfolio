@@ -219,7 +219,7 @@
   // make, and stays fixed there. Scrolling back up reverses it into the button's own place in the card.
   var DOCK_COLUMN = 'pinstripes';   // 'pinstripes': the middle of the column pinstripes 6 and 7 make (the card's right edge)
                                     // 'gutter': the middle of the space beyond the card, between its edge and pinstripe 7
-  var dock = null, dockLabel = null, dockArrow = null, dockState = 'idle', dockMix = 0, dockRaf = 0, dockBrand = [27, 28, 30];
+  var dock = null, dockLabel = null, dockArrow = null, dockState = 'idle', dockMix = 0, dockRaf = 0, dockBrand = [27, 28, 30], dockInk = '#F2F1EC';
   var dockCard = caseCard || pageCard;   // the card whose button docks: a case study, or a Creative Endeavors page
   var cta = dockCard ? dockCard.querySelector('.case-page-cta') : null;
   var ctaName = cta ? cta.textContent.replace(/\s*\u2190\s*$/, '').trim() : '';   // "Back to home" or "Back to Endeavors": the button's own words, without its arrow
@@ -237,7 +237,8 @@
     document.body.appendChild(dock);   // created before the click handlers below are attached, so it gets the roll-up too
     dockLabel = dock.querySelector('.dock-label');
     dockArrow = dock.querySelector('.dock-arrow');
-    var hexBrand = /^#([0-9a-f]{6})$/i.exec((cta.style.getPropertyValue('--cta-rest') || '').trim());   // the case study's own colour (the No. button's), which the circle fills with
+    var hexBrand = /^#([0-9a-f]{6})$/i.exec((cta.style.getPropertyValue('--dock-bg') || cta.style.getPropertyValue('--cta-rest') || '').trim());   // the circle's fill: --dock-bg if the page sets one (Creative Endeavors: lime), else the case study's own colour (the No. button's)
+    dockInk = (cta.style.getPropertyValue('--dock-fg') || '').trim() || dockInk;   // the arrow's colour on that fill
     if (hexBrand) dockBrand = [0, 2, 4].map(function(i){ return parseInt(hexBrand[1].substr(i, 2), 16); });
   }
   function homeCircle(){ return document.querySelector('#icon-nav a').getBoundingClientRect(); }
@@ -262,7 +263,7 @@
     dockLabel.style.opacity = String(Math.max(0, 1 - mix / 0.4));                      // the label gives way to the arrow with a short
     dockArrow.style.opacity = String(Math.max(0, Math.min(1, (mix - 0.25) / 0.45)));   // overlap, so the outline is never empty
     dock.style.backgroundColor = mix > 0 ? 'rgba(' + dockBrand.join(',') + ',' + mix.toFixed(3) + ')' : '';   // the fill grows into the case study's colour...
-    dockArrow.style.color = (mix < 1 || dockState === 'idle') ? '#F2F1EC' : '';                                 // ...and the arrow is paper-coloured while it does (the CSS takes over once it is a circle)
+    dockArrow.style.color = (mix < 1 || dockState === 'idle') ? dockInk : '';                                 // ...and the arrow is paper-coloured while it does (the CSS takes over once it is a circle)
   }
   function morphDock(to, mix1, ms, done){   // `to` can be a function, so the target is followed live (the button keeps scrolling)
     cancelAnimationFrame(dockRaf);
