@@ -1,4 +1,4 @@
-/* Beau.0 · v0.5.0 */
+/* Beau.1 · v0.6.0 */
 /* ===================================================================
    SHARED STYLESHEET
    Used by every page except the homepage (which is self-contained
@@ -967,7 +967,7 @@ body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-to
 :root{ --u: 30px; }
 .page-hero .case-page-card, .page-hero .page-card{ display:flex; flex-direction:column; align-items:stretch; gap: var(--u); padding-top: var(--u); padding-bottom: var(--u); }
 .page-hero .case-page-card > *, .page-hero .page-card > *{ margin:0 !important; flex-shrink:0; }
-.page-hero .case-page-card > .badge-link, .page-hero .case-page-card > .case-page-cta, .page-hero .page-card > .cta{ align-self:flex-start; }
+.page-hero .case-page-card > .badge-link, .page-hero .case-page-card > .case-page-cta, .page-hero .page-card > .cta, .page-hero .page-card > .case-page-cta{ align-self:flex-start; }
 .page-hero .page-card .card-grid{ row-gap: var(--u); }
 html.frame .case-page-card::after{ flex-shrink:0; }
 .page-hero h2.eyebrow{ font-family:'IBM Plex Sans', sans-serif; line-height:1.65; letter-spacing:normal; max-width:34ch; }   /* an h2 that keeps the eyebrow's small-label look */
@@ -1047,7 +1047,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 }
 
 /* ---------- Version ---------- (read by siteVersion() in site.js) */
-:root{ --site-version: "0.5.0"; }
+:root{ --site-version: "0.6.0"; }
 
 /* ---------- Gallery: a caption on hover, and the photo viewer ----------
    A tile with data-caption shows its title over the picture on hover or focus (touch screens have no hover: they get the
@@ -1072,8 +1072,8 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 .lb{ --lb-w: min(calc(100vw - 2 * (max(16px, 2.5vw) + 60px)), 1100px); }
 .lb-fig{ position:relative; margin:0; display:flex; flex-direction:column; align-items:stretch; gap: 0.9rem; width:max-content; max-width: var(--lb-w); transform: scale(0.97); transition: transform 0.28s var(--ease); }
 .lb.is-open .lb-fig{ transform:none; }
-.lb-frame{ border: 3px solid var(--lb-accent, #ADD944); background: rgba(0,0,0,0.25); box-shadow: 0 30px 80px rgba(0,0,0,0.5); line-height:0; will-change: transform; }
-.lb-img{ display:block; max-width: calc(var(--lb-w) - 6px); max-height: calc(100vh - 186px); max-height: calc(100dvh - 186px); width:auto; height:auto; object-fit:contain; pointer-events:none; }   /* the 6px is the frame's two 3px borders */
+.lb-frame{ background: rgba(0,0,0,0.25); box-shadow: 0 30px 80px rgba(0,0,0,0.5); line-height:0; will-change: transform; }   /* no border: the picture stands on its own */
+.lb-img{ display:block; max-width: var(--lb-w); max-height: calc(100vh - 180px); max-height: calc(100dvh - 180px); width:auto; height:auto; object-fit:contain; pointer-events:none; }
 .lb-cap{ display:flex; align-items:baseline; justify-content:space-between; gap: 1rem; flex-wrap:wrap; color:#fff; font-family:'IBM Plex Sans', sans-serif; }
 .lb-text{ display:flex; flex-direction:column; gap:0.15rem; min-width:0; }
 .lb-title{ font-weight:600; font-size:1.05rem; line-height:1.25; }
@@ -1093,7 +1093,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 @media (max-width: 900px){   /* phones and tablets: the two arrows move to the bottom corners, so the picture can use the full width */
   .lb{ --lb-w: 92vw; }
   .lb-fig{ gap:0.7rem; }
-  .lb-img{ max-height: calc(100vh - 216px); max-height: calc(100dvh - 216px); }
+  .lb-img{ max-height: calc(100vh - 210px); max-height: calc(100dvh - 210px); }
   .lb-btn{ width:40px; height:40px; }
   .lb-prev, .lb-next{ top:auto; bottom: 20px; margin-top:0; }
   .lb-prev{ left: 20px; } .lb-next{ right: 20px; }

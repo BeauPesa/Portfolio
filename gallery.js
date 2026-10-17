@@ -20,9 +20,9 @@
 //  - If the browser is not allowed to read the pixels (a picture hosted on another site that doesn't permit it), the
 //    frame falls back to the site's lime accent and the tile says so in data-frame-source. Pictures on this site
 //    always work. To pin a colour by hand, put data-frame="#RRGGBB" on the <img>.
-// Beau.0 · v0.5.0
+// Beau.1 · v0.6.0
 (function(){
-  window.__galleryVersion = '0.5.0';
+  window.__galleryVersion = '0.6.0';
   function hex(r, g, b){ return '#' + [r, g, b].map(function(v){ v = Math.max(0, Math.min(255, Math.round(v))); return (v < 16 ? '0' : '') + v.toString(16); }).join('').toUpperCase(); }
   function hueOf(r, g, b){
     var mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, h;
@@ -75,21 +75,27 @@
   }
   window.frameColour = frameColour;
 
-  // Read the picture's pixels (the square the tile shows) on a separate copy, so the tile's own picture never depends on it.
+  // Read the picture's pixels (the square the tile shows). One of our own pictures is read straight from the tile's image, with no
+  // second download. A picture on another site (a Medium thumbnail) is read from a separate copy fetched with CORS, so the tile's
+  // own picture never depends on the other site's headers.
+  function sameOrigin(src){ try { return new URL(src, window.location.href).origin === window.location.origin; } catch (e){ return false; } }
   function measure(img, done){
-    var probe = new Image();
-    probe.crossOrigin = 'anonymous';
-    probe.onload = function(){
+    var src = img.currentSrc || img.getAttribute('src');
+    function sample(source){
       try {
         var N = 48, cv = document.createElement('canvas'), ctx;
         cv.width = N; cv.height = N; ctx = cv.getContext('2d');
-        var side = Math.min(probe.naturalWidth, probe.naturalHeight), sx = (probe.naturalWidth - side) / 2, sy = (probe.naturalHeight - side) / 2;
-        ctx.drawImage(probe, sx, sy, side, side, 0, 0, N, N);
+        var side = Math.min(source.naturalWidth, source.naturalHeight), sx = (source.naturalWidth - side) / 2, sy = (source.naturalHeight - side) / 2;
+        ctx.drawImage(source, sx, sy, side, side, 0, 0, N, N);
         done(frameColour(ctx.getImageData(0, 0, N, N).data));
       } catch (e){ done(null); }   // the pixels are off limits
-    };
+    }
+    if (sameOrigin(src) && img.complete && img.naturalWidth){ sample(img); return; }
+    var probe = new Image();
+    probe.crossOrigin = 'anonymous';
+    probe.onload = function(){ sample(probe); };
     probe.onerror = function(){ done(null); };
-    probe.src = img.currentSrc || img.getAttribute('src');
+    probe.src = src;
   }
   function setFrame(tile, colour, source){
     if (colour) tile.style.setProperty('--tile-border', colour);

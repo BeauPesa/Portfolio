@@ -1,4 +1,4 @@
-// Beau.0 · v0.5.0
+// Beau.1 · v0.6.0
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.0', version: '0.5.0' };
+  var SITE = { release: 'Beau.1', version: '0.6.0' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -212,23 +212,27 @@
     });
   }
 
-  /* ---------------- 5. Desktop: the "Back to home" button docks into a circle ---------------- */
+  /* ---------------- 5. The "Back to home" / "Back to Endeavors" button docks into a circle ----------------
+     On the case studies and on every Creative Endeavors page. (The heading below says desktop because that is where it began; phones dock too.) */
   // When the button scrolls up to the height of the Home nav circle it stops there and morphs: it shrinks to a circle
   // the size of the nav buttons (the label gives way to an arrow) while travelling to the column that pinstripes 6 and 7
   // make, and stays fixed there. Scrolling back up reverses it into the button's own place in the card.
   var DOCK_COLUMN = 'pinstripes';   // 'pinstripes': the middle of the column pinstripes 6 and 7 make (the card's right edge)
                                     // 'gutter': the middle of the space beyond the card, between its edge and pinstripe 7
   var dock = null, dockLabel = null, dockArrow = null, dockState = 'idle', dockMix = 0, dockRaf = 0, dockBrand = [27, 28, 30];
-  var cta = caseCard ? caseCard.querySelector('.case-page-cta') : null;
+  var dockCard = caseCard || pageCard;   // the card whose button docks: a case study, or a Creative Endeavors page
+  var cta = dockCard ? dockCard.querySelector('.case-page-cta') : null;
+  var ctaName = cta ? cta.textContent.replace(/\s*\u2190\s*$/, '').trim() : '';   // "Back to home" or "Back to Endeavors": the button's own words, without its arrow
   if (cta){
     dock = document.createElement('a');
     dock.className = 'case-page-cta back-dock';
     dock.href = cta.getAttribute('href');
-    dock.setAttribute('aria-label', 'Back to home');
+    dock.setAttribute('aria-label', ctaName);
     dock.setAttribute('style', cta.getAttribute('style') || '');   // carries the case study's colors (--cta-rest, --cta-fill)
     dock.innerHTML = '<span class="dock-label">' + cta.innerHTML + '</span>' +
       '<svg class="dock-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>' +
-      '<span class="tooltip tip-right">Back to home</span>';   // the same bubble as the right-hand nav buttons: on the left of the button, arrow pointing at it
+      '<span class="tooltip tip-right"></span>';   // the same bubble as the right-hand nav buttons: on the left of the button, arrow pointing at it
+    dock.querySelector('.tooltip').textContent = ctaName;
     dock.style.display = 'none';
     document.body.appendChild(dock);   // created before the click handlers below are attached, so it gets the roll-up too
     dockLabel = dock.querySelector('.dock-label');
@@ -240,11 +244,11 @@
   function circleRect(){
     var h = homeCircle(), size = h.width;
     if (isPhone.matches){   // phones: on the card's left edge, as far below the card's top as the card's top is below the nav
-      var pc = caseCard.getBoundingClientRect();
+      var pc = dockCard.getBoundingClientRect();   // on a phone both kinds of card are a fixed frame that scrolls inside itself
       return { left: pc.left - size / 2, top: pc.top + (pc.top - h.bottom), width: size, height: size };
     }
     var lines = Array.prototype.map.call(document.querySelectorAll('#grid-lines-global span'), function(e){ return e.getBoundingClientRect().x; });
-    var cx = DOCK_COLUMN === 'gutter' ? (caseCard.getBoundingClientRect().right + lines[6]) / 2 : (lines[5] + lines[6]) / 2;
+    var cx = DOCK_COLUMN === 'gutter' ? (dockCard.getBoundingClientRect().right + lines[6]) / 2 : (lines[5] + lines[6]) / 2;
     return { left: cx - size / 2, top: (h.top + h.bottom) / 2 - size / 2, width: size, height: size };
   }
   function ctaRect(){ var r = cta.getBoundingClientRect(); return { left: r.left, top: r.top, width: r.width, height: r.height }; }
@@ -294,8 +298,8 @@
     if (!dock || leaving) return;
     var r = cta.getBoundingClientRect(), cy = r.top + r.height / 2, hr = homeCircle(), hy = (hr.top + hr.bottom) / 2;
     if (isPhone.matches){   // phones: when the button's top is as far below the card's top as the card's top is below the nav
-      if (!framed) return;
-      var fr = caseCard.getBoundingClientRect(), gap = fr.top - hr.bottom, off = r.top - fr.top;
+      if (caseCard && !framed) return;   // (a Creative Endeavors card is always a frame on a phone; a case study only once it has settled into one)
+      var fr = dockCard.getBoundingClientRect(), gap = fr.top - hr.bottom, off = r.top - fr.top;
       if (dockState === 'idle' && off <= gap) dockIn(false);
       else if (dockState === 'docked' && off > gap + 8) dockOut();
       return;
@@ -305,9 +309,9 @@
   }
   if (dock){
     window.addEventListener('scroll', checkDock, { passive: true });
-    caseCard.addEventListener('scroll', checkDock, { passive: true });   // phones: the card scrolls, not the page
+    dockCard.addEventListener('scroll', checkDock, { passive: true });   // phones, on a case study: the card scrolls, not the page
     window.addEventListener('resize', function(){
-      if (isPhone.matches && !framed){ dock.style.display = 'none'; cta.style.visibility = ''; dockState = 'idle'; return; }
+      if (isPhone.matches && caseCard && !framed){ dock.style.display = 'none'; cta.style.visibility = ''; dockState = 'idle'; return; }
       if (dockState === 'docked' && dockMix === 1) paintDock(circleRect(), 1);
       checkDock();
     });
@@ -324,7 +328,7 @@
   // arrows). The card follows the finger while the background color blends toward the next case study's; let go
   // past a quarter of the screen (or flick) and the card slides away and the next one slides in. Let go early and it
   // springs back. The outer 24px of the screen are left to the browser's own back/forward swipe.
-  var CASE_BG = { liteload: '#C2C2C2', walgreens: '#AFBFFD', ebay: '#B1CC72', cisco: '#80CCEC', urban: '#33363A' };
+  var CASE_BG = { liteload: '#C2C2C2', walgreens: '#AFBFFD', ebay: '#B1CC72', cisco: '#80CCEC', urban: '#2C2A2F' };
   var swipeEl = caseCard || (document.getElementById('case-dots') ? pageCard : null);   // the case studies, and the Creative Endeavors pages that have the dots (not the hub)
   if (swipeEl){
     var dotLinks = Array.prototype.slice.call(document.querySelectorAll('#case-dots a'));   // the order of the dots is the order of the loop
