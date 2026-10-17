@@ -86,142 +86,197 @@
          the tile's text with:  <img src="photos/your-file.jpg" alt="Describe the photo">
          The tile then links to that image automatically (opens in a new tab), and the image
          auto-crops to a square. For a larger version on click, add data-full="photos/big/your-file.jpg" to the img. -->
+    <div class="gallery-filters" role="group" aria-label="Show photos by theme">
+      <button type="button" data-filter="all" aria-pressed="true">All<span class="filter-count"></span></button>
+      <button type="button" data-filter="characters" aria-pressed="false">Characters<span class="filter-count"></span></button>
+      <button type="button" data-filter="water" aria-pressed="false">On the Water<span class="filter-count"></span></button>
+      <button type="button" data-filter="streets" aria-pressed="false">Streets &amp; Signs<span class="filter-count"></span></button>
+      <button type="button" data-filter="built" aria-pressed="false">Built<span class="filter-count"></span></button>
+      <button type="button" data-filter="road" aria-pressed="false">Open Country<span class="filter-count"></span></button>
+      <button type="button" data-filter="film" aria-pressed="false">Film<span class="filter-count"></span></button>
+    </div>
+
     <div class="gallery-grid">
-      <a class="tile" data-caption="Lake Merritt" href="images/photography/lake-lights-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Lake Merritt" data-meta="Oakland" data-tags="water" href="images/photography/lake-lights-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/lake-lights.jpg" data-full="images/photography/lake-lights-full.jpg" alt="Dusk by a lake: a lantern-style lamppost and a string of starburst lights stretch across a deep blue sky, with buildings and reflections on the water" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Fox" href="images/photography/fox-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Fox" data-meta="Running the fence line" data-tags="characters" href="images/photography/fox-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/fox.jpg" data-full="images/photography/fox-full.jpg" alt="A red fox trotting along a road beside a torn chain-link fence, with the bay behind it" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Hallway window" href="images/photography/hallway-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Hallway window" data-meta="Waiting on something" data-tags="built" href="images/photography/hallway-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/hallway.jpg" data-full="images/photography/hallway-full.jpg" alt="Three people silhouetted at a tall window at the end of a concrete corridor" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Songbirds" href="images/photography/birds-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Songbirds" data-meta="Laser-cut from vinyl records" data-tags="built" href="images/photography/birds-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/birds.jpg" data-full="images/photography/birds-full.jpg" alt="Birds cut from vinyl records, in flight on a white wall above an antique gramophone horn, casting long shadows" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Dried Abalone $2,175 a Pound" href="images/photography/abalone-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Dried Abalone $2,175 a Pound" data-meta="Yes, per pound" data-tags="streets" href="images/photography/abalone-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/abalone.jpg" data-full="images/photography/abalone-full.jpg" alt="Shelves of glass jars of dried abalone with handwritten Chinese price signs" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Thomas 2001" href="images/photography/organ-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Thomas 2001" data-meta="Waiting for a player" data-tags="built" href="images/photography/organ-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/organ.jpg" data-full="images/photography/organ-full.jpg" alt="A vintage Thomas 2001 electric organ, white with a black bench, on a terrazzo floor" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Frankie Fresh" href="images/photography/friends-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Frankie Fresh" data-meta="DJ, old friend" data-tags="characters" href="images/photography/friends-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/friends.jpg" data-full="images/photography/friends-full.jpg" alt="Frankie Fresh and a friend in front of a framed photograph of a pink car" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Mojave Heat" href="images/photography/rv-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Mojave Heat" data-meta="Mojave Desert" data-tags="road" href="images/photography/rv-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/rv.jpg" data-full="images/photography/rv-full.jpg" alt="The charred steel frame of a burned-out RV standing alone on a gravel lot in the desert, under a teal sky with mountains and utility poles behind" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Ribs and reflections" href="images/photography/ribs-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Ribs and reflections" data-meta="Looking up" data-tags="built" href="images/photography/ribs-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/ribs.jpg" data-full="images/photography/ribs-full.jpg" alt="Black-and-white view of a white ribbed ceiling and angled windows beside a column of rippled, mirror-like metal" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="San José Cementerio" href="images/photography/cementerio-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="San José Cementerio" data-meta="Gates, late afternoon" data-tags="streets" href="images/photography/cementerio-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/cementerio.jpg" data-full="images/photography/cementerio-full.jpg" alt="An arched iron sign reading San José Cementerio above two whitewashed gate pillars, silhouetted trees behind, against a deep blue sky" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="#mood" href="images/photography/smiley-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="#mood" data-meta="Found on the pavement" data-tags="characters" href="images/photography/smiley-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/smiley.jpg" data-full="images/photography/smiley-full.jpg" alt="A splash of yellow paint on pebbled concrete with a smiley face drawn on it in black" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Happy Place" href="images/photography/beach-path-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Happy Place" data-meta="The way down to the water" data-tags="water" href="images/photography/beach-path-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/beach-path.jpg" data-full="images/photography/beach-path-full.jpg" alt="A sandy path winding down between dark dunes to a bright, glittering ocean, with a few walkers and a dog in silhouette and the sun high above" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Farmhouse" href="images/photography/barns-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Farmhouse" data-meta="White on green" data-tags="road" href="images/photography/barns-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/barns.jpg" data-full="images/photography/barns-full.jpg" alt="Two white wooden barns on a green hillside beneath wind-shaped cypress trees and a deep blue sky" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Lipstick and the pug" href="images/photography/lipstick-pug-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Lipstick and the pug" data-meta="Getting ready" data-tags="characters" href="images/photography/lipstick-pug-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/lipstick-pug.jpg" data-full="images/photography/lipstick-pug-full.jpg" alt="A woman in a red jacket and tassel earrings holds up a lipstick while a pug on a wooden bench looks at her sideways" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Oakland 2049" href="images/photography/orange-sky-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Oakland 2049" data-meta="September 9, 2020" data-tags="streets" href="images/photography/orange-sky-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/orange-sky.jpg" data-full="images/photography/orange-sky-full.jpg" alt="A city street under a thick orange sky, with a clock tower and tall buildings ahead and a bus lane marked in the road" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Ghost Ship" href="images/photography/point-reyes-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Ghost Ship" data-meta="Inverness, Point Reyes" data-tags="water" href="images/photography/point-reyes-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/point-reyes.jpg" data-full="images/photography/point-reyes-full.jpg" alt="A weathered wooden boat with POINT REYES painted on its rust-stained hull, tilted on a sandy shore with the bay and hills behind" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Cypress Allee" href="images/photography/cypress-tunnel-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Cypress Allee" data-meta="Point Reyes" data-tags="road" href="images/photography/cypress-tunnel-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/cypress-tunnel.jpg" data-full="images/photography/cypress-tunnel-full.jpg" alt="A narrow road running through a tunnel of arching, wind-twisted cypress trees toward a white building at the far end" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Sad Couch" href="images/photography/quitting-business-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Sad Couch" data-meta="Everything must go" data-tags="streets" href="images/photography/quitting-business-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/quitting-business.jpg" data-full="images/photography/quitting-business-full.jpg" alt="A shuttered storefront with QUITTING BUSINESS SALE painted across boarded windows and a flowered loveseat abandoned on the curb below, in sepia" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Cumulus" href="images/photography/cloud-shadows-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Cumulus" data-meta="From the window seat" data-tags="road" href="images/photography/cloud-shadows-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/cloud-shadows.jpg" data-full="images/photography/cloud-shadows-full.jpg" alt="Black-and-white aerial view of small white clouds casting dark shadows over farmland, roads and a circular irrigation field" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Gold tower, half moon" href="images/photography/gold-tower-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Gold tower, half moon" data-meta="Find the moon" data-tags="built" href="images/photography/gold-tower-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/gold-tower.jpg" data-full="images/photography/gold-tower-full.jpg" alt="A gold tower of stacked, scalloped tiers rising against a blue sky with a half moon" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Engine 6595" href="images/photography/engine-6595-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Engine 6595" data-meta="Freight, passing through" data-tags="road" href="images/photography/engine-6595-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/engine-6595.jpg" data-full="images/photography/engine-6595-full.jpg" alt="A tan and gray locomotive numbered 6595 passing a flat, dry prairie under a pale sky" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Greenhouse, two chairs" href="images/photography/greenhouse-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Greenhouse, two chairs" data-meta="Room for two" data-tags="built" href="images/photography/greenhouse-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/greenhouse.jpg" data-full="images/photography/greenhouse-full.jpg" alt="Inside a brick-walled glass greenhouse with a chandelier, two ornate chairs and a checkerboard floor, trees visible through the windows" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Electric Cock" href="images/photography/fresas-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Electric Cock" data-meta="Fresas, chicken al carbón" data-tags="streets" href="images/photography/fresas-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/fresas.jpg" data-full="images/photography/fresas-full.jpg" alt="A neon rooster glowing orange, pink and green above a sign reading Fresa's Chicken al Carbon, against a purple dusk sky and tangled power lines" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Floating glass" href="images/photography/floating-glass-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Floating glass" data-meta="Windows, or not" data-tags="built" href="images/photography/floating-glass-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/floating-glass.jpg" data-full="images/photography/floating-glass-full.jpg" alt="Rectangular panes of pale green glass scattered across a white wall like dashes, casting small shadows" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Boat slips at dusk" href="images/photography/boat-slips-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Boat slips at dusk" data-meta="Low light" data-tags="water" href="images/photography/boat-slips-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/boat-slips.jpg" data-full="images/photography/boat-slips-full.jpg" alt="Black-and-white silhouette of covered boat slips and floating docks at a marina at dusk, mirrored in still water" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Granite" href="images/photography/granite-full.jpg" target="_blank" rel="noopener">
-        <img src="images/photography/granite.jpg" data-full="images/photography/granite-full.jpg" alt="A steep, sunlit granite cliff streaked with dark water stains, with small trees clinging to its ledges against a pale blue sky" width="640" height="640" loading="lazy" decoding="async">
-      </a>
-      <a class="tile" data-caption="Kayaks from above" href="images/photography/kayaks-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Kayaks from above" data-meta="Kayak polo" data-tags="water" href="images/photography/kayaks-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/kayaks.jpg" data-full="images/photography/kayaks-full.jpg" alt="Black-and-white view from above of kayakers in helmets paddling in dark water around a rectangular frame hung from a cable" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Whale bones" href="images/photography/whale-bones-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Whale bones" data-meta="Laid out like a parts diagram" data-tags="characters" href="images/photography/whale-bones-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/whale-bones.jpg" data-full="images/photography/whale-bones-full.jpg" alt="Black-and-white view of a whale skeleton laid out on a wooden deck, huge jawbones in the foreground and ribs fanned out around the skull" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Natural history" href="images/photography/natural-history-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Natural history" data-meta="Behind glass" data-tags="built" href="images/photography/natural-history-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/natural-history.jpg" data-full="images/photography/natural-history-full.jpg" alt="Black-and-white wall of glass display boxes holding taxidermy animals, including an owl, a bobcat, an eagle, a mountain lion and a deer, against a painted mountain backdrop" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Asphalt monster" href="images/photography/asphalt-monster-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Asphalt monster" data-meta="Chalk on a shadow" data-tags="characters" href="images/photography/asphalt-monster-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/asphalt-monster.jpg" data-full="images/photography/asphalt-monster-full.jpg" alt="A fierce horned face with fangs drawn in chalk on a dark stain on rough asphalt" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Desert road" href="images/photography/desert-road-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Desert road" data-meta="End 50" data-tags="road" href="images/photography/desert-road-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/desert-road.jpg" data-full="images/photography/desert-road-full.jpg" alt="A two-lane desert road with a double yellow line running toward distant mountains under heavy white clouds, with a utility pole and an End 50 Speed Limit sign" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Marina sunset" href="images/photography/marina-sunset-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Marina sunset" data-meta="Last light on the docks" data-tags="water" href="images/photography/marina-sunset-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/marina-sunset.jpg" data-full="images/photography/marina-sunset-full.jpg" alt="A sunset of purple, pink and orange clouds over a marina, with a sailboat moored at a dock and its reflection in still water" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Boat shop" href="images/photography/boat-shop-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Boat shop" data-meta="Wooden boats, mid-restoration" data-tags="water" href="images/photography/boat-shop-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/boat-shop.jpg" data-full="images/photography/boat-shop-full.jpg" alt="Inside a tall boatbuilding shop, wooden boats hanging from the rafters and resting on stands beneath white roof trusses" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Misty dock" href="images/photography/lake-dock-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Misty dock" data-meta="Early morning" data-tags="water" href="images/photography/lake-dock-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/lake-dock.jpg" data-full="images/photography/lake-dock-full.jpg" alt="A person stands at the end of a long floating dock on a still, misty lake, framed by pine branches and the railings of a wooden stairway" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Stranded dinghy" href="images/photography/stranded-dinghy-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Stranded dinghy" data-meta="Waiting on the tide" data-tags="water" href="images/photography/stranded-dinghy-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/stranded-dinghy.jpg" data-full="images/photography/stranded-dinghy-full.jpg" alt="A small turquoise sailing dinghy with an orange life jacket in the cockpit, beached on rocks and dry mud, seen from above" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Foxgloves, rocking chair" href="images/photography/foxgloves-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Foxgloves, rocking chair" data-meta="Window light" data-tags="built" href="images/photography/foxgloves-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/foxgloves.jpg" data-full="images/photography/foxgloves-full.jpg" alt="Tall pink-and-white foxgloves in a window's light beside a cane rocking chair and a wood-paneled wall" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Cosmo Place" href="images/photography/cosmo-place-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Cosmo Place" data-meta="San Francisco" data-tags="streets" href="images/photography/cosmo-place-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/cosmo-place.jpg" data-full="images/photography/cosmo-place-full.jpg" alt="A narrow, shaded alley ending at a white building with an orange double door and a Le Colonial sign, with a Cosmo street sign and a left-turn-only sign beside it" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Brass and curves" href="images/photography/brass-curves-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Brass and curves" data-meta="Art deco, looking up" data-tags="built" href="images/photography/brass-curves-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/brass-curves.jpg" data-full="images/photography/brass-curves-full.jpg" alt="Looking up through a curving atrium toward a skylight, with brass arched railings in the foreground and red doors behind them" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Cathedral light" href="images/photography/cathedral-light-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Cathedral light" data-meta="Oakland" data-tags="built" href="images/photography/cathedral-light-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/cathedral-light.jpg" data-full="images/photography/cathedral-light-full.jpg" alt="A tall white statue projected onto a translucent screen inside a wooden-slatted vaulted hall, with organ pipes at the right" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="Big Smile" data-meta="Somebody gave it a face" data-tags="characters" href="images/photography/turret-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/turret.jpg" data-full="images/photography/turret-full.jpg" alt="A decommissioned naval gun turret painted with a grinning cartoon face and pink tongue" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="Long Day" data-meta="The room didn’t notice" data-tags="characters" href="images/photography/long-day-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/long-day.jpg" data-full="images/photography/long-day-full.jpg" alt="A man in a blue shirt slumped in a leather armchair, hand on his forehead, before a wall of diagonal wooden slats" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="Under the Pier" data-meta="Low tide" data-tags="water" href="images/photography/under-the-pier-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/under-the-pier.jpg" data-full="images/photography/under-the-pier-full.jpg" alt="Rows of barnacled concrete pillars beneath a pier, receding into darkness over still water" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="Lying in Wait" data-meta="Look again" data-tags="characters" href="images/photography/lying-in-wait-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/lying-in-wait.jpg" data-full="images/photography/lying-in-wait-full.jpg" alt="A heron perched on one of two concrete blocks in the water, both painted with eyes so they look like a lurking alligator" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="MASP" data-meta="São Paulo Museum of Art" data-tags="built" href="images/photography/masp-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/masp.jpg" data-full="images/photography/masp-full.jpg" alt="Two red dots on a glass wall over a concrete staircase and an exit sign at the São Paulo Museum of Art" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="Heading In" data-meta="San Francisco Bay" data-tags="water" href="images/photography/heading-in-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/heading-in.jpg" data-full="images/photography/heading-in-full.jpg" alt="Black-and-white view from a sailboat’s deck, sail and rigging framing the San Francisco skyline and Bay Bridge under fog" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="The Cables" data-meta="Half Dome, Yosemite" data-tags="road" href="images/photography/the-cables-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/the-cables.jpg" data-full="images/photography/the-cables-full.jpg" alt="Tiny hikers climbing the cables up the sheer granite face of Half Dome" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="Illustrator" data-meta="Adobe" data-tags="built" href="images/photography/illustrator-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/illustrator.jpg" data-full="images/photography/illustrator-full.jpg" alt="A glowing grid of orange squares forming the Adobe Illustrator logo in an Adobe lobby, a woman silhouetted on her phone" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="Noah" data-meta="Bishop Peak · a 40th birthday hike" data-tags="characters road" href="images/photography/noah-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/noah.jpg" data-full="images/photography/noah-full.jpg" alt="Black-and-white photo of a friend in a cap looking out from under a rock overhang over a wide valley" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="Crates" data-meta="Sunbursts through the slats" data-tags="built" href="images/photography/crates-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/crates.jpg" data-full="images/photography/crates-full.jpg" alt="Black-and-white wall of stacked wooden wine crates lit by starbursts of sunlight" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="Fogworks" data-meta="Fireworks, swallowed by fog" data-tags="water" href="images/photography/fogworks-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/fogworks.jpg" data-full="images/photography/fogworks-full.jpg" alt="Fireworks bursting inside thick fog over dark water, the sparks blurred into a glowing canopy" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="BART" data-meta="San Leandro station" data-tags="streets" href="images/photography/bart-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/bart.jpg" data-full="images/photography/bart-full.jpg" alt="A silver BART train stopped at San Leandro station, doors closed, the platform canopy above" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="Weathered" data-meta="Siding, shingle, shadow" data-tags="built" href="images/photography/weathered-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/weathered.jpg" data-full="images/photography/weathered-full.jpg" alt="Weathered barn siding and shingles in horizontal bands above a broken multi-pane window" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="Port of Oakland" data-meta="Where the loading sheets begin" data-tags="water" href="images/photography/port-of-oakland-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/port-of-oakland.jpg" data-full="images/photography/port-of-oakland-full.jpg" alt="Container cranes at the Port of Oakland silhouetted against the sun, light streaking across the tidal flats" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="Oakland Riviera" data-meta="A ray in the shallows" data-tags="characters water" href="images/photography/oakland-riviera-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/oakland-riviera.jpg" data-full="images/photography/oakland-riviera-full.jpg" alt="Looking down into green and gray bay water at a ray gliding through the shallows" width="640" height="640" loading="lazy" decoding="async">
+      </a>
+      <a class="tile" data-caption="Mr. Buddy" data-meta="Reflecting · in memory" data-tags="characters" href="images/photography/mr-buddy-full.jpg" target="_blank" rel="noopener">
+        <img src="images/photography/mr-buddy.jpg" data-full="images/photography/mr-buddy-full.jpg" alt="A small dog on the edge of an infinity pool under an oak tree, overlooking a lake at dusk" width="640" height="640" loading="lazy" decoding="async">
       </a>
       <!-- Film: the college series, kept together. Square thumbnails are hand-cropped; the viewer shows each frame uncropped.
            The -full files are small scans scaled up as a stopgap: replace them with the rescans (same file names). -->
-      <a class="tile" data-caption="Behind the Glass" data-meta="Film" href="images/photography/behind-the-glass-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Behind the Glass" data-meta="Film" data-tags="film" href="images/photography/behind-the-glass-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/behind-the-glass.jpg" data-full="images/photography/behind-the-glass-full.jpg" alt="A hand and a dark shape pressed behind a pane of shattered glass, cracks radiating from the point of impact" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Burned Cab" data-meta="Film" href="images/photography/burned-cab-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Burned Cab" data-meta="Film" data-tags="film" href="images/photography/burned-cab-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/burned-cab.jpg" data-full="images/photography/burned-cab-full.jpg" alt="The gutted cab of a burned-out truck, its steering wheel framed by a cracked windshield and an industrial yard beyond" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="The Jokeman" data-meta="Telegraph Ave, Berkeley · Film" href="images/photography/jokeman-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="The Jokeman" data-meta="Telegraph Ave, Berkeley · Film" data-tags="film characters" href="images/photography/jokeman-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/jokeman.jpg" data-full="images/photography/jokeman-full.jpg" alt="The Jokeman, a smiling man in glasses and a hood, a fixture of Telegraph Avenue who told jokes for a dollar" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Fire Escapes" data-meta="Film" href="images/photography/fire-escapes-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Fire Escapes" data-meta="Film" data-tags="film" href="images/photography/fire-escapes-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/fire-escapes.jpg" data-full="images/photography/fire-escapes-full.jpg" alt="Looking down a narrow alley at fire escapes zigzagging between buildings, light raking one wall" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="350" data-meta="Film" href="images/photography/doorway-350-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="350" data-meta="Film" data-tags="film" href="images/photography/doorway-350-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/doorway-350.jpg" data-full="images/photography/doorway-350-full.jpg" alt="A diagonal shadow across a torn screen door on a weathered clapboard house numbered 350" width="640" height="640" loading="lazy" decoding="async">
       </a>
-      <a class="tile" data-caption="Resist" data-meta="Film" href="images/photography/resist-full.jpg" target="_blank" rel="noopener">
+      <a class="tile" data-caption="Resist" data-meta="Film" data-tags="film" href="images/photography/resist-full.jpg" target="_blank" rel="noopener">
         <img src="images/photography/resist.jpg" data-full="images/photography/resist-full.jpg" alt="Sepia photograph of coils of razor wire draped with torn plastic in front of a brick building with the word RESIST painted below a window" width="640" height="640" loading="lazy" decoding="async">
       </a>
     </div>

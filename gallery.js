@@ -140,7 +140,9 @@
   var ICON = function(d){ return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"/></svg>'; };
   var fullOf = function(tile){ var im = tile.querySelector('img'); return im.getAttribute('data-full') || im.getAttribute('src'); };
   var titleOf = function(tile){ return tile.getAttribute('data-caption') || (tile.querySelector('img').alt || ''); };
-  Array.prototype.forEach.call(viewable, function(tile, i){ tile.setAttribute('aria-label', 'View ' + titleOf(tile) + ', photo ' + (i + 1) + ' of ' + viewable.length); });
+  var shown = viewable;   // the tiles the current theme filter shows; the viewer steps through these only
+  function labelTiles(){ shown.forEach(function(tile, i){ tile.setAttribute('aria-label', 'View ' + titleOf(tile) + ', photo ' + (i + 1) + ' of ' + shown.length); }); }
+  labelTiles();
 
   function build(){
     lb = document.createElement('div');
@@ -207,15 +209,15 @@
     window.addEventListener('popstate', function(){ if (lb && lb.classList.contains('is-open')){ pushed = false; close(); } });   // the browser's Back closes the viewer
   }
   function show(i, dir){
-    var n = viewable.length; idx = ((i % n) + n) % n;
-    var tile = viewable[idx], im = tile.querySelector('img'), full = fullOf(tile), meta = tile.getAttribute('data-meta') || '';
+    var n = shown.length; idx = ((i % n) + n) % n;
+    var tile = shown[idx], im = tile.querySelector('img'), full = fullOf(tile), meta = tile.getAttribute('data-meta') || '';
     lb.style.setProperty('--lb-accent', tile.getAttribute('data-frame') || '#ADD944');   // framed in the picture's own colour
     lbTitle.textContent = titleOf(tile); lbMeta.textContent = meta; lbMeta.hidden = !meta;
     lbCount.textContent = (idx + 1) + ' / ' + n; lbFull.href = full; lbImg.alt = im.alt || '';
     lbImg.src = im.currentSrc || im.getAttribute('src');   // the thumbnail is already in hand: show it at once...
-    var big = new Image(); big.onload = function(){ if (viewable[idx] === tile) lbImg.src = full; }; big.src = full;   // ...then the full picture
+    var big = new Image(); big.onload = function(){ if (shown[idx] === tile) lbImg.src = full; }; big.src = full;   // ...then the full picture
     if (dir && !reduce && lbFrame.animate) lbFrame.animate([{ opacity: 0, transform: 'translateX(' + (dir > 0 ? 36 : -36) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)' });
-    [1, -1].forEach(function(d){ var p = new Image(); p.src = fullOf(viewable[(idx + d + n) % n]); });   // the neighbours, ready for the next step
+    [1, -1].forEach(function(d){ var p = new Image(); p.src = fullOf(shown[(idx + d + n) % n]); });   // the neighbours, ready for the next step
   }
   function open(i){
     if (!lb) build();
@@ -226,16 +228,42 @@
   function close(){
     if (!lb || !lb.classList.contains('is-open')) return;
     lb.classList.remove('is-open'); document.documentElement.classList.remove('lb-open');
-    var tile = viewable[idx]; setTimeout(function(){ if (!lb.classList.contains('is-open')) lb.hidden = true; }, reduce ? 0 : 240);
+    var tile = shown[idx]; setTimeout(function(){ if (!lb.classList.contains('is-open')) lb.hidden = true; }, reduce ? 0 : 240);
     if (pushed){ pushed = false; try { history.back(); } catch (e) {} }
     if (tile) tile.focus();
   }
   Array.prototype.forEach.call(viewable, function(tile){
     tile.addEventListener('click', function(e){
       if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;   // Cmd/Ctrl-click: the full picture in its own tab
-      e.preventDefault(); open(viewable.indexOf(tile));
+      e.preventDefault(); open(shown.indexOf(tile));
     });
   });
+
+
+  /* ---------------- Themes: filter the gallery ----------------
+     Buttons in .gallery-filters carry data-filter; tiles carry data-tags (space-separated, a tile can have several).
+     "all" shows everything. The choice lives in the address (photos.html#water) so a theme can be linked to, and the
+     viewer only steps through the photos that are showing. */
+  var bar = document.querySelector('.gallery-filters');
+  if (bar){
+    var buttons = Array.prototype.slice.call(bar.querySelectorAll('button[data-filter]'));
+    var tagsOf = function(tile){ return (tile.getAttribute('data-tags') || '').split(/\s+/); };
+    buttons.forEach(function(b){   // how many photos each theme holds
+      var k = b.getAttribute('data-filter'), n = k === 'all' ? tiles.length : Array.prototype.filter.call(tiles, function(t){ return tagsOf(t).indexOf(k) >= 0; }).length;
+      var c = b.querySelector('.filter-count'); if (c) c.textContent = String(n);
+      if (!n && k !== 'all') b.hidden = true;
+    });
+    var apply = function(k, push){
+      if (!buttons.some(function(b){ return b.getAttribute('data-filter') === k; })) k = 'all';
+      buttons.forEach(function(b){ b.setAttribute('aria-pressed', String(b.getAttribute('data-filter') === k)); });
+      Array.prototype.forEach.call(tiles, function(t){ t.hidden = !(k === 'all' || tagsOf(t).indexOf(k) >= 0); });
+      shown = viewable.filter(function(t){ return !t.hidden; });
+      labelTiles();
+      if (push){ try { history.replaceState(history.state, '', k === 'all' ? location.pathname + location.search : '#' + k); } catch (e) {} }
+    };
+    buttons.forEach(function(b){ b.addEventListener('click', function(){ apply(b.getAttribute('data-filter'), true); }); });
+    apply(location.hash.replace('#', '') || 'all', false);
+  }
 
   window.tileFrames = function(){   // handy in the console: what colour each tile settled on, and how
     return Array.prototype.map.call(tiles, function(t){ return { tile: (t.querySelector('img') || {}).alt || t.textContent.trim(), colour: t.getAttribute('data-frame'), source: t.getAttribute('data-frame-source') }; });

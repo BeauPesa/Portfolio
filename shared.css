@@ -928,8 +928,8 @@ body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-to
    of the button that site.js resizes and moves. Phones keep the plain button. */
 .back-dock{ position:fixed; z-index:20; margin:0; padding:0; overflow:hidden; min-width:0; display:flex; align-items:center; justify-content:center; }
 .back-dock .dock-arrow{ position:absolute; left:50%; top:50%; width:15px; height:15px; margin:-7.5px 0 0 -7.5px; opacity:0; pointer-events:none; }
-.back-dock.is-circle{ background: var(--dock-bg, var(--cta-rest)); color: var(--dock-fg, var(--paper)); box-shadow: 0 0 0 var(--dock-ring-w, 0px) var(--paper); }   /* a case study on a dark ground sets --dock-ring-w so the circle keeps its shape against it */   /* inverted: the case study's own solid colour, the same as its No. button */
-.back-dock.is-circle:hover, .back-dock.is-circle:focus-visible{ background: var(--paper); color: var(--dock-hover-fg, var(--cta-rest)); }   /* and back the other way on hover */
+.back-dock.is-circle{ background: var(--dock-bg, var(--cta-rest)); border-color: var(--dock-bg, var(--cta-rest)); color: var(--dock-fg, var(--paper)); box-shadow: 0 0 0 var(--dock-ring-w, 0px) var(--paper); }   /* a case study on a dark ground sets --dock-ring-w so the circle keeps its shape against it */   /* inverted: the case study's own solid colour, the same as its No. button */
+.back-dock.is-circle:hover, .back-dock.is-circle:focus-visible{ background: var(--paper); color: var(--dock-hover-fg, var(--cta-rest)); border-color: var(--dock-bg, var(--cta-rest)); }   /* and back the other way on hover */
 
 /* ---------- Phones: the case-study card is exactly as tall as the frame, and so is the homepage card ----------
    --card-h is the frame's height (the screen minus the room for the nav above and the dots below). Both cards are at
@@ -1115,3 +1115,22 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 .gallery-grid .tile.is-soon:hover{ transform:none; box-shadow:none; background:none; }
 .gallery-grid .tile .tile-soon{ position:absolute; top:0.6rem; right:0.6rem; padding:0.3rem 0.7rem; border-radius:999px; background: rgba(16,17,20,0.78); color:#fff; font-family:'IBM Plex Sans', sans-serif; font-size:0.66rem; font-weight:600; letter-spacing:0.09em; text-transform:uppercase; line-height:1.2; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 @media (max-width: 720px){ .gallery-grid .tile .tile-soon{ top:0.5rem; right:0.5rem; padding:0.26rem 0.58rem; font-size:0.6rem; } }
+
+/* ---------- Photography: theme filters ----------
+   A row of pill buttons above the gallery, the same outline pills as the page's back button. The one showing is
+   filled lime, the Creative Endeavors color. Each carries a small count of the photos in that theme. */
+.gallery-filters{ display:flex; flex-wrap:wrap; gap:0.5rem; width: calc(3 * var(--grid-gap)); max-width:100%; }
+.gallery-filters button{ display:inline-flex; align-items:center; gap:0.45em; height: var(--u); padding:0 0.85rem; border-radius:999px; border:1px solid #4D4D4D; background:transparent; color:#4D4D4D; font:600 0.85rem/1 'IBM Plex Sans', sans-serif; cursor:pointer; transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease); }
+.gallery-filters button:hover{ border-color:#1B1C1E; color:#1B1C1E; }
+.gallery-filters button[aria-pressed="true"]{ background: var(--accent-personal); border-color: var(--accent-personal); color:#1B1C1E; }
+.gallery-filters button:focus-visible{ outline:2px solid #1B1C1E; outline-offset:2px; }
+.gallery-filters .filter-count{ font-weight:400; font-size:0.75rem; opacity:0.7; font-variant-numeric: tabular-nums; }
+.gallery-grid .tile[hidden]{ display:none; }
+@media (max-width: 720px){
+  .gallery-filters{ width: calc(2 * var(--mobile-grid-gap)); gap:0.4rem; }
+  .gallery-filters button{ padding:0 0.65rem; font-size:0.78rem; }
+}
+
+/* ---------- About: the Polaroid ---------- */
+.about-polaroid{ display:block; width: calc(2 * var(--grid-gap)); max-width:100%; height:auto; margin: 0.5rem 0; border-radius:2px; box-shadow: 0 18px 40px -18px rgba(0,0,0,0.6); }
+@media (max-width: 720px){ .about-polaroid{ width: var(--col, 100%); } }
