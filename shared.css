@@ -1138,5 +1138,22 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 /* ---------- A photo whose colour is the point stays in colour in the grid (data-color on the tile) ---------- */
 .gallery-grid .tile[data-color] img{ filter:none; }
 
-/* ---------- Sketchbooks: watercolor is the point, so these tiles stay in color ---------- */
-.gallery-grid.in-color .tile img{ filter:none; }
+/* ---------- Sketchbooks: whole spreads, laid out like open books on a table ----------
+   Each spread keeps its own shape (--ar) and its book-edge transparency, sits a touch askew with a soft
+   shadow, and straightens up into color on hover. Wide spreads take the row; "is-half" ones pair up. */
+.gallery-grid.spread-table{ grid-template-columns: repeat(2, 1fr); gap: 2.6rem 1.8rem; width: calc(4 * var(--grid-gap)); max-width:100%; }
+.gallery-grid.spread-table .tile{ grid-column: 1 / -1; aspect-ratio: var(--ar, 2 / 1); padding:0; overflow:visible; background:none; border:0; }
+.gallery-grid.spread-table .tile.is-half{ grid-column: auto; }
+.gallery-grid.spread-table .tile::after{ display:none; }
+.gallery-grid.spread-table .tile:hover, .gallery-grid.spread-table .tile:focus-visible{ background:none; box-shadow:none; transform:none; }
+.gallery-grid.spread-table .tile img{ object-fit:contain; filter: grayscale(1) drop-shadow(0 14px 18px rgba(16,17,20,0.28)); transform: rotate(-0.7deg);
+  transition: transform 0.6s var(--ease), filter 0.5s var(--ease); }
+.gallery-grid.spread-table .tile:nth-child(3n+2) img{ transform: rotate(0.6deg); }
+.gallery-grid.spread-table .tile:nth-child(3n) img{ transform: rotate(-0.3deg); }
+.gallery-grid.spread-table .tile:hover img, .gallery-grid.spread-table .tile:focus-visible img{ transform: rotate(0deg) translateY(-6px) scale(1.015);
+  filter: grayscale(0) drop-shadow(0 24px 28px rgba(16,17,20,0.35)); }
+@media (max-width: 720px){
+  .gallery-grid.spread-table{ grid-template-columns: 1fr; gap: 1.6rem; width:auto; }
+  .gallery-grid.spread-table .tile.is-half{ grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce){ .gallery-grid.spread-table .tile img{ transform:none !important; transition:none; } }
