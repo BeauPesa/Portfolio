@@ -1,4 +1,4 @@
-// Gallery tiles (Photography, Screen Printing, Sketchbooks, Writing).
+// Gallery tiles (Photography, Printmaking, Sketchbooks, Writing).
 //
 // Every tile is one big link. With a picture (<img>) inside, the tile is a square crop of it: black and white until
 // you hover, when it lifts, goes to colour, and is framed in a colour taken from the picture itself.

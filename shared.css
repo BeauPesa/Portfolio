@@ -1125,7 +1125,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 .gallery-filters button[aria-pressed="true"]{ background: var(--accent-personal); border-color: var(--accent-personal); color:#1B1C1E; }
 .gallery-filters button:focus-visible{ outline:2px solid #1B1C1E; outline-offset:2px; }
 .gallery-filters .filter-count{ font-weight:400; font-size:0.75rem; opacity:0.7; font-variant-numeric: tabular-nums; }
-.gallery-grid .tile[hidden]{ display:none; }
+.gallery-grid .tile[hidden], .gallery-filters button[hidden]{ display:none; }
 @media (max-width: 720px){
   .gallery-filters{ width: calc(2 * var(--mobile-grid-gap)); gap:0.4rem; }
   .gallery-filters button{ padding:0 0.65rem; font-size:0.78rem; }
