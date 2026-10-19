@@ -734,29 +734,27 @@ body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-to
 }
 
 /* ---------- Résumé card ----------
-   A paper card with the same footprint as the homepage cards (midpoint of pinstripes 1-2 to the
-   midpoint of 6-7) and the proportions of the page (8.5 x 11), holding the résumé itself exactly
-   from pinstripe 2 to pinstripe 6. The whole card is one link to the PDF (it opens in the browser's
-   PDF viewer, which has its own download button). Hover lifts the résumé and casts a drop shadow
-   onto the card. */
+   A paper card that hugs the résumé: the résumé runs exactly from pinstripe 2 to pinstripe 6 (2 to 4 on
+   phones), and the card reaches a quarter of a column past it on every side. Only the résumé itself is the
+   link and the hover target: it lifts, casts a shadow onto the card, and an "Open PDF" chip appears beside
+   the card, where it can't cover anything. It opens in the browser's PDF viewer, which has its own download
+   button. */
 .resume-thumb{
   position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width: calc(5 * var(--grid-gap));
-  aspect-ratio: 8.5 / 11;
-  margin: 4rem 0 0 calc(-0.5 * var(--grid-gap));
+  display:block;
+  width:max-content;
+  padding: calc(0.25 * var(--grid-gap));
+  margin: 4rem 0 0 calc(-0.25 * var(--grid-gap));
   background: var(--paper);
   box-shadow: 0 30px 60px -20px rgba(0,0,0,0.55);
-  text-decoration:none;
 }
 .resume-sheet{
   position:relative;
   display:block;
-  width: calc(100% - var(--grid-gap)); /* pinstripe 2 -> 6 */
+  width: calc(4 * var(--grid-gap)); /* pinstripe 2 -> 6 */
   background:#fff;
   box-shadow: 0 1px 3px rgba(16,17,20,0.18); /* hairline, so the white page reads against the paper card */
+  text-decoration:none;
   transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
 }
 .resume-sheet img{ display:block; width:100%; height:auto; }
@@ -768,18 +766,26 @@ body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-to
   pointer-events:none;
   transition: border-color 0.25s var(--ease);
 }
-.resume-thumb:hover .resume-sheet,
-.resume-thumb:focus-visible .resume-sheet{
+.resume-sheet:hover,
+.resume-sheet:focus-visible{
   transform: translateY(-6px);
   box-shadow: 0 26px 44px -14px rgba(16,17,20,0.55);
 }
-.resume-thumb:hover .resume-sheet::after,
-.resume-thumb:focus-visible .resume-sheet::after{ border-color: var(--accent-personal); }
-.resume-thumb:focus-visible{ outline:2px solid #fff; outline-offset:4px; }
-.resume-thumb-chip{
+.resume-sheet:hover::after,
+.resume-sheet:focus-visible::after{ border-color: var(--accent-personal); }
+.resume-sheet:focus-visible{ outline:2px solid #fff; outline-offset:4px; }
+.resume-chip-rail{            /* a lane beside the card, as tall as the card, for the chip to travel in */
   position:absolute;
-  top:1rem;
-  right:1rem;
+  top: calc(0.25 * var(--grid-gap));
+  bottom: calc(0.25 * var(--grid-gap));
+  left: calc(100% + 0.75rem);
+  pointer-events:none;
+}
+.resume-thumb-chip{
+  position:sticky;
+  top: calc(50vh - 1.2rem);    /* rides along mid-screen, so it's visible wherever you hover the résumé */
+  display:inline-block;
+  white-space:nowrap;
   padding:0.55rem 1rem;
   border-radius:999px;
   background: var(--accent-personal);
@@ -787,18 +793,19 @@ body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-to
   font-weight:600;
   font-size:0.9rem;
   opacity:0;
-  transform: translateY(-4px);
+  transform: translateX(-4px);
   transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
-  pointer-events:none;
 }
-.resume-thumb:hover .resume-thumb-chip,
-.resume-thumb:focus-visible .resume-thumb-chip{ opacity:1; transform:none; }
+.resume-sheet:hover + .resume-chip-rail .resume-thumb-chip,
+.resume-sheet:focus-visible + .resume-chip-rail .resume-thumb-chip{ opacity:1; transform:none; }
 @media (max-width: 720px){
   .resume-thumb{
-    width: calc(3 * var(--mobile-grid-gap));
-    margin-left: calc(-0.5 * var(--mobile-grid-gap));
+    padding: calc(0.25 * var(--mobile-grid-gap));
+    margin-left: calc(-0.25 * var(--mobile-grid-gap));
+    margin-top: 2.5rem;
   }
-  .resume-sheet{ width: calc(100% - var(--mobile-grid-gap)); } /* pinstripe 2 -> 4 of the 5 visible lines */
+  .resume-sheet{ width: calc(2 * var(--mobile-grid-gap)); } /* pinstripe 2 -> 4 of the 5 visible lines */
+  .resume-chip-rail{ display:none; }  /* no hover on touch; a tap simply opens the PDF */
 }
 
 /* ---------- Phones: Creative Endeavors and its sub-pages ----------
@@ -1167,6 +1174,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
   body.has-page-card .page-hero{ align-items:flex-start; padding-bottom: var(--card-end); }
   body.has-page-card .page-card{ min-height: calc(100vh - 6rem - var(--card-end)); }
   body.has-case-nav .page-hero{ padding-bottom: var(--card-end); }
+  .page-hero:has(.resume-thumb){ padding-bottom: var(--card-end); }   /* the résumé card ends on the line too */
 }
 /* gallery pages: a little more air under the last row of tiles */
 .page-hero .page-card:has(> .gallery-grid:last-child){ padding-bottom: calc(2 * var(--u)); }
