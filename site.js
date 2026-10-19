@@ -526,3 +526,51 @@
     layoutBar();
   }
 })();
+
+
+/* ---------------- 9. Phones: the fade under the nav on pages without a card ----------------
+   A band in the page's background color sits between the scrolling content and the nav, solid to the bottom
+   of the icons, then fading out over two icon diameters (sizes in shared.css). On the homepage the background
+   changes color from section to section, so the band reads the live color of #bg-layer every frame. The
+   pinstripes would vanish under the band, so a copy of them sits on top of it: same padding, same dashed
+   border, offset by the scroll position so its dashes line up exactly with the real lines below. */
+(function(){
+  if (document.querySelector('.page-card, .case-page-card')) return;   // card pages clip their own content
+  var lines = document.getElementById('grid-lines-global');
+  if (!lines) return;
+  var phone = window.matchMedia('(max-width: 720px)');
+  var band = document.createElement('div'); band.id = 'top-fade'; band.setAttribute('aria-hidden', 'true');
+  var top = document.createElement('div'); top.id = 'top-fade-lines'; top.setAttribute('aria-hidden', 'true');
+  var inner = document.createElement('div'); top.appendChild(inner);
+  var spans = Array.prototype.map.call(lines.children, function(){ var s = document.createElement('span'); inner.appendChild(s); return s; });
+  document.body.appendChild(band); document.body.appendChild(top);
+  var bgLayer = document.getElementById('bg-layer');
+  var lastColor = '', lastY = -1, lastH = -1;
+  function copyLines(){
+    var ls = getComputedStyle(lines);
+    inner.style.paddingLeft = ls.paddingLeft; inner.style.paddingRight = ls.paddingRight;
+    Array.prototype.forEach.call(lines.children, function(src, i){
+      var cs = getComputedStyle(src), s = spans[i];
+      s.style.display = cs.display;
+      s.style.borderLeft = cs.borderLeftWidth + ' ' + cs.borderLeftStyle + ' ' + cs.borderLeftColor;
+      s.style.mixBlendMode = cs.mixBlendMode;
+    });
+  }
+  function frame(){
+    if (phone.matches){
+      var c = getComputedStyle(bgLayer || document.body).backgroundColor;
+      if (c !== lastColor){
+        lastColor = c;
+        var m = c.match(/\d+(\.\d+)?/g) || [16, 17, 20];
+        var clear = 'rgba(' + m[0] + ',' + m[1] + ',' + m[2] + ',0)';
+        band.style.background = 'linear-gradient(to bottom, ' + c + ' 0, ' + c + ' calc(0.9rem + 26px), ' + clear + ' 100%)';
+        copyLines();   // the homepage recolors its lines with the background, so follow along
+      }
+      var y = window.scrollY, h = lines.offsetHeight;
+      if (y !== lastY || h !== lastH){ inner.style.top = (lines.offsetTop - y) + 'px'; inner.style.height = h + 'px'; lastY = y; lastH = h; }
+    }
+    requestAnimationFrame(frame);
+  }
+  copyLines();
+  requestAnimationFrame(frame);
+})();

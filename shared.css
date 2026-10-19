@@ -1187,29 +1187,34 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 .resume-fit{ display:flex; flex-direction:column; height: calc(100vh - 6rem - var(--card-end)); }   /* copy + résumé = exactly one screen */
 .resume-wrap .resume-thumb{ flex:1 1 auto; min-height:0; margin-top:2rem; align-self:flex-start; display:flex;
   max-height: calc(4 * var(--grid-gap) * 2860 / 2210 + 0.5 * var(--grid-gap)); }   /* never taller than the résumé at full width */
-.resume-wrap .resume-sheet{ width:auto; height: min(100%, calc(4 * var(--grid-gap) * 2860 / 2210)); aspect-ratio: 2210 / 2860; min-height:220px; }
-.resume-wrap .resume-sheet img{ width:100%; height:100%; object-fit:contain; }
+.resume-wrap .resume-sheet{ width:auto; height: min(100%, calc(4 * var(--grid-gap) * 2860 / 2210)); aspect-ratio: 2210 / 2860; min-height:160px; }
+.resume-wrap .resume-sheet img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }   /* absolute, so the 2210px image never sets the card's width */
 .resume-wrap > .cta{ margin-top:2rem; }
 @media (max-width: 720px){
-  .page-hero:has(.resume-thumb){ padding-top: calc(0.9rem + 52px); }   /* nav pill 0.5rem + 0.4rem padding + a 26px icon, then one more icon */
-  .resume-fit{ height: calc(100svh - 0.9rem - 52px - 1.5rem); }
+  .page-hero:has(.resume-thumb){ padding-top: calc(0.9rem + 78px); }   /* nav pill 0.5rem + 0.4rem padding + a 26px icon, then the two-icon fade */
+  .resume-fit{ height: calc(100svh - 0.9rem - 78px - 1.5rem); }
   .resume-wrap .resume-sheet{ height: min(100%, calc(2 * var(--mobile-grid-gap) * 2860 / 2210)); }
   .resume-wrap .resume-thumb{ margin-top:1.5rem; max-height: calc(2 * var(--mobile-grid-gap) * 2860 / 2210 + 0.5 * var(--mobile-grid-gap)); }
 }
 
-/* ---------- Phones: pages without a card fade their type out under the nav ----------
-   On card pages the card clips its content below the nav pill. Pages that sit straight on the dark
-   background (About, Résumé, Other Projects) get the same calm edge: a fixed band that fades from the
-   background color to clear, from the top of the screen to one icon below the nav, so scrolling text
-   dissolves before it reaches the icons. */
+/* ---------- Phones: pages without a card fade their content out under the nav ----------
+   (Home, About, Résumé, Other Projects.) Card pages clip their content below the nav; these pages get a band
+   instead: the page's own background color, solid down to the bottom of the nav icons, then fading to clear
+   over two icon diameters. The band follows the homepage's changing background color, and a copy of the
+   pinstripes rides on top of it, scrolled in step with the real ones, so the lines run unbroken to the top
+   of the screen. Built in site.js (section 9); these are its two layers. */
+#top-fade, #top-fade-lines{ display:none; }
 @media (max-width: 720px){
-  .page-hero:not(:has(.page-card, .case-page-card))::before{
-    content:'';
-    position:fixed;
-    top:0; left:0; right:0;
-    height: calc(0.9rem + 52px);
-    background: linear-gradient(to bottom, var(--ink) 0%, var(--ink) 50%, rgba(16,17,20,0) 100%);
-    z-index:2;
-    pointer-events:none;
+  #top-fade{
+    display:block; position:fixed; top:0; left:0; right:0;
+    height: calc(0.9rem + 78px);
+    z-index:9; pointer-events:none;
   }
+  #top-fade-lines{
+    display:block; position:fixed; top:0; left:0; right:0;
+    height: calc(0.9rem + 78px);
+    overflow:hidden; z-index:9; pointer-events:none;
+  }
+  #top-fade-lines > div{ position:absolute; left:0; width:100%; display:flex; justify-content:space-between; }
+  #top-fade-lines span{ width:0; height:100%; }
 }
