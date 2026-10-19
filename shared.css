@@ -1178,3 +1178,38 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 }
 /* gallery pages: a little more air under the last row of tiles */
 .page-hero .page-card:has(> .gallery-grid:last-child){ padding-bottom: calc(2 * var(--u)); }
+
+/* ---------- Résumé page: the whole résumé on the first screen ----------
+   The copy sits at the top, the résumé fills the rest of the screen at whatever size lets it show in full
+   (never wider than pinstripe 2 -> 6, or 2 -> 4 on phones), and its card ends on the Instagram button's line.
+   The download button waits below. On phones the copy starts one nav-icon diameter below the icons. */
+.page-hero:has(.resume-thumb){ align-items:flex-start; }
+.resume-fit{ display:flex; flex-direction:column; height: calc(100vh - 6rem - var(--card-end)); }   /* copy + résumé = exactly one screen */
+.resume-wrap .resume-thumb{ flex:1 1 auto; min-height:0; margin-top:2rem; align-self:flex-start; display:flex;
+  max-height: calc(4 * var(--grid-gap) * 2860 / 2210 + 0.5 * var(--grid-gap)); }   /* never taller than the résumé at full width */
+.resume-wrap .resume-sheet{ width:auto; height: min(100%, calc(4 * var(--grid-gap) * 2860 / 2210)); aspect-ratio: 2210 / 2860; min-height:220px; }
+.resume-wrap .resume-sheet img{ width:100%; height:100%; object-fit:contain; }
+.resume-wrap > .cta{ margin-top:2rem; }
+@media (max-width: 720px){
+  .page-hero:has(.resume-thumb){ padding-top: calc(0.9rem + 52px); }   /* nav pill 0.5rem + 0.4rem padding + a 26px icon, then one more icon */
+  .resume-fit{ height: calc(100svh - 0.9rem - 52px - 1.5rem); }
+  .resume-wrap .resume-sheet{ height: min(100%, calc(2 * var(--mobile-grid-gap) * 2860 / 2210)); }
+  .resume-wrap .resume-thumb{ margin-top:1.5rem; max-height: calc(2 * var(--mobile-grid-gap) * 2860 / 2210 + 0.5 * var(--mobile-grid-gap)); }
+}
+
+/* ---------- Phones: pages without a card fade their type out under the nav ----------
+   On card pages the card clips its content below the nav pill. Pages that sit straight on the dark
+   background (About, Résumé, Other Projects) get the same calm edge: a fixed band that fades from the
+   background color to clear, from the top of the screen to one icon below the nav, so scrolling text
+   dissolves before it reaches the icons. */
+@media (max-width: 720px){
+  .page-hero:not(:has(.page-card, .case-page-card))::before{
+    content:'';
+    position:fixed;
+    top:0; left:0; right:0;
+    height: calc(0.9rem + 52px);
+    background: linear-gradient(to bottom, var(--ink) 0%, var(--ink) 50%, rgba(16,17,20,0) 100%);
+    z-index:2;
+    pointer-events:none;
+  }
+}
