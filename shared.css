@@ -1180,21 +1180,19 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 .page-hero .page-card:has(> .gallery-grid:last-child){ padding-bottom: calc(2 * var(--u)); }
 
 /* ---------- Résumé page: the whole résumé on the first screen ----------
-   The copy sits at the top, the résumé fills the rest of the screen at whatever size lets it show in full
-   (never wider than pinstripe 2 -> 6, or 2 -> 4 on phones), and its card ends on the Instagram button's line.
-   The download button waits below. On phones the copy starts one nav-icon diameter below the icons. */
+   The copy sits at the top and the résumé takes whatever height is left on the first screen, so it shows in
+   full on arrival (never wider than pinstripe 2 -> 6, or 2 -> 4 on phones). site.js (section 10) measures the
+   space and sets --sheet-h; without JavaScript the résumé simply shows at full column width. The download
+   button waits below. On phones the copy starts below the nav fade. */
 .page-hero:has(.resume-thumb){ align-items:flex-start; }
-.resume-fit{ display:flex; flex-direction:column; height: calc(100vh - 6rem - var(--card-end)); }   /* copy + résumé = exactly one screen */
-.resume-wrap .resume-thumb{ flex:1 1 auto; min-height:0; margin-top:2rem; align-self:flex-start; display:flex;
-  max-height: calc(4 * var(--grid-gap) * 2860 / 2210 + 0.5 * var(--grid-gap)); }   /* never taller than the résumé at full width */
-.resume-wrap .resume-sheet{ width:auto; height: min(100%, calc(4 * var(--grid-gap) * 2860 / 2210)); aspect-ratio: 2210 / 2860; min-height:160px; }
+.resume-wrap .resume-thumb{ margin-top:2rem; }
+.resume-wrap .resume-sheet{ width:auto; height: var(--sheet-h, calc(4 * var(--grid-gap) * 2860 / 2210)); max-width: calc(4 * var(--grid-gap)); aspect-ratio: 2210 / 2860; }
 .resume-wrap .resume-sheet img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }   /* absolute, so the 2210px image never sets the card's width */
 .resume-wrap > .cta{ margin-top:2rem; }
 @media (max-width: 720px){
   .page-hero:has(.resume-thumb){ padding-top: calc(0.9rem + 78px); }   /* nav pill 0.5rem + 0.4rem padding + a 26px icon, then the two-icon fade */
-  .resume-fit{ height: calc(100svh - 0.9rem - 78px - 1.5rem); }
-  .resume-wrap .resume-sheet{ height: min(100%, calc(2 * var(--mobile-grid-gap) * 2860 / 2210)); }
-  .resume-wrap .resume-thumb{ margin-top:1.5rem; max-height: calc(2 * var(--mobile-grid-gap) * 2860 / 2210 + 0.5 * var(--mobile-grid-gap)); }
+  .resume-wrap .resume-thumb{ margin-top:1.5rem; }
+  .resume-wrap .resume-sheet{ height: var(--sheet-h, calc(2 * var(--mobile-grid-gap) * 2860 / 2210)); max-width: calc(2 * var(--mobile-grid-gap)); }
 }
 
 /* ---------- Phones: pages without a card fade their content out under the nav ----------
