@@ -588,6 +588,7 @@
   function absTop(el){ var t = 0; while (el){ t += el.offsetTop; el = el.offsetParent; } return t; }   // ignores reveal transforms
   function fit(){
     if (window.innerWidth === lastW) return;
+    if (phone.matches){ lastW = window.innerWidth; sheet.style.removeProperty('--sheet-h'); return; }   // phones: full column width, no fitting
     lastW = window.innerWidth;
     sheet.style.removeProperty('--sheet-h');
     var maxW = parseFloat(getComputedStyle(sheet).maxWidth) || sheet.offsetWidth;

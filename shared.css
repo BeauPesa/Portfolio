@@ -1179,20 +1179,30 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 /* gallery pages: a little more air under the last row of tiles */
 .page-hero .page-card:has(> .gallery-grid:last-child){ padding-bottom: calc(2 * var(--u)); }
 
-/* ---------- Résumé page: the whole résumé on the first screen ----------
-   The copy sits at the top and the résumé takes whatever height is left on the first screen, so it shows in
-   full on arrival (never wider than pinstripe 2 -> 6, or 2 -> 4 on phones). site.js (section 10) measures the
-   space and sets --sheet-h; without JavaScript the résumé simply shows at full column width. The download
-   button waits below. On phones the copy starts below the nav fade. */
+/* ---------- Résumé page ----------
+   Wide screens: copy and buttons on the left (pinstripes 2 -> 4), the résumé on the right (4 -> 6), both starting
+   at the same line, so the whole page shows on arrival at a readable size. site.js (section 10) shrinks the
+   résumé only if a short screen can't fit it. Phones: one column; copy, then the résumé at full column width
+   (2 -> 4), then the buttons. */
 .page-hero:has(.resume-thumb){ align-items:flex-start; }
-.resume-wrap .resume-thumb{ margin-top:2rem; }
-.resume-wrap .resume-sheet{ width:auto; height: var(--sheet-h, calc(4 * var(--grid-gap) * 2860 / 2210)); max-width: calc(4 * var(--grid-gap)); aspect-ratio: 2210 / 2860; }
+.resume-wrap .resume-sheet{ width:auto; height: var(--sheet-h, calc(2 * var(--grid-gap) * 2860 / 2210)); max-width: calc(2 * var(--grid-gap)); aspect-ratio: 2210 / 2860; }
 .resume-wrap .resume-sheet img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }   /* absolute, so the 2210px image never sets the card's width */
-.resume-wrap > .cta{ margin-top:2rem; }
+@media (min-width: 1140px){   /* side by side once there is room; narrower screens stack */
+  .resume-wrap{
+    display:grid;
+    grid-template-columns: calc(2 * var(--grid-gap)) auto;
+    grid-template-rows: repeat(5, min-content) 1fr;   /* eyebrow, heading, copy, two buttons, then slack, so the left column stays packed at the top */
+    align-items:start;
+  }
+  .resume-wrap > .eyebrow, .resume-wrap > h1, .resume-wrap > p{ grid-column:1; }
+  .resume-wrap > h1{ font-size: clamp(3rem, 5.2vw, 5rem); }
+  .resume-wrap > .cta{ grid-column:1; width: calc(2 * var(--grid-gap) - 1.25rem); }   /* stops short of the card */
+  .resume-wrap .resume-thumb{ grid-column:2; grid-row: 1 / span 6; margin: calc(-0.25 * var(--grid-gap)) 0 0 0; }   /* the card's edge sits on pinstripe 4, the résumé's top level with the eyebrow */
+}
 @media (max-width: 720px){
   .page-hero:has(.resume-thumb){ padding-top: calc(0.9rem + 78px); }   /* nav pill 0.5rem + 0.4rem padding + a 26px icon, then the two-icon fade */
   .resume-wrap .resume-thumb{ margin-top:1.5rem; }
-  .resume-wrap .resume-sheet{ height: var(--sheet-h, calc(2 * var(--mobile-grid-gap) * 2860 / 2210)); max-width: calc(2 * var(--mobile-grid-gap)); }
+  .resume-wrap .resume-sheet{ height: calc(2 * var(--mobile-grid-gap) * 2860 / 2210); max-width: calc(2 * var(--mobile-grid-gap)); }
 }
 
 /* ---------- Phones: pages without a card fade their content out under the nav ----------
