@@ -562,8 +562,8 @@ body.has-case-nav::after{ content:''; display:block; height: var(--case-extend);
 body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-top); padding-bottom: var(--card-top); min-height:0 !important; }
 /* arriving from the homepage: the sheet starts rolled up (the homepage card's size), then unrolls */
 .flight .case-page-card::before{ bottom:0; }
-.case-page-card.is-in::before{ animation: caseUnroll 0.84s linear 0.2s both; }
-.case-page-card.is-unrolling::before{ animation: caseUnroll 0.84s linear 0.05s both; }
+.case-page-card.is-in::before{ animation: caseUnroll 0.56s linear 0.13s both; }   /* 50% faster than the first version (0.84s) */
+.case-page-card.is-unrolling::before{ animation: caseUnroll 0.56s linear 0.05s both; }
 .case-page-card.is-rolling-up::before{ animation: caseRollUp 1.1s linear both; }
 /* --roll-stop is how far the sheet reaches when its edge leaves the bottom of the screen (set by site.js) */
 @keyframes caseUnroll{
@@ -743,8 +743,8 @@ body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-to
   position:relative;
   display:block;
   width:max-content;
-  padding: calc(0.25 * var(--grid-gap));
-  margin: 4rem 0 0 calc(-0.25 * var(--grid-gap));
+  padding: calc(0.125 * var(--grid-gap));
+  margin: 4rem 0 0 0;
   background: var(--paper);
   box-shadow: 0 30px 60px -20px rgba(0,0,0,0.55);
 }
@@ -776,8 +776,8 @@ body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-to
 .resume-sheet:focus-visible{ outline:2px solid #fff; outline-offset:4px; }
 .resume-chip-rail{            /* a lane beside the card, as tall as the card, for the chip to travel in */
   position:absolute;
-  top: calc(0.25 * var(--grid-gap));
-  bottom: calc(0.25 * var(--grid-gap));
+  top: calc(0.125 * var(--grid-gap));
+  bottom: calc(0.125 * var(--grid-gap));
   left: calc(100% + 0.75rem);
   pointer-events:none;
 }
@@ -1180,29 +1180,22 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 .page-hero .page-card:has(> .gallery-grid:last-child){ padding-bottom: calc(2 * var(--u)); }
 
 /* ---------- Résumé page ----------
-   Wide screens: copy and buttons on the left (pinstripes 2 -> 4), the résumé on the right (4 -> 6), both starting
-   at the same line, so the whole page shows on arrival at a readable size. site.js (section 10) shrinks the
-   résumé only if a short screen can't fit it. Phones: one column; copy, then the résumé at full column width
-   (2 -> 4), then the buttons. */
+   Desktop: the paper card spans pinstripe 2 -> 6, with the résumé inset 1/8 of a column on every side. The two
+   buttons sit side by side below it: Back to home starting on pinstripe 2, Download ending on pinstripe 6.
+   Phones: the résumé spans pinstripe 2 -> 4 and the card reaches 1/8 of a column past it; buttons stack below. */
 .page-hero:has(.resume-thumb){ align-items:flex-start; }
-.resume-wrap .resume-sheet{ width:auto; height: var(--sheet-h, calc(2 * var(--grid-gap) * 2860 / 2210)); max-width: calc(2 * var(--grid-gap)); aspect-ratio: 2210 / 2860; }
+.resume-wrap .resume-thumb{ margin-top:2.5rem; }
+.resume-wrap .resume-sheet{ width: calc(3.75 * var(--grid-gap)); aspect-ratio: 2210 / 2860; height:auto; }   /* 4 columns less two 1/8 insets */
 .resume-wrap .resume-sheet img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }   /* absolute, so the 2210px image never sets the card's width */
-@media (min-width: 1140px){   /* side by side once there is room; narrower screens stack */
-  .resume-wrap{
-    display:grid;
-    grid-template-columns: calc(2 * var(--grid-gap)) auto;
-    grid-template-rows: repeat(5, min-content) 1fr;   /* eyebrow, heading, copy, two buttons, then slack, so the left column stays packed at the top */
-    align-items:start;
-  }
-  .resume-wrap > .eyebrow, .resume-wrap > h1, .resume-wrap > p{ grid-column:1; }
-  .resume-wrap > h1{ font-size: clamp(3rem, 5.2vw, 5rem); }
-  .resume-wrap > .cta{ grid-column:1; width: calc(2 * var(--grid-gap) - 1.25rem); }   /* stops short of the card */
-  .resume-wrap .resume-thumb{ grid-column:2; grid-row: 1 / span 6; margin: calc(-0.25 * var(--grid-gap)) 0 0 0; }   /* the card's edge sits on pinstripe 4, the résumé's top level with the eyebrow */
-}
+.resume-actions{ display:flex; flex-direction:row-reverse; justify-content:space-between; width: calc(4 * var(--grid-gap)); margin-top:2rem; }
+.resume-actions .cta{ margin-top:0 !important; width: calc(2 * var(--grid-gap) - 0.75rem); }
 @media (max-width: 720px){
   .page-hero:has(.resume-thumb){ padding-top: calc(0.9rem + 78px); }   /* nav pill 0.5rem + 0.4rem padding + a 26px icon, then the two-icon fade */
-  .resume-wrap .resume-thumb{ margin-top:1.5rem; }
-  .resume-wrap .resume-sheet{ height: calc(2 * var(--mobile-grid-gap) * 2860 / 2210); max-width: calc(2 * var(--mobile-grid-gap)); }
+  .resume-wrap .resume-thumb{ margin-top:1.5rem; padding: calc(0.125 * var(--mobile-grid-gap)); margin-left: calc(-0.125 * var(--mobile-grid-gap)); }
+  .resume-wrap .resume-sheet{ width: calc(2 * var(--mobile-grid-gap)); }
+  .resume-actions{ flex-direction:column; width:auto; margin-top:1.5rem; }
+  .resume-actions .cta{ width:min(calc(2 * var(--mobile-grid-gap)), 100%); }
+  .resume-actions .cta + .cta{ margin-top: var(--u) !important; }
 }
 
 /* ---------- Phones: pages without a card fade their content out under the nav ----------

@@ -151,7 +151,7 @@
     return caseCard.animate([
       { top: r.top + 'px', bottom: homeRect.bottom + 'px', paddingTop: basePad + 'px' },
       { top: T + 'px', bottom: B + 'px', paddingTop: finalPad + 'px' }
-    ], { duration: 750, easing: FRAME_EASE, delay: 80, fill: 'backwards' });
+    ], { duration: 500, easing: FRAME_EASE, delay: 55, fill: 'backwards' });   // 50% faster than the first version (750ms)
   }
   function rollUpFrame(done){
     if (bar) bar.classList.remove('is-in');
@@ -573,33 +573,4 @@
   }
   copyLines();
   requestAnimationFrame(frame);
-})();
-
-
-/* ---------------- 10. Résumé page: fit the whole résumé on the first screen ----------------
-   Measures the room between the top of the résumé and the bottom of the first screen (leaving the card's
-   padding and the usual bottom margin: the Instagram line on desktop, 1.5rem on phones) and sizes the résumé
-   to fit, capped at its full column width. Sized once on arrival and again only if the width changes, so a
-   phone's toolbar sliding away mid-scroll doesn't make the résumé jump. */
-(function(){
-  var sheet = document.querySelector('.resume-wrap .resume-sheet');
-  if (!sheet) return;
-  var thumb = sheet.parentNode, phone = window.matchMedia('(max-width: 720px)'), lastW = 0;
-  function absTop(el){ var t = 0; while (el){ t += el.offsetTop; el = el.offsetParent; } return t; }   // ignores reveal transforms
-  function fit(){
-    if (window.innerWidth === lastW) return;
-    if (phone.matches){ lastW = window.innerWidth; sheet.style.removeProperty('--sheet-h'); return; }   // phones: full column width, no fitting
-    lastW = window.innerWidth;
-    sheet.style.removeProperty('--sheet-h');
-    var maxW = parseFloat(getComputedStyle(sheet).maxWidth) || sheet.offsetWidth;
-    var pad = parseFloat(getComputedStyle(thumb).paddingBottom) || 0;
-    var rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-    var bottom = phone.matches ? 1.5 * rem : 2.5 * rem + 15;
-    var avail = window.innerHeight - absTop(sheet) - pad - bottom;
-    var h = Math.max(160, Math.min(avail, maxW * 2860 / 2210));
-    sheet.style.setProperty('--sheet-h', Math.round(h) + 'px');
-  }
-  fit();
-  window.addEventListener('resize', fit);
-  window.addEventListener('load', function(){ lastW = 0; fit(); });   // fonts can shift the copy's height
 })();
