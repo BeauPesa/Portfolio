@@ -43,7 +43,7 @@
   }
 
   // The frame colour for a set of RGBA pixels (a flat array, as from getImageData).
-  function frameColour(px){
+  function frameColour(px, skipPaper){
     var BINS = 24, hist = [], recs = [], lum = [], n = 0, chroma = 0, i, k;
     for (k = 0; k < BINS; k++) hist.push(0);
     for (i = 0; i < px.length; i += 4){
@@ -51,6 +51,7 @@
       var r = px[i], g = px[i + 1], b = px[i + 2], mx = Math.max(r, g, b), mn = Math.min(r, g, b), v = mx / 255, s = mx ? (mx - mn) / mx : 0;
       n++; lum.push(0.2126 * r + 0.7152 * g + 0.0722 * b);
       if (v < 0.1 || s < 0.12 || (v > 0.95 && s < 0.08)) continue;      // black, white and greys carry no hue
+      if (skipPaper && v > 0.7 && s < 0.3) continue;                      // sketchbooks: the cream of the paper isn't the picture's colour
       var h = hueOf(r, g, b), w = s * v;
       hist[Math.floor(h / 360 * BINS) % BINS] += w; chroma += w; recs.push([h, w, r, g, b]);
     }
@@ -87,7 +88,7 @@
         cv.width = N; cv.height = N; ctx = cv.getContext('2d');
         var side = Math.min(source.naturalWidth, source.naturalHeight), sx = (source.naturalWidth - side) / 2, sy = (source.naturalHeight - side) / 2;
         ctx.drawImage(source, sx, sy, side, side, 0, 0, N, N);
-        done(frameColour(ctx.getImageData(0, 0, N, N).data));
+        done(frameColour(ctx.getImageData(0, 0, N, N).data, !!(img.closest && img.closest('.spread-table'))));
       } catch (e){ done(null); }   // the pixels are off limits
     }
     if (sameOrigin(src) && img.complete && img.naturalWidth){ sample(img); return; }
@@ -97,8 +98,26 @@
     probe.onerror = function(){ done(null); };
     probe.src = src;
   }
+  // A deep shade of the frame colour for the caption gradient: same hue, darkened until white text on it passes
+  // WCAG with room to spare (7:1, AAA), so the dimmer second line and any picture showing through stay readable.
+  function luminance(r, g, b){
+    var f = function(c){ c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  }
+  function captionShade(colour){
+    var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(colour || ''); if (!m) return null;
+    var c = toHsl(parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)), l = Math.min(c.l, 0.32), rgb;
+    for (; l > 0.02; l -= 0.01){
+      var h = fromHsl(c.h, Math.min(c.s, 0.75), l).replace('#', '');
+      rgb = [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+      if (1.05 / (luminance(rgb[0], rgb[1], rgb[2]) + 0.05) >= 7) break;
+    }
+    return rgb.join(' ');
+  }
   function setFrame(tile, colour, source){
     if (colour) tile.style.setProperty('--tile-border', colour);
+    var shade = captionShade(colour);
+    if (shade) tile.style.setProperty('--tile-shade', shade);
     tile.setAttribute('data-frame', colour || '');
     tile.setAttribute('data-frame-source', source);
   }

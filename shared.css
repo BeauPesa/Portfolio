@@ -1219,3 +1219,10 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 .page-card .card .card-mark{ position:absolute; top:1.5rem; right:1.5rem; width:64px; height:64px; color:#A6A59F; pointer-events:none; transition: color 0.3s var(--ease); }
 .page-card .card:hover .card-mark, .page-card .card:focus-visible .card-mark{ color: rgba(242,241,236,0.24); }
 @media (max-width: 720px){ .page-card .card .card-mark{ top:1rem; right:1rem; width:44px; height:44px; } }
+
+/* ---------- Sketchbooks: the hover caption takes the spread's own colour ----------
+   gallery.js finds each spread's dominant hue (the same histogram that colours the photo frames) and darkens it
+   until white text on it passes WCAG AAA (7:1); the caption gradient uses that shade instead of plain ink. */
+.gallery-grid.spread-table .tile .tile-caption.is-hover::before{
+  background: linear-gradient(to top, rgb(var(--tile-shade, 8 9 11) / 0.97) 0%, rgb(var(--tile-shade, 8 9 11) / 0.9) 40%, rgb(var(--tile-shade, 8 9 11) / 0.45) 72%, rgb(var(--tile-shade, 8 9 11) / 0) 100%);
+}
