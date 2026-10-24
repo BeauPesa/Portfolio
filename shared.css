@@ -1216,7 +1216,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
    Same family as the nav icons (24-unit grid, round caps), drawn large and quiet: a darker grey than the tile,
    so it reads as a watermark. On hover the tile turns ink and the icon turns to a faint light line. */
 .page-card .card{ position:relative; }
-.page-card .card .card-mark{ position:absolute; top:1.5rem; right:1.5rem; width:64px; height:64px; color:#A6A59F; pointer-events:none; transition: color 0.3s var(--ease); }
+.page-card .card .card-mark{ position:absolute; top:1.5rem; right:1.5rem; width:64px; height:64px; color:#A6A59F; opacity:0.4; transform: rotate(-45deg); pointer-events:none; transition: color 0.3s var(--ease); }   /* tipped 45° to the left, at 40% strength */
 .page-card .card:hover .card-mark, .page-card .card:focus-visible .card-mark{ color: rgba(242,241,236,0.24); }
 @media (max-width: 720px){ .page-card .card .card-mark{ top:1rem; right:1rem; width:44px; height:44px; } }
 
@@ -1225,4 +1225,16 @@ html.frame .case-page-card::after{ flex-shrink:0; }
    until white text on it passes WCAG AAA (7:1); the caption gradient uses that shade instead of plain ink. */
 .gallery-grid.spread-table .tile .tile-caption.is-hover::before{
   background: linear-gradient(to top, rgb(var(--tile-shade, 8 9 11) / 0.97) 0%, rgb(var(--tile-shade, 8 9 11) / 0.9) 40%, rgb(var(--tile-shade, 8 9 11) / 0.45) 72%, rgb(var(--tile-shade, 8 9 11) / 0) 100%);
+}
+
+/* ---------- Creative Endeavors tiles on desktop and tablet ----------
+   One tile per row, each spanning the full pinstripe 2 -> 6, and taller than before. */
+@media (min-width: 721px){
+  .card-grid{ grid-template-columns: 1fr; width: calc(4 * var(--grid-gap)); }
+  .page-card .card-grid .card{ min-height: calc(1.25 * var(--grid-gap)); }
+}
+
+/* Larger watermarks on the wide desktop/tablet tiles: centred on the right, about half the tile's height. */
+@media (min-width: 721px){
+  .page-card .card-grid .card .card-mark{ top:50%; right:2rem; width: calc(0.7 * var(--grid-gap)); height: calc(0.7 * var(--grid-gap)); max-width:160px; max-height:160px; transform: translateY(-50%) rotate(-45deg); stroke-width:0.55; }   /* thinner line at this size, so it stays a hairline, not a marker */
 }
