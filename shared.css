@@ -1236,5 +1236,5 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 
 /* Larger watermarks on the wide desktop/tablet tiles: centred on the right, about half the tile's height. */
 @media (min-width: 721px){
-  .page-card .card-grid .card .card-mark{ top:50%; right:2rem; width: calc(0.7 * var(--grid-gap)); height: calc(0.7 * var(--grid-gap)); max-width:160px; max-height:160px; transform: translateY(-50%) rotate(-45deg); stroke-width:0.55; }   /* thinner line at this size, so it stays a hairline, not a marker */
+  .page-card .card-grid .card .card-mark{ top:50%; right:2rem; width: calc(0.7 * var(--grid-gap)); height: calc(0.7 * var(--grid-gap)); max-width:160px; max-height:160px; transform: translateY(-50%) rotate(-45deg); stroke-width:1.1; }   /* thinner line at this size (48-unit icons), so it stays a hairline, not a marker */
 }
