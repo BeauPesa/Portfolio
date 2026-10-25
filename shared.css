@@ -1220,12 +1220,23 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 .page-card .card:hover .card-mark, .page-card .card:focus-visible .card-mark{ color: rgba(242,241,236,0.24); }
 @media (max-width: 720px){ .page-card .card .card-mark{ top:1rem; right:1rem; width:44px; height:44px; } }
 
-/* ---------- Sketchbooks: the hover caption takes the spread's own colour ----------
-   gallery.js finds each spread's dominant hue (the same histogram that colours the photo frames) and darkens it
-   until white text on it passes WCAG AAA (7:1); the caption gradient uses that shade instead of plain ink. */
-.gallery-grid.spread-table .tile .tile-caption.is-hover::before{
-  background: linear-gradient(to top, rgb(var(--tile-shade, 8 9 11) / 0.97) 0%, rgb(var(--tile-shade, 8 9 11) / 0.9) 40%, rgb(var(--tile-shade, 8 9 11) / 0.45) 72%, rgb(var(--tile-shade, 8 9 11) / 0) 100%);
+/* ---------- Sketchbooks: hover label on a solid bar of the spread's own colour ----------
+   A bar three x-heights tall, 70% opaque, in a deep shade of the spread's colour (gallery.js darkens it until
+   white text passes WCAG AA even with white paper showing through). It rises once the spread has straightened,
+   and the label follows a beat later. Leaving, both drop away at once. */
+.gallery-grid.spread-table .tile .tile-caption.is-hover{
+  font-size:1rem; font-family:'IBM Plex Sans', sans-serif; font-weight:600;
+  height:3ex; padding: 0 0.95rem; justify-content:center;
 }
+.gallery-grid.spread-table .tile .tile-caption.is-hover::before{
+  height:100%; opacity:1; background: rgb(var(--tile-shade, 8 9 11) / 0.7);
+  transform: scaleY(0); transform-origin: bottom; transition: transform 0.25s var(--ease);
+}
+.gallery-grid.spread-table .tile .tile-caption.is-hover .tile-title{ transform: translateY(6px); transition: opacity 0.2s var(--ease), transform 0.2s var(--ease); }
+.gallery-grid.spread-table .tile:hover .tile-caption.is-hover::before,
+.gallery-grid.spread-table .tile:focus-visible .tile-caption.is-hover::before{ transform: scaleY(1); transition: transform 0.45s var(--ease) 0.5s; }
+.gallery-grid.spread-table .tile:hover .tile-caption.is-hover .tile-title,
+.gallery-grid.spread-table .tile:focus-visible .tile-caption.is-hover .tile-title{ transform:none; transition: opacity 0.4s var(--ease) 0.72s, transform 0.5s var(--ease) 0.72s; }
 
 /* ---------- Creative Endeavors tiles on desktop and tablet ----------
    One tile per row, each spanning the full pinstripe 2 -> 6, and taller than before. */

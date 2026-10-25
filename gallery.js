@@ -104,19 +104,22 @@
     var f = function(c){ c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
     return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
   }
-  function captionShade(colour){
+  // see70: for the sketchbook bar, which is only 70% opaque, the test assumes the worst case (white paper showing
+  // through the other 30%) and asks for WCAG AA (4.5:1) on that blend, so the label passes over any part of a page.
+  function captionShade(colour, see70){
     var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(colour || ''); if (!m) return null;
     var c = toHsl(parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)), l = Math.min(c.l, 0.32), rgb;
-    for (; l > 0.02; l -= 0.01){
-      var h = fromHsl(c.h, Math.min(c.s, 0.75), l).replace('#', '');
+    for (; l > 0.01; l -= 0.01){
+      var h = fromHsl(c.h, Math.min(c.s, see70 ? 0.85 : 0.75), l).replace('#', '');
       rgb = [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
-      if (1.05 / (luminance(rgb[0], rgb[1], rgb[2]) + 0.05) >= 7) break;
+      var t = see70 ? rgb.map(function(v){ return 0.7 * v + 0.3 * 255; }) : rgb;
+      if (1.05 / (luminance(t[0], t[1], t[2]) + 0.05) >= (see70 ? 4.5 : 7)) break;
     }
     return rgb.join(' ');
   }
   function setFrame(tile, colour, source){
     if (colour) tile.style.setProperty('--tile-border', colour);
-    var shade = captionShade(colour);
+    var shade = captionShade(colour, !!(tile.closest && tile.closest('.spread-table')));
     if (shade) tile.style.setProperty('--tile-shade', shade);
     tile.setAttribute('data-frame', colour || '');
     tile.setAttribute('data-frame-source', source);
