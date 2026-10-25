@@ -1216,7 +1216,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
    Same family as the nav icons (24-unit grid, round caps), drawn large and quiet: a darker grey than the tile,
    so it reads as a watermark. On hover the tile turns ink and the icon turns to a faint light line. */
 .page-card .card{ position:relative; }
-.page-card .card .card-mark{ position:absolute; top:1.5rem; right:1.5rem; width:64px; height:64px; color:#A6A59F; opacity:0.4; transform: rotate(-45deg); pointer-events:none; transition: color 0.3s var(--ease); }   /* tipped 45° to the left, at 40% strength */
+.page-card .card .card-mark{ overflow:visible; position:absolute; top:1.5rem; right:1.5rem; width:64px; height:64px; color:#A6A59F; opacity:0.4; transform: rotate(-45deg); pointer-events:none; transition: color 0.3s var(--ease); }   /* tipped 45° to the left, at 40% strength */
 .page-card .card:hover .card-mark, .page-card .card:focus-visible .card-mark{ color: rgba(242,241,236,0.24); }
 @media (max-width: 720px){ .page-card .card .card-mark{ top:1rem; right:1rem; width:44px; height:44px; } }
 
