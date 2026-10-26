@@ -1221,18 +1221,28 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 @media (max-width: 720px){ .page-card .card .card-mark{ top:1rem; right:1rem; width:44px; height:44px; } }
 
 /* ---------- Sketchbooks: hover label on a solid bar of the spread's own colour ----------
-   A bar three x-heights tall, 70% opaque, in a deep shade of the spread's colour (gallery.js darkens it until
-   white text passes WCAG AA even with white paper showing through). It rises once the spread has straightened,
-   and the label follows a beat later. Leaving, both drop away at once. */
+   A bar six x-heights tall, 70% opaque, in a deep shade of the spread's colour (gallery.js darkens it until
+   white text passes WCAG AA even with white paper showing through). The label layer covers the whole tile and
+   moves exactly as the spread does on hover, so the bar stays locked to the bottom of the page; --cap-l/r/b
+   (set per spread from the scan's own edges) inset it to the paper, not the transparent margin around it.
+   It rises once the spread has straightened, the label a beat later; leaving, both drop away at once. */
 .gallery-grid.spread-table .tile .tile-caption.is-hover{
+  top:0; bottom:0; height:auto; padding:0; justify-content:flex-end;
   font-size:1rem; font-family:'IBM Plex Sans', sans-serif; font-weight:600;
-  height:3ex; padding: 0 0.95rem; justify-content:center;
+  transition: transform 0.6s var(--ease);
 }
+.gallery-grid.spread-table .tile:hover .tile-caption.is-hover,
+.gallery-grid.spread-table .tile:focus-visible .tile-caption.is-hover{ transform: translateY(-6px) scale(1.015); }
 .gallery-grid.spread-table .tile .tile-caption.is-hover::before{
-  height:100%; opacity:1; background: rgb(var(--tile-shade, 8 9 11) / 0.7);
+  top:auto; bottom: var(--cap-b, 0%); left: var(--cap-l, 0%); right: var(--cap-r, 0%); height:6ex;
+  opacity:1; background: rgb(var(--tile-shade, 8 9 11) / 0.7);
   transform: scaleY(0); transform-origin: bottom; transition: transform 0.25s var(--ease);
 }
-.gallery-grid.spread-table .tile .tile-caption.is-hover .tile-title{ transform: translateY(6px); transition: opacity 0.2s var(--ease), transform 0.2s var(--ease); }
+.gallery-grid.spread-table .tile .tile-caption.is-hover .tile-title{
+  margin: 0 0 calc(var(--cap-b, 0%) * 0) 0;
+  position:absolute; left: calc(var(--cap-l, 0%) + 0.95rem); bottom: calc(var(--cap-b, 0%) + (6ex - 1.25em) / 2);
+  transform: translateY(6px); transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+}
 .gallery-grid.spread-table .tile:hover .tile-caption.is-hover::before,
 .gallery-grid.spread-table .tile:focus-visible .tile-caption.is-hover::before{ transform: scaleY(1); transition: transform 0.45s var(--ease) 0.5s; }
 .gallery-grid.spread-table .tile:hover .tile-caption.is-hover .tile-title,
