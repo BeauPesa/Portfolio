@@ -1249,9 +1249,9 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 .gallery-grid.spread-table .tile:focus-visible .tile-caption.is-hover .tile-title{ transform:none; transition: opacity 0.4s var(--ease) 0.72s, transform 0.5s var(--ease) 0.72s; }
 
 /* ---------- Creative Endeavors tiles on desktop and tablet ----------
-   One tile per row, each spanning the full pinstripe 2 -> 6, and taller than before. */
+   One tile per row, each spanning pinstripe 2 -> 5, and taller than before. */
 @media (min-width: 721px){
-  .card-grid{ grid-template-columns: 1fr; width: calc(4 * var(--grid-gap)); }
+  .card-grid{ grid-template-columns: 1fr; width: calc(3 * var(--grid-gap)); }   /* pinstripe 2 -> 5 */
   .page-card .card-grid .card{ min-height: calc(1.25 * var(--grid-gap)); }
 }
 
