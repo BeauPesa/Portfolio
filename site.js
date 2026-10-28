@@ -132,8 +132,9 @@
     var circle = document.querySelector('#icon-nav a'), pill = document.getElementById('case-dots');
     if (!circle || !pill) return null;
     var vh = window.innerHeight, r = caseCard.getBoundingClientRect(), cr = circle.getBoundingClientRect(), pr = pill.getBoundingClientRect();
-    var T = cr.bottom + cr.top;                          // as far below the nav circles as they are from the top of the screen
-    var B = 2 * (vh - pr.bottom) + pr.height;            // as far above the dots as they are from the bottom of the screen
+    var up = cr.top < pr.top ? cr : pr, down = up === cr ? pr : cr;   // whichever row is on top (the dots, these days) and whichever is below
+    var T = up.bottom + up.top;                          // as far below the top row as it is from the top of the screen
+    var B = 2 * (vh - down.bottom) + down.height;        // as far above the bottom row as it is from the bottom of the screen
     var basePad = parseFloat(window.getComputedStyle(caseCard).paddingTop);
     var finalPad = Math.max(0, basePad + (r.top - T));   // the paper grows above the content, so the content stays where it is
     homeRect = { top: r.top, bottom: vh - r.bottom };    // where the homepage card is, for the roll-up
@@ -538,6 +539,43 @@
   if (document.querySelector('.page-card, .case-page-card')) return;   // card pages clip their own content
   var lines = document.getElementById('grid-lines-global');
   if (!lines) return;
+  var hasTopRow = !!document.getElementById('progress-nav');          // only the homepage has a row of controls up top now
+  makeBand('bottom');
+  if (!hasTopRow) return;
+  function makeBand(side){   // the band and pinstripe copy under the bottom nav: the top band below, mirrored
+    var phoneQ = window.matchMedia('(max-width: 720px)');
+    var b = document.createElement('div'); b.id = side + '-fade'; b.setAttribute('aria-hidden', 'true');
+    var t = document.createElement('div'); t.id = side + '-fade-lines'; t.setAttribute('aria-hidden', 'true');
+    var inn = document.createElement('div'); t.appendChild(inn);
+    var sp = Array.prototype.map.call(lines.children, function(){ var x = document.createElement('span'); inn.appendChild(x); return x; });
+    document.body.appendChild(b); document.body.appendChild(t);
+    var bg = document.getElementById('bg-layer'), lastC = '', lastY = -1, lastH = -1, lastV = -1;
+    function copy(){
+      var ls = getComputedStyle(lines);
+      inn.style.paddingLeft = ls.paddingLeft; inn.style.paddingRight = ls.paddingRight;
+      Array.prototype.forEach.call(lines.children, function(src, i){
+        var cs = getComputedStyle(src);
+        sp[i].style.display = cs.display;
+        sp[i].style.borderLeft = cs.borderLeftWidth + ' ' + cs.borderLeftStyle + ' ' + cs.borderLeftColor;
+        sp[i].style.mixBlendMode = cs.mixBlendMode;
+      });
+    }
+    function tick(){
+      if (phoneQ.matches){
+        var c = getComputedStyle(bg || document.body).backgroundColor;
+        if (c !== lastC){
+          lastC = c;
+          var m = c.match(/\d+(\.\d+)?/g) || [16, 17, 20];
+          b.style.background = 'linear-gradient(to top, ' + c + ' 0, ' + c + ' calc(1.3rem + 26px + env(safe-area-inset-bottom, 0px)), rgba(' + m[0] + ',' + m[1] + ',' + m[2] + ',0) 100%)';
+          copy();
+        }
+        var y = window.scrollY, h = lines.offsetHeight, v = window.innerHeight - t.offsetHeight;
+        if (y !== lastY || h !== lastH || v !== lastV){ inn.style.top = (lines.offsetTop - y - v) + 'px'; inn.style.height = h + 'px'; lastY = y; lastH = h; lastV = v; }
+      }
+      requestAnimationFrame(tick);
+    }
+    copy(); requestAnimationFrame(tick);
+  }
   var phone = window.matchMedia('(max-width: 720px)');
   var band = document.createElement('div'); band.id = 'top-fade'; band.setAttribute('aria-hidden', 'true');
   var top = document.createElement('div'); top.id = 'top-fade-lines'; top.setAttribute('aria-hidden', 'true');
@@ -573,4 +611,45 @@
   }
   copyLines();
   requestAnimationFrame(frame);
+})();
+
+/* ---------------- 11. Phones: Endeavors watermarks sized to the No. badge ----------------
+   Measures each tilted icon's actual drawn extent (sampling points along every line, after the tilt), then
+   scales and shifts it so its topmost point meets the top of the badge and its lowest point meets the bottom.
+   Desktop and tablet are untouched. */
+(function(){
+  var marks = document.querySelectorAll('.page-card .card .card-mark');
+  if (!marks.length) return;
+  var phone = window.matchMedia('(max-width: 720px)');
+  function extent(svg){
+    var lo = Infinity, hi = -Infinity;
+    svg.querySelectorAll('path, rect, circle, line, polyline').forEach(function(el){
+      if (el.closest('defs') || !el.getTotalLength) return;
+      var m = el.getScreenCTM(), len, n, i, p, q;
+      try { len = el.getTotalLength(); } catch (e){ return; }
+      n = Math.max(8, Math.ceil(len * 2));
+      for (i = 0; i <= n; i++){
+        p = el.getPointAtLength(len * i / n);
+        q = m.b * p.x + m.d * p.y + m.f; if (q < lo) lo = q; if (q > hi) hi = q;
+      }
+    });
+    return [lo, hi];
+  }
+  function fit(){
+    marks.forEach(function(svg){
+      svg.style.removeProperty('--mk-k'); svg.style.removeProperty('--mk-dy');
+      if (!phone.matches) return;
+      var badge = svg.parentNode.querySelector('.badge-link'); if (!badge) return;
+      var b = badge.getBoundingClientRect(), e = extent(svg);
+      if (!(e[1] > e[0])) return;
+      var box = svg.getBoundingClientRect(), c = box.top + box.height / 2;
+      var k = b.height / (e[1] - e[0]);
+      var dy = b.top - (c + k * (e[0] - c));
+      svg.style.setProperty('--mk-k', k.toFixed(4));
+      svg.style.setProperty('--mk-dy', dy.toFixed(2) + 'px');
+    });
+  }
+  var t; function soon(){ clearTimeout(t); t = setTimeout(fit, 120); }
+  window.addEventListener('load', fit); window.addEventListener('resize', soon);
+  if (document.readyState === 'complete') fit();
 })();

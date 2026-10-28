@@ -609,13 +609,14 @@
       display:none;
     }
 
-    /* Progress dots become a horizontal bar pinned to the bottom. */
+    /* Progress dots become a horizontal bar pinned to the top. */
     #progress-nav{
       position:fixed;
       top:auto;
       left:0;
       right:0;
-      bottom:0.9rem;
+      top:0.9rem;
+      bottom:auto;
       margin:0 auto;
       width:fit-content;
       transform:none;
@@ -632,11 +633,12 @@
     #progress-nav button .tooltip{ display:none; }
     #progress-nav button::after{ content:''; position:absolute; inset:-9px -4px; }   /* a bigger tap area; the look is unchanged */
 
-    /* Site icon rail becomes a matching horizontal bar pinned to the top. */
+    /* Site icon rail becomes a matching horizontal bar pinned to the bottom, within thumb reach. */
     #icon-nav{
       position:fixed;
       left:50%;
-      top:0.5rem;
+      top:auto;
+      bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
       transform:translateX(-50%);
       flex-direction:row;
       gap:0.6rem;

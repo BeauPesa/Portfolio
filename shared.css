@@ -809,9 +809,10 @@ body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-to
 .card-progress{ display:none; }
 @media (max-width: 720px){
   /* The card's frame: every gap is the same 0.9rem (14.4px): screen edge -> nav circles -> card -> dots -> screen edge.
-     So the card's top is 0.9rem + 26px (the circles) + 0.9rem down, and its bottom is 0.9rem + 25px (the dots) + 0.9rem up. site.js refines these from the
+     The dots now sit on top and the nav circles at the bottom (within thumb reach), so the card's top is 0.9rem + 25px (the dots) + 0.9rem down,
+     and its bottom is 0.9rem + 26px (the circles) + 0.9rem up. site.js refines these from the
      real elements on the case studies. */
-  :root{ --thread-w: calc(2 * var(--mobile-grid-gap)); --frame-top: calc(1.8rem + 26px); --frame-bottom: calc(1.8rem + 25px); --card-top: calc(1.8rem + 26px); --card-h: calc(100vh - var(--frame-top) - var(--frame-bottom)); }
+  :root{ --thread-w: calc(2 * var(--mobile-grid-gap)); --frame-top: calc(1.8rem + 25px); --frame-bottom: calc(1.8rem + 26px + env(safe-area-inset-bottom, 0px)); --card-top: calc(1.8rem + 25px); --card-h: calc(100vh - var(--frame-top) - var(--frame-bottom)); }
   @supports (height: 100svh){ :root{ --card-h: calc(100svh - var(--frame-top) - var(--frame-bottom)); } }
   body.has-page-card{ overflow:hidden; }
   body.has-page-card .page-hero{
@@ -1182,7 +1183,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 .resume-actions{ display:flex; flex-direction:row-reverse; justify-content:space-between; width: calc(4 * var(--grid-gap)); margin-top:2rem; }
 .resume-actions .cta{ margin-top:0 !important; width: calc(2 * var(--grid-gap) - 0.75rem); }
 @media (max-width: 720px){
-  .page-hero:has(.resume-thumb){ padding-top: calc(0.9rem + 78px); }   /* nav pill 0.5rem + 0.4rem padding + a 26px icon, then the two-icon fade */
+  .page-hero:has(.resume-thumb){ padding-top: 2.5rem; }
   .resume-wrap .resume-thumb{ margin-top:1.5rem; margin-left: calc(-0.125 * var(--mobile-grid-gap)); }
   .resume-wrap .resume-sheet{ width: calc(2.25 * var(--mobile-grid-gap)); }   /* the size the card used to be: 1/8 of a column past pinstripes 2 and 4 */
   .resume-actions{ flex-direction:column; width:auto; margin-top:1.5rem; }
@@ -1259,3 +1260,30 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 @media (min-width: 721px){
   .page-card .card-grid .card .card-mark{ top:50%; right:2rem; width: calc(0.7 * var(--grid-gap)); height: calc(0.7 * var(--grid-gap)); max-width:160px; max-height:160px; transform: translateY(-50%) rotate(-45deg); stroke-width:1.1; }   /* thinner line at this size (48-unit icons), so it stays a hairline, not a marker */
 }
+
+/* Endeavors tiles, desktop/tablet: the title and description wrap halfway between pinstripes 3 and 4,
+   so they never run under the watermark. (The tile starts on pinstripe 2; 1.75rem is its padding.) */
+@media (min-width: 721px){
+  .page-card .card-grid .card h3, .page-card .card-grid .card p{ max-width: calc(1.5 * var(--grid-gap) - 1.75rem); }
+}
+/* Phones: site.js (section 11) sizes and places each watermark so its highest and lowest points line up with
+   the top and bottom of the tile's No. badge. */
+@media (max-width: 720px){
+  .page-card .card .card-mark{ transform: translateY(var(--mk-dy, 0px)) scale(var(--mk-k, 1)) rotate(-45deg); }
+}
+
+/* ---------- Phones: main nav at the bottom, position dots at the top ----------
+   The nav circles move to the bottom of the screen, where a thumb reaches them, and sit as far from the bottom
+   (0.9rem to the circles) as the dots now sit from the top; both clear the iPhone home bar. Same pills, same look.
+   The photo viewer drops its arrow buttons on phones: the swipe clue already says how to move between photos. */
+@media (max-width: 720px){
+  #icon-nav{ top:auto; bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px)); }
+  #case-dots{ bottom:auto; top:0.9rem; }
+  .lb .lb-prev, .lb .lb-next{ display:none; }
+  #bottom-fade{ display:block; position:fixed; left:0; right:0; bottom:0; height: calc(1.3rem + 78px + env(safe-area-inset-bottom, 0px)); z-index:9; pointer-events:none; }
+  #bottom-fade-lines{ display:block; position:fixed; left:0; right:0; bottom:0; height: calc(1.3rem + 78px + env(safe-area-inset-bottom, 0px)); overflow:hidden; z-index:9; pointer-events:none; }
+  #bottom-fade-lines > div{ position:absolute; left:0; width:100%; display:flex; justify-content:space-between; }
+  #bottom-fade-lines span{ width:0; height:100%; }
+}
+#bottom-fade, #bottom-fade-lines{ display:none; }
+@media (max-width: 720px){ #bottom-fade, #bottom-fade-lines{ display:block; } }
