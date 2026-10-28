@@ -245,11 +245,19 @@
     if (hexBrand) dockBrand = [0, 2, 4].map(function(i){ return parseInt(hexBrand[1].substr(i, 2), 16); });
   }
   function homeCircle(){ return document.querySelector('#icon-nav a').getBoundingClientRect(); }
+  // Phones: the gap between the card's top and the row of controls above it (the dots; the nav lives at the bottom now).
+  // With nothing above the card, the frame's own 0.9rem.
+  function frameGap(pc){
+    var row = document.getElementById('case-dots'), rr = row && row.getBoundingClientRect(), h = homeCircle();
+    if (rr && rr.height && rr.bottom < pc.top) return pc.top - rr.bottom;
+    if (h.bottom < pc.top) return pc.top - h.bottom;
+    return 0.9 * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16);
+  }
   function circleRect(){
     var h = homeCircle(), size = h.width;
-    if (isPhone.matches){   // phones: on the card's left edge, as far below the card's top as the card's top is below the nav
+    if (isPhone.matches){   // phones: on the card's left edge, as far below the card's top as the card's top is below the row above it
       var pc = dockCard.getBoundingClientRect();   // on a phone both kinds of card are a fixed frame that scrolls inside itself
-      return { left: pc.left - size / 2, top: pc.top + (pc.top - h.bottom), width: size, height: size };
+      return { left: pc.left - size / 2, top: pc.top + frameGap(pc), width: size, height: size };
     }
     var lines = Array.prototype.map.call(document.querySelectorAll('#grid-lines-global span'), function(e){ return e.getBoundingClientRect().x; });
     var cx = DOCK_COLUMN === 'gutter' ? (dockCard.getBoundingClientRect().right + lines[6]) / 2 : (lines[5] + lines[6]) / 2;
@@ -302,9 +310,9 @@
   function checkDock(){
     if (!dock || leaving) return;
     var r = cta.getBoundingClientRect(), cy = r.top + r.height / 2, hr = homeCircle(), hy = (hr.top + hr.bottom) / 2;
-    if (isPhone.matches){   // phones: when the button's top is as far below the card's top as the card's top is below the nav
+    if (isPhone.matches){   // phones: when the button's top is as far below the card's top as the card's top is below the row above it
       if (caseCard && !framed) return;   // (a Creative Endeavors card is always a frame on a phone; a case study only once it has settled into one)
-      var fr = dockCard.getBoundingClientRect(), gap = fr.top - hr.bottom, off = r.top - fr.top;
+      var fr = dockCard.getBoundingClientRect(), gap = frameGap(fr), off = r.top - fr.top;
       if (dockState === 'idle' && off <= gap) dockIn(false);
       else if (dockState === 'docked' && off > gap + 8) dockOut();
       return;

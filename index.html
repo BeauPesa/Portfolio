@@ -909,7 +909,12 @@
     var c = document.querySelector('#icon-nav a');
     if (!c) return 0;
     var r = c.getBoundingClientRect();
-    return window.innerWidth <= 720 ? r.bottom + r.top : r.bottom;
+    if (window.innerWidth > 720) return r.bottom;
+    // Phones: the line is set by whichever row sits at the top of the screen. The nav moved to the bottom, so
+    // that's the dots pill now; fall back to the nav circles if they're ever back on top.
+    var d = document.getElementById('progress-nav'), dr = d && d.getBoundingClientRect();
+    if (dr && dr.height && dr.top < r.top) r = dr;
+    return r.bottom + r.top;
   }
   // Where the middle of a case section sits when its card is on the line (the section is symmetric around the card).
   function anchorY(){ return cardTopLine() + fadeCards[0].card.offsetHeight / 2; }
