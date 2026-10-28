@@ -20,9 +20,9 @@
 //  - If the browser is not allowed to read the pixels (a picture hosted on another site that doesn't permit it), the
 //    frame falls back to the site's lime accent and the tile says so in data-frame-source. Pictures on this site
 //    always work. To pin a colour by hand, put data-frame="#RRGGBB" on the <img>.
-// Beau.1 · v0.6.0
+// Beau.1 · v0.7.3
 (function(){
-  window.__galleryVersion = '0.6.0';
+  window.__galleryVersion = '0.7.3';
   function hex(r, g, b){ return '#' + [r, g, b].map(function(v){ v = Math.max(0, Math.min(255, Math.round(v))); return (v < 16 ? '0' : '') + v.toString(16); }).join('').toUpperCase(); }
   function hueOf(r, g, b){
     var mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, h;
