@@ -1,4 +1,4 @@
-// Beau.1 · v0.7.3
+// Beau.1 · v0.7.5
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '0.7.3' };
+  var SITE = { release: 'Beau.1', version: '0.7.5' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -667,4 +667,83 @@
   var t; function soon(){ clearTimeout(t); t = setTimeout(fit, 120); }
   window.addEventListener('load', fit); window.addEventListener('resize', soon);
   if (document.readyState === 'complete') fit();
+})();
+
+/* ---------------- 12. NDA case studies: the password veil ----------------
+   Walgreens, eBay and Cisco are under NDA. Their homepage teasers stay open to everyone; their own pages hold only
+   ciphertext (tools/lock.mjs writes it). This veils the page's card and decrypts with Web Crypto once the right password is entered (PBKDF2-SHA256 key, AES-256-GCM, so a
+   wrong password simply fails to open). The homepage checks a small sealed token in <meta name="case-lock">. A good
+   password is kept for the rest of the browser session, so it's typed once. */
+(function(){
+  var homeCards = document.querySelectorAll('.case-card[data-nda]');
+  var sealed = document.querySelector('.case-text[data-locked]');
+  var token = document.querySelector('meta[name="case-lock"]');
+  if (!homeCards.length && !sealed) return;
+  var KEY = 'bp-case-pass', te = new TextEncoder(), td = new TextDecoder();
+  function b64(s){ var bin = atob(s), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+  function open(blob, pass){   // resolves to the plain text, or rejects if the password is wrong
+    var p = blob.split('.'), rounds = parseInt(p[0], 10);
+    if (!window.crypto || !crypto.subtle) return Promise.reject(new Error('no-crypto'));
+    return crypto.subtle.importKey('raw', te.encode(pass), 'PBKDF2', false, ['deriveKey'])
+      .then(function(base){ return crypto.subtle.deriveKey({ name:'PBKDF2', salt:b64(p[1]), iterations:rounds, hash:'SHA-256' }, base, { name:'AES-GCM', length:256 }, false, ['decrypt']); })
+      .then(function(key){ return crypto.subtle.decrypt({ name:'AES-GCM', iv:b64(p[2]) }, key, b64(p[3])); })
+      .then(function(buf){ return td.decode(buf); });
+  }
+  function check(pass){ return open(sealed ? sealed.getAttribute('data-locked') : token.getAttribute('content'), pass); }
+  function reveal(pass, text){
+    try { sessionStorage.setItem(KEY, pass); } catch (e){}
+    if (sealed && typeof text === 'string'){ sealed.innerHTML = text; sealed.removeAttribute('data-locked'); }
+    document.querySelectorAll('.lock-veil').forEach(function(v){ v.classList.add('is-open'); v.setAttribute('aria-hidden', 'true'); });
+  }
+  function colours(card){
+    var badge = card.querySelector('.badge-link'), thread = card.querySelector('.thread');
+    var ink = (badge && badge.style.getPropertyValue('--badge-color').trim()) || '#1B1C1E';
+    var accent = thread ? getComputedStyle(thread).color : ink;
+    return [ink, accent];
+  }
+  function veil(card, name, onPage){
+    var c = colours(card), v = document.createElement('div');
+    v.className = 'lock-veil is-shown rv-static';   // added after the reveal engine has made its list, so it shows at once
+    v.style.setProperty('--lock-ink', c[0]); v.style.setProperty('--lock-accent', c[1]);
+    var id = 'lock-' + Math.random().toString(36).slice(2, 8);
+    v.innerHTML = '<form class="lock-form" novalidate>' +
+      '<span class="lock-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>' +
+      '<span class="lock-rule" aria-hidden="true"></span>' +
+      '<p class="lock-title">' + name + ' is under NDA</p>' +
+      '<p class="lock-note">Enter the password to see the work, or <a href="about.html">get in touch</a> for access.</p>' +
+      '<div class="lock-row"><label class="sr-only" for="' + id + '">Password</label>' +
+      '<input id="' + id + '" type="password" autocomplete="current-password" placeholder="Password" required>' +
+      '<button type="submit">Unlock</button></div>' +
+      '<p class="lock-error" role="status" aria-live="polite"></p>' +
+      (onPage ? '<a class="lock-back" href="index.html">Back to home</a>' : '') +
+      '</form>';
+    card.appendChild(v);
+    var form = v.querySelector('form'), input = v.querySelector('input'), err = v.querySelector('.lock-error');
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var pass = input.value; if (!pass) { input.focus(); return; }
+      form.querySelector('button').disabled = true; err.textContent = '';
+      check(pass).then(function(text){ reveal(pass, text); })
+        .catch(function(x){
+          err.textContent = (x && x.message === 'no-crypto') ? 'This browser can’t unlock it. Try a recent Chrome, Safari or Firefox.' : 'That’s not it. Try again.';
+          form.classList.remove('is-wrong'); void form.offsetWidth; form.classList.add('is-wrong');
+          input.select();
+        })
+        .then(function(){ form.querySelector('button').disabled = false; });
+    });
+    ['pointerdown', 'touchstart', 'wheel'].forEach(function(t){ v.addEventListener(t, function(e){ e.stopPropagation(); }, { passive:true }); });   // typing here never triggers the card's swipe or scroll-snap
+    return v;
+  }
+  homeCards.forEach(function(card){ var h = card.querySelector('h2'); veil(card, h ? h.textContent.trim() : 'This case study', false); });
+  if (sealed){
+    var card = sealed.closest('.case-page-card'); card.classList.add('is-nda');
+    var h = card.querySelector('h2'), pv = veil(card, h ? h.textContent.trim() : 'This case study', true);
+    var size = function(){   // the paper runs on below the card's own box, to the bottom of the screen: the veil covers all of it
+      pv.style.bottom = 'auto';
+      pv.style.height = Math.max(card.offsetHeight, window.innerHeight - card.getBoundingClientRect().top) + 'px';
+    };
+    size(); window.addEventListener('resize', size); window.addEventListener('load', size);
+  }
+  var saved = null; try { saved = sessionStorage.getItem(KEY); } catch (e){}
+  if (saved) check(saved).then(function(text){ reveal(saved, text); }).catch(function(){ try { sessionStorage.removeItem(KEY); } catch (e){} });
 })();
