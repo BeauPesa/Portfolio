@@ -1,4 +1,4 @@
-/* Beau.1 · v0.7.8 */
+/* Beau.1 · v0.7.9 */
 /* ===================================================================
    SHARED STYLESHEET
    Used by every page except the homepage (which is self-contained
@@ -1047,7 +1047,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 }
 
 /* ---------- Version ---------- (read by siteVersion() in site.js) */
-:root{ --site-version: "0.7.8"; }
+:root{ --site-version: "0.7.9"; }
 
 /* ---------- Gallery: a caption on hover, and the photo viewer ----------
    A tile with data-caption shows its title over the picture on hover or focus (touch screens have no hover: they get the
@@ -1300,8 +1300,8 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 .tip-left{ left:46px; }
 .tip-right{ right:46px; }
 .tip-left::after, .tip-right::after{ border-style:solid; width:0; height:0; top:0; transform:none; }
-.tip-left::after{ right:100%; left:auto; border-width:12px 10px 12px 0; border-color: transparent #F2F1EC transparent transparent; }
-.tip-right::after{ left:100%; right:auto; border-width:12px 0 12px 10px; border-color: transparent transparent transparent #F2F1EC; }
-.tip-left::before, .tip-right::before{ content:''; position:absolute; top:0; width:12px; height:24px; background: var(--tip-accent, #ADD944); }
-.tip-left::before{ left:100%; border-radius:0 12px 12px 0; }
-.tip-right::before{ right:100%; border-radius:12px 0 0 12px; }
+.tip-left::after{ right:calc(100% - 1px); left:auto; border-width:12px 10px 12px 0; border-color: transparent #F2F1EC transparent transparent; }
+.tip-right::after{ left:calc(100% - 1px); right:auto; border-width:12px 0 12px 10px; border-color: transparent transparent transparent #F2F1EC; }
+.tip-left::before, .tip-right::before{ content:''; position:absolute; top:0; width:13px; height:24px; background: var(--tip-accent, #ADD944); }
+.tip-left::before{ left:calc(100% - 1px); border-radius:0 12px 12px 0; }   /* each piece tucks a pixel under the label, so no hairline seam shows */
+.tip-right::before{ right:calc(100% - 1px); border-radius:12px 0 0 12px; }

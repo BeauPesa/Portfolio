@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="site-release" content="Beau.1">
 <meta name="case-lock" content="250000.7UQfEvr96RLeJHRN5wsiEg==.wA3GJOvFhlLHYUs+.4ZOTIMZiRHupDcbxajhbNrhCEEGqnfqB">
-<meta name="site-version" content="0.7.8">
+<meta name="site-version" content="0.7.9">
 <title>Beau Pesa — Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
      for your exact Figma / brand hex codes.
      =================================================================== */
   :root{
-    --site-version: "0.7.8";
+    --site-version: "0.7.9";
     --ink: #101114;           /* intro / outro base */
     --paper: #F2F1EC;         /* card surface */
     --text-dark: #1B1C1E;
@@ -717,11 +717,11 @@
   .tip-left{ left:46px; }
   .tip-right{ right:46px; }
   .tip-left::after, .tip-right::after{ border-style:solid; width:0; height:0; top:0; transform:none; }
-  .tip-left::after{ right:100%; left:auto; border-width:12px 10px 12px 0; border-color: transparent #F2F1EC transparent transparent; }
-  .tip-right::after{ left:100%; right:auto; border-width:12px 0 12px 10px; border-color: transparent transparent transparent #F2F1EC; }
-  .tip-left::before, .tip-right::before{ content:''; position:absolute; top:0; width:12px; height:24px; background: var(--tip-accent, #ADD944); }
-  .tip-left::before{ left:100%; border-radius:0 12px 12px 0; }
-  .tip-right::before{ right:100%; border-radius:12px 0 0 12px; }
+  .tip-left::after{ right:calc(100% - 1px); left:auto; border-width:12px 10px 12px 0; border-color: transparent #F2F1EC transparent transparent; }
+  .tip-right::after{ left:calc(100% - 1px); right:auto; border-width:12px 0 12px 10px; border-color: transparent transparent transparent #F2F1EC; }
+  .tip-left::before, .tip-right::before{ content:''; position:absolute; top:0; width:13px; height:24px; background: var(--tip-accent, #ADD944); }
+  .tip-left::before{ left:calc(100% - 1px); border-radius:0 12px 12px 0; }   /* each piece tucks a pixel under the label, so no hairline seam shows */
+  .tip-right::before{ right:calc(100% - 1px); border-radius:12px 0 0 12px; }
   
 </style>
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight');},2500);})();</script>
@@ -828,7 +828,7 @@
   </div>
 </section>
 
-<section id="walgreens" class="case">
+<section id="walgreens" class="case" data-tip-accent="badge">
     <div class="case-card">
     <a class="case-index badge-link" href="walgreens.html" style="--badge-color:#323264; --badge-color-30:rgba(50,50,100,0.3); --badge-text:#fff;" aria-label="View the walgreens case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">2</span></span></a>
     <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
@@ -1020,8 +1020,9 @@
   }
 
   function setActive(id){
-    var sec = document.getElementById(id), th = sec && sec.querySelector('.thread');   // tooltips take the colour of the case in view
-    document.documentElement.style.setProperty('--tip-accent', th ? getComputedStyle(th).color : '#ADD944');
+    var sec = document.getElementById(id), th = sec && sec.querySelector('.thread'), bd = sec && sec.querySelector('.badge-link');   // tooltips take the colour of the case in view
+    var tip = (sec && sec.getAttribute('data-tip-accent') === 'badge' && bd) ? bd.style.getPropertyValue('--badge-color').trim() : (th ? getComputedStyle(th).color : '#ADD944');
+    document.documentElement.style.setProperty('--tip-accent', tip);
     var color = sectionColors[id];
     var fillColor = lighten(color, 0.08);
     bgLayer.style.backgroundColor = color;
@@ -1208,6 +1209,6 @@
 })();
 </script>
 
-<script src="site.js?v=0.7.8"></script>
+<script src="site.js?v=0.7.9"></script>
 </body>
 </html>

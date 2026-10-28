@@ -1,4 +1,4 @@
-// Beau.1 · v0.7.8
+// Beau.1 · v0.7.9
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '0.7.8' };
+  var SITE = { release: 'Beau.1', version: '0.7.9' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -710,6 +710,7 @@
     var badge = card.querySelector('.badge-link'), thread = card.querySelector('.thread');
     var ink = (badge && badge.style.getPropertyValue('--badge-color').trim()) || '#1B1C1E';
     var accent = thread ? getComputedStyle(thread).color : ink;
+    if (card.getAttribute('data-lock-rule') === 'page') accent = getComputedStyle(document.body).backgroundColor;   // Walgreens, Cisco: the page's own light colour
     return [ink, accent];
   }
   function veil(card, name, onPage){
@@ -769,6 +770,7 @@
 
 /* ---------------- 13. Tooltip accent on case-study pages: the case study's own colour ---------------- */
 (function(){
-  var th = document.querySelector('.case-page-card .thread');
-  if (th) document.documentElement.style.setProperty('--tip-accent', getComputedStyle(th).color);
+  var card = document.querySelector('.case-page-card'), th = card && card.querySelector('.thread'), bd = card && card.querySelector('.badge-link');
+  var tip = (card && card.getAttribute('data-tip-accent') === 'badge' && bd) ? bd.style.getPropertyValue('--badge-color').trim() : (th ? getComputedStyle(th).color : '');
+  if (tip) document.documentElement.style.setProperty('--tip-accent', tip);
 })();
