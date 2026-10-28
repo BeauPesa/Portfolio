@@ -1,4 +1,4 @@
-// Beau.1 · v0.7.7
+// Beau.1 · v0.7.8
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '0.7.7' };
+  var SITE = { release: 'Beau.1', version: '0.7.8' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -728,9 +728,19 @@
       '<input id="' + id + '" type="password" autocomplete="current-password" placeholder="Password" required>' +
       '<button type="submit">Unlock</button></div>' +
       '<p class="lock-error" role="status" aria-live="polite"></p>' +
-      (onPage ? '<a class="lock-back" href="index.html">Back to home ←</a>' : '') +
+      (onPage ? '<a class="lock-back" href="index.html#to-' + location.pathname.split('/').pop().replace(/\.html$/, '') + '">Back to home ←</a>' : '') +
       '</form>';
+    v.classList.add('is-arriving');
     card.appendChild(v);
+    setTimeout(function(){ requestAnimationFrame(function(){ v.classList.remove('is-arriving'); }); }, onPage ? 350 : 0);   // fade in once the card has landed
+    var back = v.querySelector('.lock-back');
+    if (back) back.addEventListener('click', function(e){   // back to this card on the homepage, exactly as the page's own button goes:
+      var cta = card.querySelector('.case-page-card > .case-page-cta, .case-page-cta:not(.back-dock)');
+      if (!cta || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      v.classList.add('is-open');                                   // the veil fades off the card first
+      setTimeout(function(){ cta.click(); }, 300);                  // then the usual hand-off: the homepage picks the card up where it is
+    });
     var form = v.querySelector('form'), input = v.querySelector('input'), err = v.querySelector('.lock-error');
     form.addEventListener('submit', function(e){
       e.preventDefault();
@@ -755,4 +765,10 @@
   }
   var saved = null; try { saved = sessionStorage.getItem(KEY); } catch (e){}
   if (saved) check(saved).then(function(text){ reveal(saved, text); }).catch(function(){ try { sessionStorage.removeItem(KEY); } catch (e){} });
+})();
+
+/* ---------------- 13. Tooltip accent on case-study pages: the case study's own colour ---------------- */
+(function(){
+  var th = document.querySelector('.case-page-card .thread');
+  if (th) document.documentElement.style.setProperty('--tip-accent', getComputedStyle(th).color);
 })();

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="site-release" content="Beau.1">
 <meta name="case-lock" content="250000.7UQfEvr96RLeJHRN5wsiEg==.wA3GJOvFhlLHYUs+.4ZOTIMZiRHupDcbxajhbNrhCEEGqnfqB">
-<meta name="site-version" content="0.7.7">
+<meta name="site-version" content="0.7.8">
 <title>Beau Pesa — Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
      for your exact Figma / brand hex codes.
      =================================================================== */
   :root{
-    --site-version: "0.7.7";
+    --site-version: "0.7.8";
     --ink: #101114;           /* intro / outro base */
     --paper: #F2F1EC;         /* card surface */
     --text-dark: #1B1C1E;
@@ -183,7 +183,7 @@
     width: calc(2 * var(--grid-gap)); /* pinstripe 2 -> 4 */
     min-width:max-content;
     white-space:nowrap;
-    height:35px;
+    height: var(--u, 30px);   /* a nav button's height: 30px, 26px on phones */
     margin-top:2rem;
     padding:0 0.5rem;
     border-radius:999px;
@@ -202,7 +202,7 @@
     width: calc(2 * var(--grid-gap)); /* pinstripe 2 -> 4 */
     min-width:max-content;
     white-space:nowrap;
-    height:35px;
+    height: var(--u, 30px);   /* a nav button's height: 30px, 26px on phones */
     margin-top:2rem;
     padding:0 0.5rem;
     border-radius:999px;
@@ -704,6 +704,25 @@
     .case p, .case-text{ font-size: var(--card-fs); }
     .case .role{ font-size: 1rem; }
   }
+
+  /* ---------- Tooltips: pointer labels ----------
+     A paper-coloured label with a semicircle of the section's colour on its far side and an arrow on the side facing
+     its icon, running the label's full height. --tip-accent is lime on the personal pages, the case study's own colour
+     on a case study, and on the homepage it follows whichever case is in view. */
+  .tooltip{
+    height:24px; line-height:24px; padding:0 0.65rem; box-sizing:border-box;
+    background:#F2F1EC; color:#1B1C1E; border-radius:0; font-weight:500;
+    box-shadow: 0 6px 16px -8px rgba(0,0,0,0.45);
+  }
+  .tip-left{ left:46px; }
+  .tip-right{ right:46px; }
+  .tip-left::after, .tip-right::after{ border-style:solid; width:0; height:0; top:0; transform:none; }
+  .tip-left::after{ right:100%; left:auto; border-width:12px 10px 12px 0; border-color: transparent #F2F1EC transparent transparent; }
+  .tip-right::after{ left:100%; right:auto; border-width:12px 0 12px 10px; border-color: transparent transparent transparent #F2F1EC; }
+  .tip-left::before, .tip-right::before{ content:''; position:absolute; top:0; width:12px; height:24px; background: var(--tip-accent, #ADD944); }
+  .tip-left::before{ left:100%; border-radius:0 12px 12px 0; }
+  .tip-right::before{ right:100%; border-radius:12px 0 0 12px; }
+  
 </style>
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight');},2500);})();</script>
 </head>
@@ -1001,6 +1020,8 @@
   }
 
   function setActive(id){
+    var sec = document.getElementById(id), th = sec && sec.querySelector('.thread');   // tooltips take the colour of the case in view
+    document.documentElement.style.setProperty('--tip-accent', th ? getComputedStyle(th).color : '#ADD944');
     var color = sectionColors[id];
     var fillColor = lighten(color, 0.08);
     bgLayer.style.backgroundColor = color;
@@ -1187,6 +1208,6 @@
 })();
 </script>
 
-<script src="site.js?v=0.7.7"></script>
+<script src="site.js?v=0.7.8"></script>
 </body>
 </html>

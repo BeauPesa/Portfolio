@@ -1,4 +1,4 @@
-/* Beau.1 · v0.7.7 */
+/* Beau.1 · v0.7.8 */
 /* ===================================================================
    SHARED STYLESHEET
    Used by every page except the homepage (which is self-contained
@@ -115,7 +115,7 @@ h1,h2,h3{
   width: calc(2 * var(--grid-gap)); /* pinstripe 2 -> 4 */
   min-width:max-content;
   white-space:nowrap;
-  height:35px;
+  height: var(--u, 30px);   /* a nav button's height: 30px, 26px on phones */
   margin-top:1.5rem;
   padding:0 0.5rem;
   border-radius:999px;
@@ -479,7 +479,7 @@ h1,h2,h3{
   width: calc(2 * var(--grid-gap));
   min-width:max-content;
   white-space:nowrap;
-  height:35px;
+  height: var(--u, 30px);   /* a nav button's height: 30px, 26px on phones */
   margin-top:2rem;
   padding:0 0.5rem;
   border-radius:999px;
@@ -1047,7 +1047,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 }
 
 /* ---------- Version ---------- (read by siteVersion() in site.js) */
-:root{ --site-version: "0.7.7"; }
+:root{ --site-version: "0.7.8"; }
 
 /* ---------- Gallery: a caption on hover, and the photo viewer ----------
    A tile with data-caption shows its title over the picture on hover or focus (touch screens have no hover: they get the
@@ -1287,3 +1287,21 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 }
 #bottom-fade, #bottom-fade-lines{ display:none; }
 @media (max-width: 720px){ #bottom-fade, #bottom-fade-lines{ display:block; } }
+
+/* ---------- Tooltips: pointer labels ----------
+   A paper-coloured label with a semicircle of the section's colour on its far side and an arrow on the side facing
+   its icon, running the label's full height. --tip-accent is lime on the personal pages, the case study's own colour
+   on a case study, and on the homepage it follows whichever case is in view. */
+.tooltip{
+  height:24px; line-height:24px; padding:0 0.65rem; box-sizing:border-box;
+  background:#F2F1EC; color:#1B1C1E; border-radius:0; font-weight:500;
+  box-shadow: 0 6px 16px -8px rgba(0,0,0,0.45);
+}
+.tip-left{ left:46px; }
+.tip-right{ right:46px; }
+.tip-left::after, .tip-right::after{ border-style:solid; width:0; height:0; top:0; transform:none; }
+.tip-left::after{ right:100%; left:auto; border-width:12px 10px 12px 0; border-color: transparent #F2F1EC transparent transparent; }
+.tip-right::after{ left:100%; right:auto; border-width:12px 0 12px 10px; border-color: transparent transparent transparent #F2F1EC; }
+.tip-left::before, .tip-right::before{ content:''; position:absolute; top:0; width:12px; height:24px; background: var(--tip-accent, #ADD944); }
+.tip-left::before{ left:100%; border-radius:0 12px 12px 0; }
+.tip-right::before{ right:100%; border-radius:12px 0 0 12px; }
