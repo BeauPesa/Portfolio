@@ -1,4 +1,4 @@
-/* Beau.1 · v0.7.9 */
+/* Beau.1 · v0.8.3 */
 /* ===================================================================
    SHARED STYLESHEET
    Used by every page except the homepage (which is self-contained
@@ -1047,7 +1047,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 }
 
 /* ---------- Version ---------- (read by siteVersion() in site.js) */
-:root{ --site-version: "0.7.9"; }
+:root{ --site-version: "0.8.3"; }
 
 /* ---------- Gallery: a caption on hover, and the photo viewer ----------
    A tile with data-caption shows its title over the picture on hover or focus (touch screens have no hover: they get the
@@ -1201,12 +1201,12 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 @media (max-width: 720px){
   #top-fade{
     display:block; position:fixed; top:0; left:0; right:0;
-    height: calc(0.9rem + 78px);
+    height: calc(0.9rem + 25px);   /* down to the bottom of the dots pill, no further */
     z-index:9; pointer-events:none;
   }
   #top-fade-lines{
     display:block; position:fixed; top:0; left:0; right:0;
-    height: calc(0.9rem + 78px);
+    height: calc(0.9rem + 25px);   /* down to the bottom of the dots pill, no further */
     overflow:hidden; z-index:9; pointer-events:none;
   }
   #top-fade-lines > div{ position:absolute; left:0; width:100%; display:flex; justify-content:space-between; }
@@ -1269,7 +1269,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 /* Phones: site.js (section 11) sizes and places each watermark so its highest and lowest points line up with
    the top and bottom of the tile's No. badge. */
 @media (max-width: 720px){
-  .page-card .card .card-mark{ transform: translateY(var(--mk-dy, 0px)) scale(var(--mk-k, 1)) rotate(-45deg); }
+  .page-card .card .card-mark{ transform: translate(var(--mk-dx, 0px), var(--mk-dy, 0px)) scale(var(--mk-k, 1)) rotate(-45deg); }
 }
 
 /* ---------- Phones: main nav at the bottom, position dots at the top ----------
@@ -1280,8 +1280,8 @@ html.frame .case-page-card::after{ flex-shrink:0; }
   #icon-nav{ top:auto; bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px)); }
   #case-dots{ bottom:auto; top:0.9rem; }
   .lb .lb-prev, .lb .lb-next{ display:none; }
-  #bottom-fade{ display:block; position:fixed; left:0; right:0; bottom:0; height: calc(1.3rem + 78px + env(safe-area-inset-bottom, 0px)); z-index:9; pointer-events:none; }
-  #bottom-fade-lines{ display:block; position:fixed; left:0; right:0; bottom:0; height: calc(1.3rem + 78px + env(safe-area-inset-bottom, 0px)); overflow:hidden; z-index:9; pointer-events:none; }
+  #bottom-fade{ display:block; position:fixed; left:0; right:0; bottom:0; height: calc(0.9rem + 26px + env(safe-area-inset-bottom, 0px));   /* up to the top of the nav circles, no further */ z-index:9; pointer-events:none; }
+  #bottom-fade-lines{ display:block; position:fixed; left:0; right:0; bottom:0; height: calc(0.9rem + 26px + env(safe-area-inset-bottom, 0px));   /* up to the top of the nav circles, no further */ overflow:hidden; z-index:9; pointer-events:none; }
   #bottom-fade-lines > div{ position:absolute; left:0; width:100%; display:flex; justify-content:space-between; }
   #bottom-fade-lines span{ width:0; height:100%; }
 }

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="site-release" content="Beau.1">
 <meta name="case-lock" content="250000.7UQfEvr96RLeJHRN5wsiEg==.wA3GJOvFhlLHYUs+.4ZOTIMZiRHupDcbxajhbNrhCEEGqnfqB">
-<meta name="site-version" content="0.7.9">
+<meta name="site-version" content="0.8.3">
 <title>Beau Pesa — Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
      for your exact Figma / brand hex codes.
      =================================================================== */
   :root{
-    --site-version: "0.7.9";
+    --site-version: "0.8.3";
     --ink: #101114;           /* intro / outro base */
     --paper: #F2F1EC;         /* card surface */
     --text-dark: #1B1C1E;
@@ -723,6 +723,30 @@
   .tip-left::before{ left:calc(100% - 1px); border-radius:0 12px 12px 0; }   /* each piece tucks a pixel under the label, so no hairline seam shows */
   .tip-right::before{ right:calc(100% - 1px); border-radius:12px 0 0 12px; }
   
+  /* the fades under the dots (top) and the nav (bottom) on phones: same rules as shared.css, which this page doesn't load */
+#top-fade, #top-fade-lines{ display:none; }
+@media (max-width: 720px){
+  #top-fade{
+    display:block; position:fixed; top:0; left:0; right:0;
+    height: calc(0.9rem + 25px);   /* down to the bottom of the dots pill, no further */
+    z-index:9; pointer-events:none;
+  }
+  #top-fade-lines{
+    display:block; position:fixed; top:0; left:0; right:0;
+    height: calc(0.9rem + 25px);   /* down to the bottom of the dots pill, no further */
+    overflow:hidden; z-index:9; pointer-events:none;
+  }
+  #top-fade-lines > div{ position:absolute; left:0; width:100%; display:flex; justify-content:space-between; }
+  #top-fade-lines span{ width:0; height:100%; }
+}
+@media (max-width: 720px){
+  #bottom-fade{ display:block; position:fixed; left:0; right:0; bottom:0; height: calc(0.9rem + 26px + env(safe-area-inset-bottom, 0px));   /* up to the top of the nav circles, no further */ z-index:9; pointer-events:none; }
+  #bottom-fade-lines{ display:block; position:fixed; left:0; right:0; bottom:0; height: calc(0.9rem + 26px + env(safe-area-inset-bottom, 0px));   /* up to the top of the nav circles, no further */ overflow:hidden; z-index:9; pointer-events:none; }
+  #bottom-fade-lines > div{ position:absolute; left:0; width:100%; display:flex; justify-content:space-between; }
+  #bottom-fade-lines span{ width:0; height:100%; }
+}
+#bottom-fade, #bottom-fade-lines{ display:none; }
+@media (max-width: 720px){ #bottom-fade, #bottom-fade-lines{ display:block; } }
 </style>
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight');},2500);})();</script>
 </head>
@@ -1209,6 +1233,6 @@
 })();
 </script>
 
-<script src="site.js?v=0.7.9"></script>
+<script src="site.js?v=0.8.3"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-// Beau.1 · v0.7.9
+// Beau.1 · v0.8.3
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '0.7.9' };
+  var SITE = { release: 'Beau.1', version: '0.8.3' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -565,9 +565,10 @@
     var b = document.createElement('div'); b.id = side + '-fade'; b.setAttribute('aria-hidden', 'true');
     var t = document.createElement('div'); t.id = side + '-fade-lines'; t.setAttribute('aria-hidden', 'true');
     var inn = document.createElement('div'); t.appendChild(inn);
+    t.style.webkitMaskImage = t.style.maskImage = 'linear-gradient(to top, #000 0, #000 calc(100% - 8px), transparent 100%)';
     var sp = Array.prototype.map.call(lines.children, function(){ var x = document.createElement('span'); inn.appendChild(x); return x; });
     document.body.appendChild(b); document.body.appendChild(t);
-    var bg = document.getElementById('bg-layer'), lastC = '', lastY = -1, lastH = -1, lastV = -1;
+    var bg = document.getElementById('bg-layer'), lastC = '', lastY = -1, lastH = -1, lastV = -1, lastW2 = -1;
     function copy(){
       var ls = getComputedStyle(lines);
       inn.style.paddingLeft = ls.paddingLeft; inn.style.paddingRight = ls.paddingRight;
@@ -581,10 +582,11 @@
     function tick(){
       if (phoneQ.matches){
         var c = getComputedStyle(bg || document.body).backgroundColor;
+        if (window.innerWidth !== lastW2){ lastW2 = window.innerWidth; copy(); }   // a resized window moves the pinstripes: follow them
         if (c !== lastC){
           lastC = c;
           var m = c.match(/\d+(\.\d+)?/g) || [16, 17, 20];
-          b.style.background = 'linear-gradient(to top, ' + c + ' 0, ' + c + ' calc(1.3rem + 26px + env(safe-area-inset-bottom, 0px)), rgba(' + m[0] + ',' + m[1] + ',' + m[2] + ',0) 100%)';
+          b.style.background = 'linear-gradient(to top, ' + c + ' 0, ' + c + ' calc(100% - 8px), rgba(' + m[0] + ',' + m[1] + ',' + m[2] + ',0) 100%)';   // content fades over a few pixels at the circles' top edge, then is hidden behind the nav
           copy();
         }
         var y = window.scrollY, h = lines.offsetHeight, v = window.innerHeight - t.offsetHeight;
@@ -598,10 +600,11 @@
   var band = document.createElement('div'); band.id = 'top-fade'; band.setAttribute('aria-hidden', 'true');
   var top = document.createElement('div'); top.id = 'top-fade-lines'; top.setAttribute('aria-hidden', 'true');
   var inner = document.createElement('div'); top.appendChild(inner);
+  top.style.webkitMaskImage = top.style.maskImage = 'linear-gradient(to bottom, #000 0, #000 calc(100% - 8px), transparent 100%)';   // the copy fades with the band, so the real lines and the copy never double up
   var spans = Array.prototype.map.call(lines.children, function(){ var s = document.createElement('span'); inner.appendChild(s); return s; });
   document.body.appendChild(band); document.body.appendChild(top);
   var bgLayer = document.getElementById('bg-layer');
-  var lastColor = '', lastY = -1, lastH = -1;
+  var lastColor = '', lastY = -1, lastH = -1, lastWidth = -1;
   function copyLines(){
     var ls = getComputedStyle(lines);
     inner.style.paddingLeft = ls.paddingLeft; inner.style.paddingRight = ls.paddingRight;
@@ -615,11 +618,12 @@
   function frame(){
     if (phone.matches){
       var c = getComputedStyle(bgLayer || document.body).backgroundColor;
+      if (window.innerWidth !== lastWidth){ lastWidth = window.innerWidth; copyLines(); }   // a resized window moves the pinstripes: follow them
       if (c !== lastColor){
         lastColor = c;
         var m = c.match(/\d+(\.\d+)?/g) || [16, 17, 20];
         var clear = 'rgba(' + m[0] + ',' + m[1] + ',' + m[2] + ',0)';
-        band.style.background = 'linear-gradient(to bottom, ' + c + ' 0, ' + c + ' calc(0.9rem + 26px), ' + clear + ' 100%)';
+        band.style.background = 'linear-gradient(to bottom, ' + c + ' 0, ' + c + ' calc(100% - 8px), ' + clear + ' 100%)';   // content is hidden behind the dots pill and fades out over its last few pixels
         copyLines();   // the homepage recolors its lines with the background, so follow along
       }
       var y = window.scrollY, h = lines.offsetHeight;
@@ -632,46 +636,50 @@
 })();
 
 /* ---------------- 11. Phones: Endeavors watermarks sized to the No. badge ----------------
-   Measures each tilted icon's actual drawn extent and scales and shifts it so its topmost point meets the top of
-   the tile's No. badge and its lowest point meets the bottom. The tilt is applied in the maths here, not read back
-   from the browser: Safari leaves CSS transforms out of getScreenCTM, which threw the first version off on iPhones.
-   Desktop and tablet are untouched. */
+   Measures each tilted icon's actual drawn extent, then scales and places it: as tall as the tile's No. badge and
+   level with it, its rightmost point as far in from the tile's right edge as the badge is from the left. A wide icon
+   (the roller and its long handle) is held to under half the tile's width instead, centred on the badge's height.
+   The tilt is applied in the maths here, not read back from the browser: Safari leaves CSS transforms out of
+   getScreenCTM. Desktop and tablet are untouched. */
 (function(){
   var marks = document.querySelectorAll('.page-card .card .card-mark');
   if (!marks.length) return;
   var phone = window.matchMedia('(max-width: 720px)');
   var S = Math.SQRT1_2;   // sin and cos of 45 degrees
-  function extent(svg){   // vertical extent, in px from the icon's centre, after the -45 degree tilt
+  function extent(svg){   // [top, bottom, left, right] in px from the icon's centre, after the -45 degree tilt
     var w = parseFloat(getComputedStyle(svg).width) || 44, h = parseFloat(getComputedStyle(svg).height) || w;
-    var lo = Infinity, hi = -Infinity;
+    var e = [Infinity, -Infinity, Infinity, -Infinity];
     svg.querySelectorAll('path, rect, circle, line, polyline').forEach(function(el){
       if (el.closest('defs') || !el.getTotalLength) return;
-      var m = el.getCTM(), len, n, i, p, x, y, t;   // user units -> the icon's own px box (viewBox scaling and inner groups, no CSS)
+      var m = el.getCTM(), len, n, i, p, x, y, ty, tx;
       if (!m) return;
-      try { len = el.getTotalLength(); } catch (e){ return; }
+      try { len = el.getTotalLength(); } catch (err){ return; }
       n = Math.max(8, Math.ceil(len * 2));
       for (i = 0; i <= n; i++){
         p = el.getPointAtLength(len * i / n);
         x = m.a * p.x + m.c * p.y + m.e - w / 2;
         y = m.b * p.x + m.d * p.y + m.f - h / 2;
-        t = S * (y - x);              // y after rotate(-45deg)
-        if (t < lo) lo = t; if (t > hi) hi = t;
+        ty = S * (y - x); tx = S * (x + y);     // after rotate(-45deg)
+        if (ty < e[0]) e[0] = ty; if (ty > e[1]) e[1] = ty;
+        if (tx < e[2]) e[2] = tx; if (tx > e[3]) e[3] = tx;
       }
     });
-    return [lo, hi];
+    return e;
   }
   function fit(){
     marks.forEach(function(svg){
-      svg.style.removeProperty('--mk-k'); svg.style.removeProperty('--mk-dy');
+      ['--mk-k', '--mk-dy', '--mk-dx'].forEach(function(v){ svg.style.removeProperty(v); });
       if (!phone.matches) return;
-      var badge = svg.parentNode.querySelector('.badge-link'); if (!badge) return;
-      var b = badge.getBoundingClientRect(), e = extent(svg);
-      if (!(e[1] > e[0])) return;
-      var box = svg.getBoundingClientRect(), c = box.top + box.height / 2;   // the tilt turns about the centre, so the centre is reliable
-      var k = b.height / (e[1] - e[0]);
-      var dy = b.top - (c + k * e[0]);
+      var card = svg.parentNode, badge = card.querySelector('.badge-link'); if (!badge) return;
+      var b = badge.getBoundingClientRect(), cr = card.getBoundingClientRect(), e = extent(svg);
+      if (!(e[1] > e[0]) || !(e[3] > e[2])) return;
+      var box = svg.getBoundingClientRect(), cx = box.left + box.width / 2, cy = box.top + box.height / 2;   // the tilt turns about the centre
+      var k = Math.min(b.height / (e[1] - e[0]), (cr.width * 0.45) / (e[3] - e[2]));
+      var dy = (b.top + b.height / 2) - (cy + k * (e[0] + e[1]) / 2);       // level with the badge
+      var dx = (cr.right - (b.left - cr.left)) - (cx + k * e[3]);           // mirrored inset from the right edge
       svg.style.setProperty('--mk-k', k.toFixed(4));
       svg.style.setProperty('--mk-dy', dy.toFixed(2) + 'px');
+      svg.style.setProperty('--mk-dx', dx.toFixed(2) + 'px');
     });
   }
   var t; function soon(){ clearTimeout(t); t = setTimeout(fit, 120); }
