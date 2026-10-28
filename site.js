@@ -1,4 +1,4 @@
-// Beau.1 · v0.8.3
+// Beau.1 · v0.8.4
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '0.8.3' };
+  var SITE = { release: 'Beau.1', version: '0.8.4' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -676,7 +676,7 @@
       var box = svg.getBoundingClientRect(), cx = box.left + box.width / 2, cy = box.top + box.height / 2;   // the tilt turns about the centre
       var k = Math.min(b.height / (e[1] - e[0]), (cr.width * 0.45) / (e[3] - e[2]));
       var dy = (b.top + b.height / 2) - (cy + k * (e[0] + e[1]) / 2);       // level with the badge
-      var dx = (cr.right - (b.left - cr.left)) - (cx + k * e[3]);           // mirrored inset from the right edge
+      var dx = (cr.right - (b.left - cr.left)) - (cx + k * e[3]) + 5;       // mirrored inset from the right edge, nudged 5px further right
       svg.style.setProperty('--mk-k', k.toFixed(4));
       svg.style.setProperty('--mk-dy', dy.toFixed(2) + 'px');
       svg.style.setProperty('--mk-dx', dx.toFixed(2) + 'px');

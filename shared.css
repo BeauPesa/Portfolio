@@ -1,4 +1,4 @@
-/* Beau.1 · v0.8.3 */
+/* Beau.1 · v0.8.4 */
 /* ===================================================================
    SHARED STYLESHEET
    Used by every page except the homepage (which is self-contained
@@ -1047,7 +1047,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 }
 
 /* ---------- Version ---------- (read by siteVersion() in site.js) */
-:root{ --site-version: "0.8.3"; }
+:root{ --site-version: "0.8.4"; }
 
 /* ---------- Gallery: a caption on hover, and the photo viewer ----------
    A tile with data-caption shows its title over the picture on hover or focus (touch screens have no hover: they get the
@@ -1305,3 +1305,16 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 .tip-left::before, .tip-right::before{ content:''; position:absolute; top:0; width:13px; height:24px; background: var(--tip-accent, #ADD944); }
 .tip-left::before{ left:calc(100% - 1px); border-radius:0 12px 12px 0; }   /* each piece tucks a pixel under the label, so no hairline seam shows */
 .tip-right::before{ right:calc(100% - 1px); border-radius:12px 0 0 12px; }
+
+/* ---------- Phones: pages without a card (About, Résumé, More proof) ----------
+   Body text wraps where the homepage's does, halfway between pinstripes 4 and 5, and the About Polaroid and the
+   résumé widen to the same line, starting on pinstripe 2. Headings, buttons and the nav keep the 2 -> 4 column. */
+@media (max-width: 720px){
+  .page-hero:not(:has(.page-card)) p,
+  .page-hero:not(:has(.page-card)) h2.eyebrow{ max-width: calc(2.5 * var(--mobile-grid-gap)); }
+  .about-polaroid{ width: calc(2.5 * var(--mobile-grid-gap)); }
+  .resume-wrap .resume-thumb{ margin-left:0; }
+  .resume-wrap .resume-sheet{ width: calc(2.5 * var(--mobile-grid-gap)); }
+  /* Endeavors watermarks: a lighter line on phones */
+  .page-card .card .card-mark{ stroke-width:1.2; }
+}
