@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="site-release" content="Beau.1">
 <meta name="case-lock" content="250000.7UQfEvr96RLeJHRN5wsiEg==.wA3GJOvFhlLHYUs+.4ZOTIMZiRHupDcbxajhbNrhCEEGqnfqB">
-<meta name="site-version" content="0.7.5">
+<meta name="site-version" content="0.7.7">
 <title>Beau Pesa — Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
      for your exact Figma / brand hex codes.
      =================================================================== */
   :root{
-    --site-version: "0.7.5";
+    --site-version: "0.7.7";
     --ink: #101114;           /* intro / outro base */
     --paper: #F2F1EC;         /* card surface */
     --text-dark: #1B1C1E;
@@ -413,9 +413,9 @@
   #progress-nav{ --step: calc(30px + 1.1rem); }
   #progress-nav.collapsed button{
     pointer-events:none;
-    transition: opacity 0.35s var(--ease), transform 0.8s var(--ease), background-color 0.35s var(--ease), border-color 0.25s var(--ease);
+    transition: opacity 0.18s var(--ease), transform 0.4s var(--ease), background-color 0.18s var(--ease), border-color 0.13s var(--ease);   /* twice as quick as the first version, so the click answers fast */
   }
-  #progress-nav.collapsed button svg{ transition: transform 0.8s var(--ease), opacity 0.4s var(--ease); }
+  #progress-nav.collapsed button svg{ transition: transform 0.4s var(--ease), opacity 0.2s var(--ease); }
   #progress-nav.collapsed button:not(:first-child):not(:last-child){ opacity:0; transform: scale(0.4); }
   #progress-nav.collapsed button:first-child{ transform: translateY(calc(2.5 * var(--step))); }
   #progress-nav.collapsed button:last-child{ transform: translateY(calc(-2.5 * var(--step))); }
@@ -1160,14 +1160,14 @@
         if (!needGlide) return;                       // already on the line: a plain navigation
         e.preventDefault();
         leaving = true;
-        glideBy(dy, 380, function(){ window.location.href = a.href; });
+        glideBy(dy, 190, function(){ window.location.href = a.href; });   // half the original 380ms
         return;
       }
       e.preventDefault();
       progressNav.classList.add('collapsed');
       leaving = true;   // the card stays exactly as it is; the next page picks it up and extends it downwards
-      if (needGlide) glideBy(dy, 450);
-      setTimeout(function(){ window.location.href = a.href; }, 950);
+      if (needGlide) glideBy(dy, 225);
+      setTimeout(function(){ window.location.href = a.href; }, 475);   // half the original 950ms: the click answers twice as fast
     });
   });
   window.addEventListener('pageshow', function(ev){
@@ -1187,6 +1187,6 @@
 })();
 </script>
 
-<script src="site.js?v=0.7.5"></script>
+<script src="site.js?v=0.7.7"></script>
 </body>
 </html>

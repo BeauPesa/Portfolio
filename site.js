@@ -1,4 +1,4 @@
-// Beau.1 · v0.7.5
+// Beau.1 · v0.7.7
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '0.7.5' };
+  var SITE = { release: 'Beau.1', version: '0.7.7' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -70,6 +70,16 @@
   if (flight){ try { sessionStorage.removeItem('cardFlight'); } catch (e) {} }
   var bar = null;                    // the progress bar (section 2)
   var framed = false, homeRect = null, frameInfo = null, pendingFrameAnim = null;
+  // NDA case studies (section 12): until the password is in, the card stays rolled up at the homepage card's size and
+  // the page doesn't scroll. window.__ndaRelease (called by section 12 on a good password) lets the unroll play.
+  var ndaHold = !!(caseCard && caseCard.querySelector('.case-text[data-locked]'));
+  try { if (ndaHold && sessionStorage.getItem('bp-case-pass')) ndaHold = false; } catch (e) {}
+  if (ndaHold) root.classList.add('nda-held');
+  window.__ndaRelease = function(){
+    if (!root.classList.contains('nda-held')) return;
+    root.classList.remove('nda-held');                        // desktop: the sheet's own unroll animation now plays from the top
+    if (isPhone.matches && caseCard && !framed) revealBar(enterFrame());   // phones: the card expands into its frame now
+  };
 
   function whenFontsReady(cb){   // wait for the web fonts (0.8s at most) so text never visibly swaps typefaces
     var done = false;
@@ -152,7 +162,7 @@
     return caseCard.animate([
       { top: r.top + 'px', bottom: homeRect.bottom + 'px', paddingTop: basePad + 'px' },
       { top: T + 'px', bottom: B + 'px', paddingTop: finalPad + 'px' }
-    ], { duration: 500, easing: FRAME_EASE, delay: 55, fill: 'backwards' });   // 50% faster than the first version (750ms)
+    ], { duration: 750, easing: FRAME_EASE, delay: 80, fill: 'backwards' });
   }
   function rollUpFrame(done){
     if (bar) bar.classList.remove('is-in');
@@ -185,7 +195,7 @@
       else { el.classList.add('rv-hide'); below.push(el); }
     });
     if (isPhone.matches){
-      pendingFrameAnim = enterFrame();   // (case studies only; it does nothing without a case-study card)
+      pendingFrameAnim = ndaHold ? null : enterFrame();   // (case studies only; it does nothing without a case-study card)
       scroller0 = cardEl;
       var arrived = null;   // arrived by a swipe: slide in from the side it came from
       try { arrived = JSON.parse(sessionStorage.getItem('caseSwipe') || 'null'); sessionStorage.removeItem('caseSwipe'); } catch (e) {}
@@ -205,7 +215,7 @@
       requestAnimationFrame(function(){
         if (cardEl) cardEl.classList.add('is-in');
         baseDelay = cardEl ? 0.35 : 0.1;                     // with a card, wait for it to appear first
-        var anim = caseCard ? enterFrame() : null;           // measured after the fonts, since the card's height depends on them
+        var anim = (caseCard && !ndaHold) ? enterFrame() : null;   // measured after the fonts, since the card's height depends on them
         var scroller = (cardEl && window.getComputedStyle(cardEl).overflowY === 'auto') ? cardEl : null;   // phones: the card scrolls
         watch(targets, scroller);
         if (framed) revealBar(anim);
@@ -694,6 +704,7 @@
     try { sessionStorage.setItem(KEY, pass); } catch (e){}
     if (sealed && typeof text === 'string'){ sealed.innerHTML = text; sealed.removeAttribute('data-locked'); }
     document.querySelectorAll('.lock-veil').forEach(function(v){ v.classList.add('is-open'); v.setAttribute('aria-hidden', 'true'); });
+    if (window.__ndaRelease) window.__ndaRelease();
   }
   function colours(card){
     var badge = card.querySelector('.badge-link'), thread = card.querySelector('.thread');
@@ -705,17 +716,19 @@
     var c = colours(card), v = document.createElement('div');
     v.className = 'lock-veil is-shown rv-static';   // added after the reveal engine has made its list, so it shows at once
     v.style.setProperty('--lock-ink', c[0]); v.style.setProperty('--lock-accent', c[1]);
+    var hx = /^#([0-9a-f]{6})$/i.exec(c[0]);   // the badge's hover ring: its colour at 30%, as on the No. badges
+    v.style.setProperty('--lock-ink-30', hx ? 'rgba(' + [0, 2, 4].map(function(i){ return parseInt(hx[1].substr(i, 2), 16); }).join(',') + ',0.3)' : 'rgba(0,0,0,0.3)');
     var id = 'lock-' + Math.random().toString(36).slice(2, 8);
     v.innerHTML = '<form class="lock-form" novalidate>' +
       '<span class="lock-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>' +
-      '<span class="lock-rule" aria-hidden="true"></span>' +
+      '<svg class="lock-rule" viewBox="0 0 78 6" width="78" height="6" aria-hidden="true"><line x1="3" y1="3" x2="75" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,12,4,4,4,8,40"/></svg>' +   // seven dashes, unevenly
       '<p class="lock-title">' + name + ' is under NDA</p>' +
       '<p class="lock-note">Enter the password to see the work, or <a href="about.html">get in touch</a> for access.</p>' +
       '<div class="lock-row"><label class="sr-only" for="' + id + '">Password</label>' +
       '<input id="' + id + '" type="password" autocomplete="current-password" placeholder="Password" required>' +
       '<button type="submit">Unlock</button></div>' +
       '<p class="lock-error" role="status" aria-live="polite"></p>' +
-      (onPage ? '<a class="lock-back" href="index.html">Back to home</a>' : '') +
+      (onPage ? '<a class="lock-back" href="index.html">Back to home ←</a>' : '') +
       '</form>';
     card.appendChild(v);
     var form = v.querySelector('form'), input = v.querySelector('input'), err = v.querySelector('.lock-error');
@@ -738,11 +751,7 @@
   if (sealed){
     var card = sealed.closest('.case-page-card'); card.classList.add('is-nda');
     var h = card.querySelector('h2'), pv = veil(card, h ? h.textContent.trim() : 'This case study', true);
-    var size = function(){   // the paper runs on below the card's own box, to the bottom of the screen: the veil covers all of it
-      pv.style.bottom = 'auto';
-      pv.style.height = Math.max(card.offsetHeight, window.innerHeight - card.getBoundingClientRect().top) + 'px';
-    };
-    size(); window.addEventListener('resize', size); window.addEventListener('load', size);
+
   }
   var saved = null; try { saved = sessionStorage.getItem(KEY); } catch (e){}
   if (saved) check(saved).then(function(text){ reveal(saved, text); }).catch(function(){ try { sessionStorage.removeItem(KEY); } catch (e){} });

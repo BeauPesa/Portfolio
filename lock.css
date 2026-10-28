@@ -13,9 +13,16 @@
 }
 .lock-veil.is-open{ opacity:0; visibility:hidden; pointer-events:none; }
 .lock-form{ width:min(300px, 84%); display:flex; flex-direction:column; align-items:center; gap:0.85rem; text-align:center; color:#1B1C1E; }
-.lock-form .lock-badge{ width:52px; height:52px; border-radius:50%; background: var(--lock-ink); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 24px -10px rgba(0,0,0,0.5); }
+.lock-form .lock-badge{
+  width:60px; height:60px; border-radius:50%; background: var(--lock-ink); color:#fff; display:flex; align-items:center; justify-content:center;
+  border:1.5px solid transparent; box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), background 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease), border-width 0.25s var(--ease);
+}
+.lock-form .lock-badge:hover{   /* the same hover as the No. badges: it inverts, gains a ring in its own colour, and grows a touch */
+  background:#fff; color: var(--lock-ink); border-width:6px; border-color: var(--lock-ink-30); transform: scale(1.08); box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+}
 .lock-form .lock-badge svg{ width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-.lock-form .lock-rule{ width:90px; height:3px; background: repeating-linear-gradient(90deg, var(--lock-accent) 0 8px, transparent 8px 12px); border-radius:2px; }
+.lock-form .lock-rule{ display:block; color: var(--lock-accent); overflow:visible; }
 .lock-form .lock-title{ font-weight:700; font-size:1.05rem; margin:0 !important; }
 .lock-form .lock-note{ font-size:0.9rem; line-height:1.5; margin:0 !important; color:#3a3b3e; max-width:none; }
 .lock-form .lock-row{ display:flex; width:100%; gap:0.5rem; }
@@ -25,8 +32,19 @@
 .lock-form button:hover, .lock-form button:focus-visible{ filter:brightness(1.15); }
 .lock-form .lock-error{ min-height:1.2em; font-size:0.85rem; margin:0 !important; color:#9E1B10; }
 .lock-form.is-wrong .lock-row{ animation: lockShake 0.4s var(--ease); }
-.lock-form .lock-back{ font-size:0.85rem; color: var(--lock-ink); text-decoration:underline; text-underline-offset:3px; }
+.lock-form .lock-back{   /* styled like the site's other buttons, spanning the password field and the Unlock button */
+  display:flex; align-items:center; justify-content:center; width:100%; height:38px; box-sizing:border-box;
+  border-radius:999px; border:1.5px solid var(--lock-ink); color: var(--lock-ink); background:transparent;
+  font-weight:600; font-size:0.95rem; text-decoration:none; transition: background 0.25s var(--ease), color 0.25s var(--ease);
+}
+.lock-form .lock-back:hover, .lock-form .lock-back:focus-visible{ background: var(--lock-ink); color:#fff; }
 @keyframes lockShake{ 20%{ transform:translateX(-6px); } 40%{ transform:translateX(6px); } 60%{ transform:translateX(-4px); } 80%{ transform:translateX(3px); } }
 @media (prefers-reduced-motion: reduce){ .lock-form.is-wrong .lock-row{ animation:none; } }
 .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
 .lock-form .lock-note a{ color: var(--lock-ink); font-weight:600; text-decoration:underline; text-underline-offset:3px; }
+
+/* While a case study is locked its card stays rolled up at the homepage card's size and the page doesn't scroll
+   (site.js removes .nda-held once the password checks out, and the unroll plays). */
+html.nda-held, html.nda-held body{ overflow:hidden; }
+html.nda-held body.has-case-nav::after{ display:none; }
+html.nda-held .case-page-card::before{ bottom:0 !important; animation:none !important; }
