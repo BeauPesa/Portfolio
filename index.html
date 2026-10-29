@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="site-release" content="Beau.1">
 <meta name="case-lock" content="250000.7UQfEvr96RLeJHRN5wsiEg==.wA3GJOvFhlLHYUs+.4ZOTIMZiRHupDcbxajhbNrhCEEGqnfqB">
-<meta name="site-version" content="0.9.1">
+<meta name="site-version" content="0.9.2">
 <title>Beau Pesa — Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
      for your exact Figma / brand hex codes.
      =================================================================== */
   :root{
-    --site-version: "0.9.1";
+    --site-version: "0.9.2";
     --ink: #101114;           /* intro / outro base */
     --paper: #F2F1EC;         /* card surface */
     --text-dark: #1B1C1E;
@@ -756,25 +756,6 @@
 #bottom-fade, #bottom-fade-lines{ display:none; }
 @media (max-width: 720px){ #bottom-fade, #bottom-fade-lines{ display:block; } }
 
-  /* ---------- Trial: gutter lines (homepage only) ----------
-     Each main pinstripe (2-6 on desktop, 2-4 of the five on phones) gets a faint partner on either side, a sixteenth
-     of a column away, like the gutters of a book-printing grid. */
-  #grid-lines-global span{ position:relative; }
-  #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::before,
-  #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::after{
-    content:''; position:absolute; top:0; bottom:0; width:0;
-    border-left:1px solid var(--grid-line-fg); opacity:0.3;   /* solid and faint: a printer's guide, not another pinstripe */
-  }
-  #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::before{ left: calc(-1px - var(--grid-gap) / 16); }
-  #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::after{ left: calc(-1px + var(--grid-gap) / 16); }
-  @media (max-width: 720px){
-    #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::before,
-    #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::after{ content:none; }
-    #grid-lines-global span:nth-child(n+3):nth-child(-n+5)::before,
-    #grid-lines-global span:nth-child(n+3):nth-child(-n+5)::after{ content:''; }
-    #grid-lines-global span:nth-child(n+3):nth-child(-n+5)::before{ left: calc(-1px - var(--mobile-grid-gap) / 16); }
-    #grid-lines-global span:nth-child(n+3):nth-child(-n+5)::after{ left: calc(-1px + var(--mobile-grid-gap) / 16); }
-  }
 
   /* ---------- LiteLoad: the product on a tablet ----------
      Desktop and tablet: the left column narrows to end halfway between pinstripes 3 and 4, and the tablet's body
@@ -785,7 +766,7 @@
   @media (min-width: 721px){
     #liteload .case-card{ position:relative; overflow:visible; }
     #liteload .case-card > *:not(.ll-tablet){ max-width: calc(1.5 * var(--grid-gap)); }
-    #liteload .case-card > .cta{ width: calc(1.5 * var(--grid-gap)); }
+    #liteload .case-card > .cta{ width: calc(2 * var(--grid-gap)); max-width:none; position:relative; left: calc(2 * var(--grid-gap)); }   /* pinstripe 4 -> 6, under the tablet (moved, not margined: card parts keep zero margins) */
     #liteload .ll-tablet{ display:block; position:absolute; margin:0; z-index:3; }
     #liteload .ll-tablet img{ width:100%; height:auto; display:block; transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), filter 0.45s cubic-bezier(0.25, 1, 0.5, 1); }
     #liteload .ll-tablet:hover img{ transform: translateY(-6px); filter: drop-shadow(0 22px 26px rgba(20, 30, 50, 0.28)); }
@@ -793,6 +774,18 @@
     @keyframes tabletIn{ from{ opacity:0; translate: 0 -56px; } }
   }
   @media (prefers-reduced-motion: reduce){ #liteload .ll-tablet img{ transition:none; } #liteload .ll-tablet:hover img{ transform:none; } }
+
+  /* ---------- Frame gutters ----------
+     A faint solid partner just inside each outer pinstripe: right of pinstripe 1, touching the right side of the nav
+     buttons, and left of pinstripe 7, the mirror of it. Half a nav button (--u) from each. The pinstripe copies in
+     the fades on phones carry them too. */
+  #grid-lines-global span, #top-fade-lines span, #bottom-fade-lines span{ position:relative; }
+  #grid-lines-global span:nth-child(1)::after, #top-fade-lines span:nth-child(1)::after, #bottom-fade-lines span:nth-child(1)::after,
+  #grid-lines-global span:nth-child(7)::after, #top-fade-lines span:nth-child(7)::after, #bottom-fade-lines span:nth-child(7)::after{
+    content:''; position:absolute; top:0; bottom:0; width:0; border-left:1px solid var(--grid-line-fg); opacity:0.3;
+  }
+  #grid-lines-global span:nth-child(1)::after, #top-fade-lines span:nth-child(1)::after, #bottom-fade-lines span:nth-child(1)::after{ left: calc(var(--u, 30px) / 2 - 1px); }
+  #grid-lines-global span:nth-child(7)::after, #top-fade-lines span:nth-child(7)::after, #bottom-fade-lines span:nth-child(7)::after{ left: calc(var(--u, 30px) / -2 - 1px); }
 </style>
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight');},2500);})();</script>
 </head>
@@ -1280,7 +1273,7 @@
 })();
 </script>
 
-<script src="site.js?v=0.9.1"></script>
+<script src="site.js?v=0.9.2"></script>
 <script>
 /* LiteLoad card: places the tablet so the device's body (not its shadow) runs from pinstripe 4 to pinstripe 6, its
    top level with the first dashed rule. The body sits 4.86% in from each side and 1.39% down from the top of the image. */
@@ -1295,6 +1288,26 @@
     var rule = card.querySelector('.thread'); if (!rule || lines.length < 6) return;
     var w = (lines[5] - lines[3]) / (BR - BL), h = w * AR;
     fig.style.width = w + 'px'; fig.style.left = (lines[3] - BL * w) + 'px'; fig.style.top = (rule.offsetTop - BT * h) + 'px';
+    // The description ends level with the tablet's bottom edge. The card's parts sit a fixed gap apart, so the difference
+    // is shared by the space above the title, above the second dashed rule and above the description (each gap may
+    // shrink to half its size); anything still left over comes out of the description's leading (down to 1.4).
+    var parts = [card.querySelector('h2'), card.querySelectorAll('.thread')[1], card.querySelector('.case-text')];
+    var text = parts[2]; if (!text) return;
+    var paras = text.querySelectorAll('p');
+    parts.forEach(function(el){ if (el) el.style.removeProperty('margin-top'); });
+    Array.prototype.forEach.call(paras, function(p){ p.style.removeProperty('line-height'); });
+    var gapPx = parseFloat(getComputedStyle(card).rowGap) || 30;
+    var tabletBottom = rule.offsetTop + (0.8898 - BT) * h;          // the device's lower edge, not its shadow
+    var delta = tabletBottom - (text.offsetTop + text.offsetHeight);
+    var each = Math.max(-gapPx / 2, delta / 3);
+    parts.forEach(function(el){ if (el) el.style.setProperty('margin-top', each + 'px', 'important'); });
+    delta = tabletBottom - (text.offsetTop + text.offsetHeight);
+    if (Math.abs(delta) > 1 && paras.length){
+      var lines = 0, lh0 = parseFloat(getComputedStyle(paras[0]).lineHeight), fs = parseFloat(getComputedStyle(paras[0]).fontSize);
+      Array.prototype.forEach.call(paras, function(p){ lines += Math.round(p.offsetHeight / lh0); });
+      var lh = Math.max(1.4 * fs, Math.min(2 * fs, lh0 + delta / Math.max(1, lines)));
+      Array.prototype.forEach.call(paras, function(p){ p.style.lineHeight = lh + 'px'; });
+    }
   }
   place(); window.addEventListener('resize', place); window.addEventListener('load', place);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
