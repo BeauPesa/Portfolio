@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="site-release" content="Beau.1">
 <meta name="case-lock" content="250000.7UQfEvr96RLeJHRN5wsiEg==.wA3GJOvFhlLHYUs+.4ZOTIMZiRHupDcbxajhbNrhCEEGqnfqB">
-<meta name="site-version" content="0.8.8">
+<meta name="site-version" content="0.9.1">
 <title>Beau Pesa — Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
      for your exact Figma / brand hex codes.
      =================================================================== */
   :root{
-    --site-version: "0.8.8";
+    --site-version: "0.9.1";
     --ink: #101114;           /* intro / outro base */
     --paper: #F2F1EC;         /* card surface */
     --text-dark: #1B1C1E;
@@ -755,6 +755,44 @@
 }
 #bottom-fade, #bottom-fade-lines{ display:none; }
 @media (max-width: 720px){ #bottom-fade, #bottom-fade-lines{ display:block; } }
+
+  /* ---------- Trial: gutter lines (homepage only) ----------
+     Each main pinstripe (2-6 on desktop, 2-4 of the five on phones) gets a faint partner on either side, a sixteenth
+     of a column away, like the gutters of a book-printing grid. */
+  #grid-lines-global span{ position:relative; }
+  #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::before,
+  #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::after{
+    content:''; position:absolute; top:0; bottom:0; width:0;
+    border-left:1px solid var(--grid-line-fg); opacity:0.3;   /* solid and faint: a printer's guide, not another pinstripe */
+  }
+  #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::before{ left: calc(-1px - var(--grid-gap) / 16); }
+  #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::after{ left: calc(-1px + var(--grid-gap) / 16); }
+  @media (max-width: 720px){
+    #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::before,
+    #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::after{ content:none; }
+    #grid-lines-global span:nth-child(n+3):nth-child(-n+5)::before,
+    #grid-lines-global span:nth-child(n+3):nth-child(-n+5)::after{ content:''; }
+    #grid-lines-global span:nth-child(n+3):nth-child(-n+5)::before{ left: calc(-1px - var(--mobile-grid-gap) / 16); }
+    #grid-lines-global span:nth-child(n+3):nth-child(-n+5)::after{ left: calc(-1px + var(--mobile-grid-gap) / 16); }
+  }
+
+  /* ---------- LiteLoad: the product on a tablet ----------
+     Desktop and tablet: the left column narrows to end halfway between pinstripes 3 and 4, and the tablet's body
+     spans pinstripe 4 to pinstripe 6, its top level with the first dashed rule (the script at the end of the page
+     places it; the image's own soft shadow sits outside those edges). It floats down into place, last, while the
+     rest of the card floats up. Hovering lifts it a little and deepens its shadow. Phones: not shown for now. */
+  #liteload .ll-tablet{ display:none; }
+  @media (min-width: 721px){
+    #liteload .case-card{ position:relative; overflow:visible; }
+    #liteload .case-card > *:not(.ll-tablet){ max-width: calc(1.5 * var(--grid-gap)); }
+    #liteload .case-card > .cta{ width: calc(1.5 * var(--grid-gap)); }
+    #liteload .ll-tablet{ display:block; position:absolute; margin:0; z-index:3; }
+    #liteload .ll-tablet img{ width:100%; height:auto; display:block; transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), filter 0.45s cubic-bezier(0.25, 1, 0.5, 1); }
+    #liteload .ll-tablet:hover img{ transform: translateY(-6px); filter: drop-shadow(0 22px 26px rgba(20, 30, 50, 0.28)); }
+    #liteload .case-card.is-in > .ll-tablet{ animation-name: tabletIn; }
+    @keyframes tabletIn{ from{ opacity:0; translate: 0 -56px; } }
+  }
+  @media (prefers-reduced-motion: reduce){ #liteload .ll-tablet img{ transition:none; } #liteload .ll-tablet:hover img{ transform:none; } }
 </style>
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight');},2500);})();</script>
 </head>
@@ -857,6 +895,7 @@
     <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
     <div class="case-text"><p>Warehouse loading sheets are generated straight out of legacy systems — dense, cluttered, hard to scan under fatigue. LiteLoad parses them into a clean, task-first interface built for the floor, not the back office.</p></div>
     <a class="cta" href="liteload.html">See the work →</a>
+      <figure class="ll-tablet"><img src="images/liteload/tablet-flat.png" width="1400" height="1007" alt="LiteLoad’s upload screen on a tablet: drag and drop a legacy PDF loading sheet to convert it" loading="lazy" decoding="async"></figure>
   </div>
 </section>
 
@@ -1241,6 +1280,25 @@
 })();
 </script>
 
-<script src="site.js?v=0.8.8"></script>
+<script src="site.js?v=0.9.1"></script>
+<script>
+/* LiteLoad card: places the tablet so the device's body (not its shadow) runs from pinstripe 4 to pinstripe 6, its
+   top level with the first dashed rule. The body sits 4.86% in from each side and 1.39% down from the top of the image. */
+(function(){
+  var card = document.querySelector('#liteload .case-card'), fig = card && card.querySelector('.ll-tablet');
+  if (!fig) return;
+  var BL = 0.0486, BR = 0.9514, BT = 0.0139, AR = 1007 / 1400;
+  function place(){
+    if (getComputedStyle(fig).display === 'none') return;
+    var cl = card.getBoundingClientRect().left;
+    var lines = Array.prototype.map.call(document.querySelectorAll('#grid-lines-global > *'), function(e){ return e.getBoundingClientRect().left - cl; });
+    var rule = card.querySelector('.thread'); if (!rule || lines.length < 6) return;
+    var w = (lines[5] - lines[3]) / (BR - BL), h = w * AR;
+    fig.style.width = w + 'px'; fig.style.left = (lines[3] - BL * w) + 'px'; fig.style.top = (rule.offsetTop - BT * h) + 'px';
+  }
+  place(); window.addEventListener('resize', place); window.addEventListener('load', place);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+})();
+</script>
 </body>
 </html>
