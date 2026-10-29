@@ -1,4 +1,4 @@
-// Beau.1 · v0.8.4
+// Beau.1 · v0.8.6
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '0.8.4' };
+  var SITE = { release: 'Beau.1', version: '0.8.6' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -358,7 +358,7 @@
     var hereIdx = -1; dotLinks.forEach(function(d, i){ if (d.classList.contains('active')) hereIdx = i; });
     var prevLink = hereIdx < 0 ? null : dotLinks[(hereIdx - 1 + dotLinks.length) % dotLinks.length];
     var nextLink = hereIdx < 0 ? null : dotLinks[(hereIdx + 1) % dotLinks.length];
-    var canSwipe = function(){ return caseCard ? framed : isPhone.matches; };
+    var canSwipe = function(){ return caseCard ? (framed || (isPhone.matches && root.classList.contains('nda-held'))) : isPhone.matches; };   // a locked case study can still be swiped past
     if (!caseCard && isPhone.matches && !swipeEl.querySelector('.swipe-hint')) swipeEl.appendChild(makeSwipeHint('Swipe left or right for the previous or next page'));   // Creative Endeavors: the hint ends the card
     var origBg = document.body.style.backgroundColor, gesture = null, swallowClick = false;
     var hexRgb = function(h){ return [1, 3, 5].map(function(i){ return parseInt(h.substr(i, 2), 16); }); };
@@ -763,7 +763,10 @@
         })
         .then(function(){ form.querySelector('button').disabled = false; });
     });
-    ['pointerdown', 'touchstart', 'wheel'].forEach(function(t){ v.addEventListener(t, function(e){ e.stopPropagation(); }, { passive:true }); });   // typing here never triggers the card's swipe or scroll-snap
+    if (onPage && window.makeSwipeHint){   // phones: the same swipe clue as at the end of an open case study, in white, so a visitor can move on without going home
+      var sh = window.makeSwipeHint('Swipe left or right for the previous or next case study', '#fff');
+      sh.classList.add('lock-hint'); v.appendChild(sh);
+    }
     return v;
   }
   homeCards.forEach(function(card){ var h = card.querySelector('h2'); veil(card, h ? h.textContent.trim() : 'This case study', false); });

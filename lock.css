@@ -49,3 +49,15 @@
 html.nda-held, html.nda-held body{ overflow:hidden; }
 html.nda-held body.has-case-nav::after{ display:none; }
 html.nda-held .case-page-card::before{ bottom:0 !important; animation:none !important; }
+.lock-veil .lock-hint{ display:none; }
+@media (max-width: 720px){
+  .lock-veil .lock-hint{
+    display:flex; align-items:center; justify-content:space-between;
+    position:absolute; width:128px; height: var(--u, 26px);
+    left: calc(0.5 * var(--mobile-grid-gap) + (var(--col) - 128px) / 2); bottom: var(--u, 26px);
+    opacity:0.9; pointer-events:none;
+  }
+}
+@media (max-width: 720px){
+  html.nda-held body, html.nda-held .case-page-card, .lock-veil{ touch-action: pan-y; }   /* horizontal drags go to the swipe, as on an open case study */
+}
