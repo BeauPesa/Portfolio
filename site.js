@@ -1,4 +1,4 @@
-// Beau.1 · v0.9.6
+// Beau.1 · v0.9.9
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '0.9.6' };
+  var SITE = { release: 'Beau.1', version: '0.9.9' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -320,15 +320,19 @@
   function checkDock(){
     if (!dock || leaving) return;
     var r = cta.getBoundingClientRect(), cy = r.top + r.height / 2, hr = homeCircle(), hy = (hr.top + hr.bottom) / 2;
+    // The button is always on screen: full size where it sits, or docked as the circle when it has scrolled past the top
+    // OR is still below what's visible (e.g. on arrival, before the visitor has scrolled down to it).
     if (isPhone.matches){   // phones: when the button's top is as far below the card's top as the card's top is below the row above it
       if (caseCard && !framed) return;   // (a Creative Endeavors card is always a frame on a phone; a case study only once it has settled into one)
       var fr = dockCard.getBoundingClientRect(), gap = frameGap(fr), off = r.top - fr.top;
-      if (dockState === 'idle' && off <= gap) dockIn(false);
-      else if (dockState === 'docked' && off > gap + 8) dockOut();
+      var want = off <= gap || r.bottom > fr.bottom, release = off > gap + 8 && r.bottom < fr.bottom - 8;
+      if (dockState === 'idle' && want) dockIn(false);
+      else if (dockState === 'docked' && release) dockOut();
       return;
     }
-    if (dockState === 'idle' && cy <= hy) dockIn(false);
-    else if (dockState === 'docked' && cy > hy + 8) dockOut();   // a little slack, so it can't flicker at the threshold
+    var vb = window.innerHeight;
+    if (dockState === 'idle' && (cy <= hy || r.bottom > vb)) dockIn(false);
+    else if (dockState === 'docked' && cy > hy + 8 && r.bottom < vb - 8) dockOut();   // a little slack, so it can't flicker at the threshold
   }
   if (dock){
     window.addEventListener('scroll', checkDock, { passive: true });
@@ -338,10 +342,11 @@
       if (dockState === 'docked' && dockMix === 1) paintDock(circleRect(), 1);
       checkDock();
     });
-    if (!isPhone.matches) (function(){   // arrived already scrolled down (e.g. a reload): dock straight away
+    if (!isPhone.matches) (function(){   // arrived already scrolled down (e.g. a reload), or the button starts out below the fold: dock straight away
       var r = cta.getBoundingClientRect(), hr = homeCircle();
-      if (r.top + r.height / 2 <= (hr.top + hr.bottom) / 2) dockIn(true);
+      if (r.top + r.height / 2 <= (hr.top + hr.bottom) / 2 || r.bottom > window.innerHeight) dockIn(true);
     })();
+    [700, 1500, 2600].forEach(function(t){ setTimeout(checkDock, t); });   // and again once the arrival (and the phone frame) has settled
   }
 
   root.classList.remove('swipe-next', 'swipe-prev');   // the animation (or nothing, for a normal arrival) takes over from here
@@ -824,6 +829,7 @@
   function reset(card){
     card.querySelectorAll('h2, .role, .thread, .case-text, .cta, .case-page-cta').forEach(function(el){ el.style.removeProperty('margin-top'); });
     card.querySelectorAll('.case-text p').forEach(function(p){ p.style.removeProperty('line-height'); p.style.removeProperty('font-size'); });
+    card.style.removeProperty('min-height');
     var fig = card.querySelector('.ll-tablet'); if (fig){ ['width', 'left', 'top'].forEach(function(k){ fig.style.removeProperty(k); }); }
   }
   function visible(card){ return Array.prototype.filter.call(card.querySelectorAll('.case-text p'), function(p){ return p.offsetHeight > 0; })[0]; }
@@ -835,7 +841,10 @@
     var t, r, first, last, gapTo;
     if (phone.matches){
       gapTo = function(){ return lines(card, p)[0].xtop - edges(card, rule2).bottom; };
-      var G = gapTo();
+      var G = gapTo() / 2;                                              // half the natural gap, everywhere
+      var img = fig.querySelector('img'), body = topIn(card, fig) + (img ? img.offsetHeight : fig.offsetHeight) * BB;
+      nudge(rule, -(topIn(card, rule) - body) / 2);                      // tablet's lower edge to the first rule: half as far
+      nudge(p.parentNode, G - gapTo());                                  // second rule to the description
       t = lines(card, h2); nudge(h2, G - (t[0].cap - edges(card, rule).bottom));
       t = lines(card, h2); r = lines(card, role); nudge(role, G - (r[0].xtop - t[t.length - 1].base));
       r = lines(card, role); nudge(rule2, G - (edges(card, rule2).top - r[r.length - 1].base));
@@ -851,7 +860,7 @@
     var tabletBottom = topIn(card, rule) + (BB - BT) * h;    // card px: the device's lower edge, not its shadow
     // the description: five lines, its type stepping down (to 12px at most) if it would need a sixth
     var fs = parseFloat(getComputedStyle(p).fontSize);
-    while (lines(card, p).length > 5 && fs > 12){ fs -= 0.25; px(p, 'font-size', fs); }
+    while (lines(card, p).length > 5 && fs > 13){ fs -= 0.25; px(p, 'font-size', fs); }
     // One gap, G, everywhere: first rule to the title's capitals, title baseline to the role line's x-height, role
     // baseline to the second rule, second rule to the description's capitals, and tablet to button. G and the
     // description's leading are solved together so its last baseline lands on the tablet's bottom edge: leading
@@ -863,13 +872,25 @@
     var lh = fs * 1.6, G = (K - (n - 1) * lh) / 4;
     if (G < 16){ lh = Math.max(fs * 1.3, (K - 4 * 16) / Math.max(1, n - 1)); G = (K - (n - 1) * lh) / 4; }
     if (G > 48){ lh = Math.min(fs * 2.1, (K - 4 * 48) / Math.max(1, n - 1)); G = (K - (n - 1) * lh) / 4; }
+    G = Math.max(16, G);   // never closer than 16px: on narrow screens the description may then run past the tablet instead
     px(p, 'line-height', lh);
     H = lines(card, h2); nudge(h2, G - (H[0].cap - edges(card, rule).bottom));
     H = lines(card, h2); R = lines(card, role); nudge(role, G - (R[0].xtop - H[H.length - 1].base));
     R = lines(card, role); nudge(rule2, G - (edges(card, rule2).top - R[R.length - 1].base));
     P = lines(card, p); nudge(p.parentNode, G - (P[0].cap - edges(card, rule2).bottom));
-    P = lines(card, p); nudge(p.parentNode, tabletBottom - P[P.length - 1].base);   // rounding, or a gap held at its limit
-    if (btn) nudge(btn, (tabletBottom + G) - topIn(card, btn));
+    P = lines(card, p);
+    var off = tabletBottom - P[P.length - 1].base;
+    if (off > 0) nudge(p.parentNode, off);                          // rounding, or a gap held at its limit (never pulled up into the rule)
+    P = lines(card, p);
+    var under = Math.max(tabletBottom, P[P.length - 1].base);         // whichever ends lower: normally they're level
+    if (btn) nudge(btn, (under + G) - topIn(card, btn));
+    // the card reaches down to the bottom of the GitHub icon in the left rail
+    // (cards settle with their top level with the bottom of the Home nav button, so the height is the distance between)
+    var gh = document.querySelectorAll('#social-nav a')[1], home = document.querySelector('#icon-nav a');
+    if (gh && home){
+      var minH = gh.getBoundingClientRect().bottom - home.getBoundingClientRect().bottom;
+      if (minH > 0) px(card, 'min-height', minH);
+    }
     if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed');
   }
   function all(){ cards.forEach(place); }

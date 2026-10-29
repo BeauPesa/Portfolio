@@ -9,12 +9,11 @@
 .ll-card .role{ font-family:'LL Machina', 'IBM Plex Sans', sans-serif; font-weight:400 !important; letter-spacing:0; font-synthesis:none; }   /* the same weight on both pages, never faked */
 
 .ll-card{ position:relative; }   /* so the card is the reference for every measurement in site.js */
-.ll-card .ll-tablet{ margin:0 !important; visibility:hidden; }
-.ll-card.ll-placed .ll-tablet{ visibility:visible; }   /* shown once site.js has placed it, so it never flashes in the wrong spot first */
+.ll-card .ll-tablet{ margin:0 !important; }
 .ll-card .case-text::before, .ll-card .case-text::after{ display:none !important; }   /* this card sets its own height: no equal-height rulers */
 .ll-card .ll-tablet img{ display:block; width:100%; height:auto; transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), filter 0.45s cubic-bezier(0.25, 1, 0.5, 1); }
 .ll-card .ll-tablet:hover img{ transform: translateY(-6px); filter: drop-shadow(0 22px 26px rgba(20, 30, 50, 0.28)); }
-.ll-card.is-in > .ll-tablet{ animation-name: tabletIn; }
+#liteload .ll-card.is-in > .ll-tablet{ animation-name: tabletIn; }   /* homepage only: on the case study it's simply there, as the rest of the card is */
 @keyframes tabletIn{ from{ opacity:0; translate: 0 -56px; } }
 
 /* Desktop and tablet: left column from pinstripe 2 to halfway between 3 and 4; the tablet's body from pinstripe 4 to 6,
@@ -23,7 +22,8 @@
   .ll-card{ position:relative; overflow:visible; }
   .ll-card > *:not(.ll-tablet){ max-width: calc(1.5 * var(--grid-gap)); }
   .ll-card > .cta, .ll-card > .case-page-cta:not(.back-dock){ width: calc(2 * var(--grid-gap)); max-width:none; position:relative; left: calc(2 * var(--grid-gap)); }
-  .ll-card .ll-tablet{ position:absolute; z-index:3; }
+  /* first guess, before site.js measures (so it's already in place when the page appears): body from pinstripe 4 to 6 */
+  .ll-card .ll-tablet{ position:absolute; z-index:3; width: calc(2 * var(--grid-gap) / 0.9028); left: calc(2.5 * var(--grid-gap) - 2 * var(--grid-gap) * 0.0486 / 0.9028); top: calc(2 * var(--u, 30px) + 60px - 2 * var(--grid-gap) / 0.9028 * 0.7193 * 0.0139); }
 }
 
 /* The description has a short version for phones, where the tablet takes the room the longer one would need. */
@@ -38,10 +38,9 @@
   .ll-card > .badge-link{ order:0; }
   .ll-card > .ll-tablet{ order:1; position:relative; width: calc(100% / 0.9028); margin-left: calc(-100% * 0.0486 / 0.9028) !important; align-self:flex-start; }
   .ll-card .ll-tablet:hover img{ transform:none; filter:none; }
-  #liteload .ll-card .case-text p:not(.ll-short){ display:none; }
-  #liteload .ll-card .case-text .ll-short{ display:block; font-size:0.92em; }
-  #liteload .ll-card .case-text::before, #liteload .ll-card .case-text::after{ display:none; }
-  .ll-card .role{ font-size:0.72em; line-height:1.3; white-space:nowrap; min-height:0; }   /* one line, so it needn't hold room for two */
+  .ll-card .case-text p:not(.ll-short){ display:none; }
+  .ll-card .case-text .ll-short{ display:block; font-size: calc(var(--card-fs, 0.9rem) * 0.92); line-height:1.65; }   /* the same five-line description on the homepage card and the case study */
+  .ll-card .role{ font-size: calc(var(--card-fs, 0.9rem) * 0.85) !important; line-height:1.3; white-space:nowrap; min-height:0; }   /* one line, so it needn't hold room for two */
   .ll-card .case-text{ flex-grow:0 !important; }   /* the button follows the description at the even gap; any spare height stays below it */
 }
 @media (prefers-reduced-motion: reduce){ .ll-card .ll-tablet img{ transition:none; } .ll-card .ll-tablet:hover img{ transform:none; } }
