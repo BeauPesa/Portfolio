@@ -1,4 +1,4 @@
-// Beau.1 · v0.8.6
+// Beau.1 · v0.8.8
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '0.8.6' };
+  var SITE = { release: 'Beau.1', version: '0.8.8' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -764,7 +764,7 @@
         .then(function(){ form.querySelector('button').disabled = false; });
     });
     if (onPage && window.makeSwipeHint){   // phones: the same swipe clue as at the end of an open case study, in white, so a visitor can move on without going home
-      var sh = window.makeSwipeHint('Swipe left or right for the previous or next case study', '#fff');
+      var sh = window.makeSwipeHint('Swipe left or right for the previous or next case study', c[1]);   // in the same colour as the veil's dashed rule
       sh.classList.add('lock-hint'); v.appendChild(sh);
     }
     return v;

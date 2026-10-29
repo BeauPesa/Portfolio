@@ -1,4 +1,4 @@
-/* Beau.1 · v0.8.6 */
+/* Beau.1 · v0.8.8 */
 /* ===================================================================
    SHARED STYLESHEET
    Used by every page except the homepage (which is self-contained
@@ -1047,7 +1047,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 }
 
 /* ---------- Version ---------- (read by siteVersion() in site.js) */
-:root{ --site-version: "0.8.6"; }
+:root{ --site-version: "0.8.8"; }
 
 /* ---------- Gallery: a caption on hover, and the photo viewer ----------
    A tile with data-caption shows its title over the picture on hover or focus (touch screens have no hover: they get the
@@ -1289,22 +1289,30 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 @media (max-width: 720px){ #bottom-fade, #bottom-fade-lines{ display:block; } }
 
 /* ---------- Tooltips: pointer labels ----------
-   A paper-coloured label with a semicircle of the section's colour on its far side and an arrow on the side facing
-   its icon, running the label's full height. --tip-accent is lime on the personal pages, the case study's own colour
-   on a case study, and on the homepage it follows whichever case is in view. */
+   The label's shape (arrow, body and colour cap) is one layer behind the text: the arrow cut with clip-path, the
+   cap painted into the background and rounded off, so there are no seams and no corners peeking past the arrow.
+   The drop shadow is on the label itself, so it follows that finished shape exactly.
+   --tip-accent is lime on the personal pages, the case study's own colour on a case study, and on the homepage it
+   follows whichever case is in view. */
 .tooltip{
-  height:24px; line-height:24px; padding:0 0.65rem; box-sizing:border-box;
-  background:#F2F1EC; color:#1B1C1E; border-radius:0; font-weight:500;
-  box-shadow: 0 6px 16px -8px rgba(0,0,0,0.45);
+  height:24px; line-height:24px; box-sizing:border-box;
+  color:#1B1C1E; font-weight:500; box-shadow:none;
 }
-.tip-left{ left:46px; }
-.tip-right{ right:46px; }
-.tip-left::after, .tip-right::after{ border-style:solid; width:0; height:0; top:0; transform:none; }
-.tip-left::after{ right:calc(100% - 1px); left:auto; border-width:12px 10px 12px 0; border-color: transparent #F2F1EC transparent transparent; }
-.tip-right::after{ left:calc(100% - 1px); right:auto; border-width:12px 0 12px 10px; border-color: transparent transparent transparent #F2F1EC; }
-.tip-left::before, .tip-right::before{ content:''; position:absolute; top:0; width:13px; height:24px; background: var(--tip-accent, #ADD944); }
-.tip-left::before{ left:calc(100% - 1px); border-radius:0 12px 12px 0; }   /* each piece tucks a pixel under the label, so no hairline seam shows */
-.tip-right::before{ right:calc(100% - 1px); border-radius:12px 0 0 12px; }
+.tip-left, .tip-right{ background:none; filter: drop-shadow(0 5px 7px rgba(0,0,0,0.35)); }
+.tip-left{ left:36px; padding: 0 calc(0.65rem + 12px) 0 calc(0.65rem + 10px); }
+.tip-right{ right:36px; padding: 0 calc(0.65rem + 10px) 0 calc(0.65rem + 12px); }
+.tip-left::before, .tip-right::before{ content:''; display:block; position:absolute; inset:0; z-index:-1; width:auto; height:auto; }
+.tip-left::before{
+  background: linear-gradient(to left, var(--tip-accent, #ADD944) 12px, #F2F1EC 12px);
+  border-radius: 0 12px 12px 0;
+  clip-path: polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 50%);
+}
+.tip-right::before{
+  background: linear-gradient(to right, var(--tip-accent, #ADD944) 12px, #F2F1EC 12px);
+  border-radius: 12px 0 0 12px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+}
+.tip-left::after, .tip-right::after{ content:none; display:none; }
 
 /* ---------- Phones: pages without a card (About, Résumé, More proof) ----------
    Body text wraps where the homepage's does, halfway between pinstripes 4 and 5, and the About Polaroid and the
