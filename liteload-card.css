@@ -1,0 +1,34 @@
+/* Beau.1 · The LiteLoad card: the product on a tablet, on the homepage card and on the case study's own card alike,
+   so following "See the work" changes nothing but the unroll and the nav. site.js (section 14) places the tablet and
+   evens out the spacing. */
+
+/* The role line is set in Neue Machina Inktrap as a trial, from the copy installed on this computer; until the web
+   font files are added it falls back to the site's sans. */
+@font-face{ font-family:'LL Machina'; font-weight:400; src: local('PP Neue Machina Inktrap Regular'), local('PPNeueMachina-InktrapRegular'), local('PP Neue Machina Inktrap'), local('Neue Machina Inktrap'); }
+@font-face{ font-family:'LL Machina'; font-weight:700; src: local('PP Neue Machina Inktrap Ultrabold'), local('PPNeueMachina-InktrapUltrabold'), local('PP Neue Machina Inktrap Bold'), local('PPNeueMachina-InktrapBold'); }
+.ll-card .role{ font-family:'LL Machina', 'IBM Plex Sans', sans-serif; font-weight:400; letter-spacing:0; }
+
+.ll-card .ll-tablet{ margin:0 !important; }
+.ll-card .ll-tablet img{ display:block; width:100%; height:auto; transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), filter 0.45s cubic-bezier(0.25, 1, 0.5, 1); }
+.ll-card .ll-tablet:hover img{ transform: translateY(-6px); filter: drop-shadow(0 22px 26px rgba(20, 30, 50, 0.28)); }
+.ll-card.is-in > .ll-tablet{ animation-name: tabletIn; }
+@keyframes tabletIn{ from{ opacity:0; translate: 0 -56px; } }
+
+/* Desktop and tablet: left column from pinstripe 2 to halfway between 3 and 4; the tablet's body from pinstripe 4 to 6,
+   its top on the first dashed rule; the button from pinstripe 4 to 6, under the tablet. */
+@media (min-width: 721px){
+  .ll-card{ position:relative; overflow:visible; }
+  .ll-card > *:not(.ll-tablet){ max-width: calc(1.5 * var(--grid-gap)); }
+  .ll-card > .cta, .ll-card > .case-page-cta:not(.back-dock){ width: calc(2 * var(--grid-gap)); max-width:none; position:relative; left: calc(2 * var(--grid-gap)); }
+  .ll-card .ll-tablet{ position:absolute; z-index:3; }
+}
+
+/* Phones: the tablet sits between the No. badge and the first dashed rule. Its body spans the card's text width; the
+   image's own shadow hangs outside that (the body is 90.28% of the image, 4.86% in from each side). */
+@media (max-width: 720px){
+  .ll-card > *{ order:2; }
+  .ll-card > .badge-link{ order:0; }
+  .ll-card > .ll-tablet{ order:1; position:relative; width: calc(100% / 0.9028); margin-left: calc(-100% * 0.0486 / 0.9028) !important; align-self:flex-start; }
+  .ll-card .ll-tablet:hover img{ transform:none; filter:none; }
+}
+@media (prefers-reduced-motion: reduce){ .ll-card .ll-tablet img{ transition:none; } .ll-card .ll-tablet:hover img{ transform:none; } }
