@@ -1,4 +1,4 @@
-/* Beau.1 · v0.9.9 */
+/* Beau.1 · v1.0.0 */
 /* ===================================================================
    SHARED STYLESHEET
    Used by every page except the homepage (which is self-contained
@@ -1047,7 +1047,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 }
 
 /* ---------- Version ---------- (read by siteVersion() in site.js) */
-:root{ --site-version: "0.9.9"; }
+:root{ --site-version: "1.0.0"; }
 
 /* ---------- Gallery: a caption on hover, and the photo viewer ----------
    A tile with data-caption shows its title over the picture on hover or focus (touch screens have no hover: they get the
@@ -1334,7 +1334,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 #grid-lines-global span, #top-fade-lines span, #bottom-fade-lines span{ position:relative; }
 #grid-lines-global span:nth-child(1)::after, #top-fade-lines span:nth-child(1)::after, #bottom-fade-lines span:nth-child(1)::after,
 #grid-lines-global span:nth-child(7)::after, #top-fade-lines span:nth-child(7)::after, #bottom-fade-lines span:nth-child(7)::after{
-  content:''; position:absolute; top:0; bottom:0; width:0; border-left:1px solid var(--grid-line-fg); opacity:0.3;
+  content:''; position:absolute; top:0; bottom:0; width:0; border-left:1px solid; border-left-color:inherit; opacity:0.3;   /* the same colour as its own pinstripe, whatever page it's on */
 }
 #grid-lines-global span:nth-child(1)::after, #top-fade-lines span:nth-child(1)::after, #bottom-fade-lines span:nth-child(1)::after{ left: calc(var(--u, 30px) / 2 - 1px); }
 #grid-lines-global span:nth-child(7)::after, #top-fade-lines span:nth-child(7)::after, #bottom-fade-lines span:nth-child(7)::after{ left: calc(var(--u, 30px) / -2 - 1px); }
@@ -1344,7 +1344,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::before, #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::after,
 #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::before, #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::after,
 #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::before, #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::after{
-  content:''; position:absolute; top:0; bottom:0; width:0; border-left:1px solid var(--grid-line-fg); opacity:0.3;
+  content:''; position:absolute; top:0; bottom:0; width:0; border-left:1px solid; border-left-color:inherit; opacity:0.3;   /* the same colour as its own pinstripe, whatever page it's on */
 }
 #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::before, #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::before, #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::before{ left: calc(var(--u, 30px) / -2 - 1px); }
 #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::after, #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::after, #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::after{ left: calc(var(--u, 30px) / 2 - 1px); }
