@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="site-release" content="Beau.1">
 <meta name="case-lock" content="250000.7UQfEvr96RLeJHRN5wsiEg==.wA3GJOvFhlLHYUs+.4ZOTIMZiRHupDcbxajhbNrhCEEGqnfqB">
-<meta name="site-version" content="0.9.3">
+<meta name="site-version" content="0.9.6">
 <title>Beau Pesa — Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
      for your exact Figma / brand hex codes.
      =================================================================== */
   :root{
-    --site-version: "0.9.3";
+    --site-version: "0.9.6";
     --ink: #101114;           /* intro / outro base */
     --paper: #F2F1EC;         /* card surface */
     --text-dark: #1B1C1E;
@@ -770,20 +770,17 @@
   #grid-lines-global span:nth-child(7)::after, #top-fade-lines span:nth-child(7)::after, #bottom-fade-lines span:nth-child(7)::after{ left: calc(var(--u, 30px) / -2 - 1px); }
 
   /* Column gutters: pinstripes 2-6 (2-4 of the five visible on phones) each get a faint solid partner on either side,
-     a sixteenth of a column away, like the gutters in a book's grid. */
+     half a nav button away, the same as the frame gutters, like the gutters in a book's grid. */
   #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::before, #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::after,
   #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::before, #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::after,
   #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::before, #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::after{
-    content:''; position:absolute; top:0; bottom:0; width:0; border-left:1px solid var(--grid-line-fg); opacity:0.3; --gg: var(--grid-gap);
+    content:''; position:absolute; top:0; bottom:0; width:0; border-left:1px solid var(--grid-line-fg); opacity:0.3;
   }
-  #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::before, #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::before, #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::before{ left: calc(-1px - var(--gg) / 16); }
-  #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::after, #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::after, #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::after{ left: calc(-1px + var(--gg) / 16); }
-  @media (max-width: 720px){
-    #grid-lines-global span::before, #grid-lines-global span::after, #top-fade-lines span::before, #top-fade-lines span::after, #bottom-fade-lines span::before, #bottom-fade-lines span::after{ --gg: var(--mobile-grid-gap); }
-  }
+  #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::before, #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::before, #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::before{ left: calc(var(--u, 30px) / -2 - 1px); }
+  #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::after, #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::after, #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::after{ left: calc(var(--u, 30px) / 2 - 1px); }
 </style>
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight');},2500);})();</script>
-<link rel="stylesheet" href="liteload-card.css?v=0.9.3">
+<link rel="stylesheet" href="liteload-card.css?v=0.9.6">
 </head>
 <body>
 
@@ -882,9 +879,9 @@
     <h2>LiteLoad</h2>
     <p class="role">Founder &amp; designer, in progress</p>
     <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
-    <div class="case-text"><p>Warehouse loading sheets are generated straight out of legacy systems — dense, cluttered, hard to scan under fatigue. LiteLoad parses them into a clean, task-first interface built for the floor, not the back office.</p></div>
+    <div class="case-text"><p class="ll-long">Warehouse loading sheets are generated straight out of legacy systems — dense, cluttered, hard to scan under fatigue. LiteLoad parses them into a clean, task-first interface built for the floor, not the back office.</p><p class="ll-short">Legacy loading sheets, rebuilt for the floor.</p></div>
     <a class="cta" href="liteload.html">See the work →</a>
-      <figure class="ll-tablet"><img src="images/liteload/tablet-flat.png" width="1400" height="1007" alt="LiteLoad’s upload screen on a tablet: drag and drop a legacy PDF loading sheet to convert it" loading="lazy" decoding="async"></figure>
+      <figure class="ll-tablet"><img src="images/liteload/tablet-flat.png" width="1400" height="1007" alt="LiteLoad’s upload screen on a tablet: drag and drop a legacy PDF loading sheet to convert it" decoding="async"></figure>
   </div>
 </section>
 
@@ -1269,6 +1266,6 @@
 })();
 </script>
 
-<script src="site.js?v=0.9.3"></script>
+<script src="site.js?v=0.9.6"></script>
 </body>
 </html>

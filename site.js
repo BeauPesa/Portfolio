@@ -1,4 +1,4 @@
-// Beau.1 · v0.9.3
+// Beau.1 · v0.9.6
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '0.9.3' };
+  var SITE = { release: 'Beau.1', version: '0.9.6' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -787,65 +787,100 @@
 })();
 
 /* ---------------- 14. The LiteLoad card: tablet placement and spacing (homepage and case study) ----------------
-   Desktop and tablet: places the tablet so the device's body (not its shadow) runs from pinstripe 4 to pinstripe 6,
-   its top level with the first dashed rule. Then evens out the spacing: the title moves down until the space above its
-   capitals matches the space from its baseline to the x-height of the role line, and the description ends level with
-   the tablet's bottom edge (the gaps above the second dashed rule and the description share the difference, each down
-   to a third of its size; anything left comes out of the description's leading, down to 1.4). Phones: the tablet sits in the flow
-   (liteload-card.css), so all of this is cleared. */
+   Every measurement is of the letters themselves (capitals, x-height, baselines), not their boxes.
+   Desktop and tablet:
+     - the tablet's body (not its shadow) runs from pinstripe 4 to pinstripe 6, its top on the first dashed rule;
+     - one even gap runs down the left column (first rule to title, title to role line, role line to second rule,
+       second rule to description) and from the tablet's bottom to the button;
+     - the description is set in five lines (its type steps down if it would need a sixth), and its leading and that
+       gap are solved together so the baseline of its last line lands on the tablet's bottom edge.
+   Phones (tablet stacked above): one even gap, the space from the second dashed rule down to the description's first
+   line, repeats from the first dashed rule to the title, from the title to the role line, from the role line to the
+   second rule, and from the description's last line to the button. */
 (function(){
   var cards = document.querySelectorAll('.ll-card');
   if (!cards.length) return;
   var BL = 0.0486, BR = 0.9514, BT = 0.0139, BB = 0.8898, AR = 1007 / 1400;
   var phone = window.matchMedia('(max-width: 720px)');
   var ctx = document.createElement('canvas').getContext('2d');
-  function metrics(el, sample){   // baseline (px from the card's top) and the glyph's top above that baseline
-    var cs = getComputedStyle(el), r = document.createRange(); r.selectNodeContents(el);
-    var line = r.getClientRects()[0]; if (!line) return null;
-    ctx.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
-    var m = ctx.measureText(sample);
-    return { baseline: line.top + m.fontBoundingBoxAscent, ascent: m.actualBoundingBoxAscent };
+  function font(el){ var cs = getComputedStyle(el); return cs.fontStyle + ' ' + cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily; }
+  // Card-relative positions from layout (offsetTop), so the parts' float-in animations never skew a measurement.
+  function topIn(card, el){ var y = 0; while (el && el !== card){ y += el.offsetTop; el = el.offsetParent; } return y; }
+  function lines(card, el){   // the element's lines: baseline, capital top and x-height top, in card px
+    var r = document.createRange(); r.selectNodeContents(el);
+    ctx.font = font(el);
+    var m = ctx.measureText(el.textContent.trim() || 'x'), x = ctx.measureText('x').actualBoundingBoxAscent;
+    var own = el.getBoundingClientRect().top, at = topIn(card, el), seen = [], out = [];
+    Array.prototype.forEach.call(r.getClientRects(), function(rc){
+      var key = Math.round(rc.top); if (seen.indexOf(key) > -1 || rc.width < 1) return; seen.push(key);
+      var base = at + (rc.top - own) + m.fontBoundingBoxAscent;
+      out.push({ base: base, cap: base - m.actualBoundingBoxAscent, xtop: base - x });
+    });
+    return out;
   }
+  function edges(card, el){ var t = topIn(card, el); return { top: t, bottom: t + el.offsetHeight }; }
+  function px(el, prop, v){ el.style.setProperty(prop, v + 'px', 'important'); }
+  function nudge(el, by){ px(el, 'margin-top', (parseFloat(el.style.getPropertyValue('margin-top')) || 0) + by); }
   function reset(card){
-    card.querySelectorAll('h2, .role, .thread, .case-text').forEach(function(el){ el.style.removeProperty('margin-top'); });
-    card.querySelectorAll('.case-text p').forEach(function(p){ p.style.removeProperty('line-height'); });
-    var fig = card.querySelector('.ll-tablet'); if (fig){ fig.style.removeProperty('width'); fig.style.removeProperty('left'); fig.style.removeProperty('top'); }
+    card.querySelectorAll('h2, .role, .thread, .case-text, .cta, .case-page-cta').forEach(function(el){ el.style.removeProperty('margin-top'); });
+    card.querySelectorAll('.case-text p').forEach(function(p){ p.style.removeProperty('line-height'); p.style.removeProperty('font-size'); });
+    var fig = card.querySelector('.ll-tablet'); if (fig){ ['width', 'left', 'top'].forEach(function(k){ fig.style.removeProperty(k); }); }
   }
+  function visible(card){ return Array.prototype.filter.call(card.querySelectorAll('.case-text p'), function(p){ return p.offsetHeight > 0; })[0]; }
   function place(card){
     reset(card);
-    if (phone.matches) return;
-    var fig = card.querySelector('.ll-tablet'), rule = card.querySelector('.thread'), h2 = card.querySelector('h2'), role = card.querySelector('.role');
-    var rule2 = card.querySelectorAll('.thread')[1], text = card.querySelector('.case-text');
-    if (!fig || !rule || !h2 || !role || !rule2 || !text) return;
+    var rule = card.querySelector('.thread'), rule2 = card.querySelectorAll('.thread')[1], h2 = card.querySelector('h2'), role = card.querySelector('.role');
+    var btn = card.querySelector('.cta, .case-page-cta:not(.back-dock)'), fig = card.querySelector('.ll-tablet'), p = visible(card);
+    if (!rule || !rule2 || !h2 || !role || !p || !fig){ if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed'); return; }
+    var t, r, first, last, gapTo;
+    if (phone.matches){
+      gapTo = function(){ return lines(card, p)[0].xtop - edges(card, rule2).bottom; };
+      var G = gapTo();
+      t = lines(card, h2); nudge(h2, G - (t[0].cap - edges(card, rule).bottom));
+      t = lines(card, h2); r = lines(card, role); nudge(role, G - (r[0].xtop - t[t.length - 1].base));
+      r = lines(card, role); nudge(rule2, G - (edges(card, rule2).top - r[r.length - 1].base));
+      if (btn){ last = lines(card, p); nudge(btn, G - (topIn(card, btn) - last[last.length - 1].base)); }
+      if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed');
+      return;
+    }
     var cr = card.getBoundingClientRect();
-    var lines = Array.prototype.map.call(document.querySelectorAll('#grid-lines-global > *'), function(e){ return e.getBoundingClientRect().left - cr.left; });
-    if (lines.length < 6) return;
-    var w = (lines[5] - lines[3]) / (BR - BL), h = w * AR;
-    fig.style.width = w + 'px'; fig.style.left = (lines[3] - BL * w) + 'px'; fig.style.top = (rule.offsetTop - BT * h) + 'px';
-    var gap = parseFloat(getComputedStyle(card).rowGap) || 30;
-    // the title: as much space above its capitals as from its baseline down to the role line's x-height
-    var t = metrics(h2, h2.textContent.trim()), r = metrics(role, 'x');
-    if (t && r){
-      var above = (t.baseline - t.ascent) - rule.getBoundingClientRect().bottom;
-      var below = (r.baseline - r.ascent) - t.baseline;
-      var s = (below - above) / 2;
-      h2.style.setProperty('margin-top', s + 'px', 'important');
-      role.style.setProperty('margin-top', (-s) + 'px', 'important');
-    }
-    // the description ends level with the tablet's bottom edge
-    var bottom = rule.offsetTop + (BB - BT) * h;
-    var delta = bottom - (text.offsetTop + text.offsetHeight), each = Math.max(-gap * 2 / 3, delta / 2);
-    rule2.style.setProperty('margin-top', each + 'px', 'important'); text.style.setProperty('margin-top', each + 'px', 'important');
-    delta = bottom - (text.offsetTop + text.offsetHeight);
-    var paras = text.querySelectorAll('p');
-    if (Math.abs(delta) > 1 && paras.length){
-      var lh0 = parseFloat(getComputedStyle(paras[0]).lineHeight), fs = parseFloat(getComputedStyle(paras[0]).fontSize), n = 0;
-      Array.prototype.forEach.call(paras, function(p){ n += Math.round(p.offsetHeight / lh0); });
-      var lh = Math.max(1.4 * fs, Math.min(2 * fs, lh0 + delta / Math.max(1, n)));
-      Array.prototype.forEach.call(paras, function(p){ p.style.lineHeight = lh + 'px'; });
-    }
+    var stripes = Array.prototype.map.call(document.querySelectorAll('#grid-lines-global > *'), function(e){ return e.getBoundingClientRect().left - cr.left; });
+    if (stripes.length < 6){ if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed'); return; }
+    var w = (stripes[5] - stripes[3]) / (BR - BL), h = w * AR;
+    fig.style.width = w + 'px'; fig.style.left = (stripes[3] - BL * w) + 'px'; fig.style.top = (topIn(card, rule) - BT * h) + 'px';
+    var tabletBottom = topIn(card, rule) + (BB - BT) * h;    // card px: the device's lower edge, not its shadow
+    // the description: five lines, its type stepping down (to 12px at most) if it would need a sixth
+    var fs = parseFloat(getComputedStyle(p).fontSize);
+    while (lines(card, p).length > 5 && fs > 12){ fs -= 0.25; px(p, 'font-size', fs); }
+    // One gap, G, everywhere: first rule to the title's capitals, title baseline to the role line's x-height, role
+    // baseline to the second rule, second rule to the description's capitals, and tablet to button. G and the
+    // description's leading are solved together so its last baseline lands on the tablet's bottom edge: leading
+    // aims for 1.6 x the type size, and gives way (between 1.3 and 2.1) only to keep G between 16 and 48 px.
+    var H = lines(card, h2), R = lines(card, role), P = lines(card, p), n = P.length;
+    var lh0 = parseFloat(getComputedStyle(p).lineHeight);
+    var fixed = (H[H.length - 1].base - H[0].cap) + (R[R.length - 1].base - R[0].xtop) + rule2.offsetHeight + (P[0].base - P[0].cap);
+    var K = (tabletBottom - edges(card, rule).bottom) - fixed;   // what the four gaps and the leading share
+    var lh = fs * 1.6, G = (K - (n - 1) * lh) / 4;
+    if (G < 16){ lh = Math.max(fs * 1.3, (K - 4 * 16) / Math.max(1, n - 1)); G = (K - (n - 1) * lh) / 4; }
+    if (G > 48){ lh = Math.min(fs * 2.1, (K - 4 * 48) / Math.max(1, n - 1)); G = (K - (n - 1) * lh) / 4; }
+    px(p, 'line-height', lh);
+    H = lines(card, h2); nudge(h2, G - (H[0].cap - edges(card, rule).bottom));
+    H = lines(card, h2); R = lines(card, role); nudge(role, G - (R[0].xtop - H[H.length - 1].base));
+    R = lines(card, role); nudge(rule2, G - (edges(card, rule2).top - R[R.length - 1].base));
+    P = lines(card, p); nudge(p.parentNode, G - (P[0].cap - edges(card, rule2).bottom));
+    P = lines(card, p); nudge(p.parentNode, tabletBottom - P[P.length - 1].base);   // rounding, or a gap held at its limit
+    if (btn) nudge(btn, (tabletBottom + G) - topIn(card, btn));
+    if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed');
   }
   function all(){ cards.forEach(place); }
-  all(); window.addEventListener('resize', all); window.addEventListener('load', all);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(all);
+  var q = 0; function soon(){ cancelAnimationFrame(q); q = requestAnimationFrame(all); }
+  all(); window.addEventListener('resize', soon); window.addEventListener('load', soon);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(soon);
+  // the case study's arrival changes classes on the page and the card; measure again once it has settled
+  if (window.MutationObserver){
+    var mo = new MutationObserver(soon);
+    mo.observe(document.documentElement, { attributes:true, attributeFilter:['class'] });
+    cards.forEach(function(c){ mo.observe(c, { attributes:true, attributeFilter:['class'] }); });
+  }
+  [400, 1200, 2400].forEach(function(t){ setTimeout(soon, t); });
 })();
