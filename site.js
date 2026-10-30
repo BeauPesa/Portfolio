@@ -1,4 +1,4 @@
-// Beau.1 · v1.0.4
+// Beau.1 · v1.0.8
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.0.4' };
+  var SITE = { release: 'Beau.1', version: '1.0.8' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -828,9 +828,10 @@
   function px(el, prop, v){ el.style.setProperty(prop, v + 'px', 'important'); }
   function nudge(el, by){ px(el, 'margin-top', (parseFloat(el.style.getPropertyValue('margin-top')) || 0) + by); }
   function reset(card){
+    var cache = document.getElementById('ll-cache'); if (cache) cache.remove();   // measuring now: the remembered layout steps aside (same frame, so nothing is drawn in between)
     card.querySelectorAll('h2, .role, .thread, .case-text, .cta, .case-page-cta').forEach(function(el){ el.style.removeProperty('margin-top'); });
     card.querySelectorAll('.case-text p').forEach(function(p){ p.style.removeProperty('line-height'); p.style.removeProperty('font-size'); });
-    card.style.removeProperty('min-height');
+    card.style.removeProperty('min-height'); card.style.removeProperty('padding-top'); card.style.removeProperty('height');
     var fig = card.querySelector('.ll-tablet'); if (fig){ ['width', 'left', 'top'].forEach(function(k){ fig.style.removeProperty(k); }); }
   }
   function visible(card){ return Array.prototype.filter.call(card.querySelectorAll('.case-text p'), function(p){ return p.offsetHeight > 0; })[0]; }
@@ -843,12 +844,31 @@
     if (phone.matches){
       gapTo = function(){ return lines(card, p)[0].xtop - edges(card, rule2).bottom; };
       var G = gapTo() / 2;                                              // half the natural gap between the headline parts
-      // (the tablet keeps its natural distance above the first rule; the description and the button get twice G)
-      nudge(p.parentNode, 2 * G - gapTo());                              // second rule to the description: 2G
+      // (the tablet keeps its natural distance above the first rule, less 10px; the description and the button get twice G)
+      var pad = parseFloat(getComputedStyle(card).paddingTop) || 0;
+      px(card, 'padding-top', Math.max(0, pad - 10));                    // the whole card's contents 10px closer to its top
+      nudge(rule, -10);                                                  // everything from the first rule down, 10px closer to the tablet...
+      var img = fig.querySelector('img'), body = topIn(card, fig) + (img ? img.offsetHeight : fig.offsetHeight) * BB;
+      nudge(rule, -(topIn(card, rule) - body) / 4);                      // ...and then a quarter of what's left
+      nudge(p.parentNode, 1.5 * G - gapTo());                            // second rule to the description: 2G, less a quarter
       t = lines(card, h2); nudge(h2, G - (t[0].cap - edges(card, rule).bottom));
       t = lines(card, h2); r = lines(card, role); nudge(role, G - (r[0].xtop - t[t.length - 1].base));
       r = lines(card, role); nudge(rule2, G - (edges(card, rule2).top - r[r.length - 1].base));
-      if (btn){ last = lines(card, p); nudge(btn, 2 * G - (topIn(card, btn) - last[last.length - 1].base)); }   // description to the button: 2G
+      // The homepage card takes the case study's frame height exactly (between the dots above and the nav below), so the
+      // two are the same card; then the button sits midway: as far below the description as it is above the card's bottom.
+      if (!card.classList.contains('case-page-card')){
+        var up = document.getElementById('progress-nav'), down = document.querySelector('#icon-nav a');
+        if (up && down){
+          var ur = up.getBoundingClientRect(), dr = down.getBoundingClientRect(), vh = window.innerHeight;
+          var frameH = vh - (ur.bottom + ur.top) - (2 * (vh - dr.bottom) + dr.height);
+          if (frameH > 200){ px(card, 'height', frameH); px(card, 'min-height', frameH); }
+        }
+      }
+      if (btn){
+        last = lines(card, p);
+        var lb = last[last.length - 1].base, room = card.offsetHeight - lb - btn.offsetHeight;
+        nudge(btn, (lb + room / 2) - topIn(card, btn));
+      }
       if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed');
       return;
     }
@@ -893,10 +913,35 @@
     }
     if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed');
   }
-  function all(){ cards.forEach(place); }
+  var FACES = ['800 1em "Big Shoulders Display"', '400 1em "IBM Plex Sans"'];
+  function fontsIn(){ try { return FACES.every(function(f){ return document.fonts.check(f); }); } catch (e){ return true; } }
+  function all(){
+    // With a remembered layout already applied (the <head> script), don't re-measure until the real fonts are in:
+    // measuring a fallback font would nudge things away from the remembered layout and back again.
+    if (document.getElementById('ll-cache') && document.fonts && !fontsIn()) return;
+    cards.forEach(place); remember();
+  }
+  // Remember the finished layout (per page and window size) so the next visit to this page can apply it in the <head>,
+  // before anything is drawn: without it the page paints once with default spacing, then again in place (a blink).
+  function remember(){
+    try {
+      var css = '';
+      cards.forEach(function(card){
+        var sel = card.classList.contains('case-page-card') ? '.case-page-card.ll-card' : '#liteload .ll-card';
+        var rule = function(target, el){ var st = el.getAttribute('style'); if (st) css += target + '{' + st.replace(/;?\s*$/, ';').replace(/opacity:[^;]*;/g, '') + '}'; };
+        rule(sel, card);
+        Array.prototype.forEach.call(card.children, function(el, k){
+          rule(sel + ' > :nth-child(' + (k + 1) + ')', el);
+          Array.prototype.forEach.call(el.querySelectorAll('p'), function(p, n){ rule(sel + ' > :nth-child(' + (k + 1) + ') p:nth-of-type(' + (n + 1) + ')', p); });
+        });
+      });
+      sessionStorage.setItem('llLayout:' + location.pathname, JSON.stringify({ w: window.innerWidth, h: window.innerHeight, css: css }));
+    } catch (e) {}
+  }
   var q = 0; function soon(){ cancelAnimationFrame(q); q = requestAnimationFrame(all); }
   all(); window.addEventListener('resize', soon); window.addEventListener('load', soon);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(soon);
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', soon);
   // the case study's arrival changes classes on the page and the card; measure again once it has settled
   if (window.MutationObserver){
     var mo = new MutationObserver(soon);

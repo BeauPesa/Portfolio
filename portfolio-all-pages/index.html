@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en" class="no-anim">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="site-release" content="Beau.1">
+<meta name="case-lock" content="250000.7UQfEvr96RLeJHRN5wsiEg==.wA3GJOvFhlLHYUs+.4ZOTIMZiRHupDcbxajhbNrhCEEGqnfqB">
+<meta name="site-version" content="1.0.8">
+<title>Beau Pesa — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+
+  /* ===================================================================
+     DESIGN TOKENS
+     Section colors below are placeholders derived from the palette
+     directions discussed in chat. Swap the hex values marked TODO
+     for your exact Figma / brand hex codes.
+     =================================================================== */
+  :root{
+    --site-version: "1.0.8";
+    --ink: #101114;           /* intro / outro base */
+    --paper: #F2F1EC;         /* card surface */
+    --text-dark: #1B1C1E;
+    --text-light: #F2F1EC;
+    --accent-personal: #ADD944; /* signature lime — WCAG-friendly, nods to hi-vis warehouse gear */
+
+    /* Every case has three colors: PRIMARY (No. button, subhead, See-the-work button),
+       THREAD (the Morse breaks) and TINT (the page background). */
+    --liteload-tint:   #C2C2C2; /* neutral grey at the same lightness as the other backgrounds */
+    --liteload-accent: #001C38; /* logo navy */
+    --liteload-thread: #63AA2A; /* logo green */
+
+    --walgreens-tint:   #AFBFFD; /* lightest of the three swatches */
+    --walgreens-accent: #323264; /* leftmost swatch */
+    --walgreens-thread: #E62600; /* rightmost swatch */
+    --walgreens-detail: #D2232A; /* sparing red accent — the "easter egg" cue */
+
+    --ebay-tint:   #B1CC72; /* eBay logo green */
+    --ebay-accent: #0064D2; /* eBay logo blue */
+    --ebay-thread: #F5AF02; /* eBay logo yellow */
+
+    --cisco-tint:   #80CCEC;
+    --cisco-accent: #06485C; /* logo blue */
+    --cisco-thread: #E31332; /* logo red */
+
+    --urban-tint:   #2C2A2F; /* charcoal with a hint of plum: the ground of a drawing board */
+    --urban-accent: #C52E72; /* raspberry: built-up areas are shaded pink on a topographic map. Readable on the paper card (4.6:1) */
+    --nav-fill: #22242B; /* nav button fill before the script runs, on dark: ink lightened 8% */
+    --urban-thread: #3680D0; /* blue: the other half of the map legend, and it is a watershed thesis */
+
+    /* Equal-height cards: these two are hidden copies of the LONGEST case blurbs. Each card's
+       text block is as tall as the tallest of {its own text, these two} at the current width,
+       so all cards match. If you rewrite a blurb to be longer than these, paste it here (and
+       into shared.css) so the cards stay equal. */
+    --ruler-a: "Warehouse loading sheets are generated straight out of legacy systems — dense, cluttered, hard to scan under fatigue. LiteLoad parses them into a clean, task-first interface built for the floor, not the back office.";
+    --ruler-b: "Before software, the same instinct: a thesis proposing constructed wetlands to filter urban runoff before it reached a contaminated creek in eastern São Paulo — systems thinking applied to water instead of software.";
+
+    --grid-inset: 4vw; /* distance of the outermost grid line from each edge */
+    --grid-gap: calc((100vw - 2 * var(--grid-inset)) / 6); /* spacing between the 7 lines */
+    --card-left: calc(var(--grid-inset) + 0.5 * var(--grid-gap)); /* midpoint between line 1 and 2 */
+    --card-right: calc(var(--grid-inset) + 5.5 * var(--grid-gap)); /* midpoint between line 6 and 7 (mirrors the left edge, midway between 1 and 2) */
+    --mobile-grid-gap: calc((100vw - 2 * var(--grid-inset)) / 4); /* spacing once 2 lines are hidden on mobile */
+    --thread-w: calc(2 * var(--grid-gap)); /* the Morse breaks run from pinstripe 2 to pinstripe 4 */
+    --ease: cubic-bezier(.22,.61,.36,1);
+
+    /* Nav foreground — flips per active section so borders/icons/lines
+       always have contrast against whatever's currently behind them. */
+    --nav-fg: #ffffff;
+    --nav-fg-soft: rgba(255,255,255,0.55);
+    --nav-line-soft: rgba(255,255,255,0.5);
+    --grid-line-fg: rgba(255,255,255,0.15); /* decorative grid lines — decoupled from nav border opacity */
+  }
+
+  html[data-theme="light"]{
+    --nav-fg: #101114;
+    --nav-fg-soft: rgba(16,17,20,0.5);
+    --nav-line-soft: rgba(16,17,20,0.35);
+    --grid-line-fg: rgba(255,255,255,0.55); /* pinstripes are white on every section */
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+    *{ animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+
+  body{
+    margin:0;
+    font-family:'IBM Plex Sans', sans-serif;
+    color: var(--text-dark);
+    overflow-x:hidden;
+  }
+
+  h1,h2,h3{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-weight:800;
+    letter-spacing:0.01em;
+    line-height:0.95;
+    margin:0;
+  }
+
+  /* Fixed layer that receives the interpolated background color */
+  #bg-layer{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    background:var(--ink);
+    /* Hard cut, not a scroll-linked blend: each section owns a flat color,
+       and this short transition just takes the jump-cut edge off. */
+    transition: background-color 0.35s var(--ease);
+  }
+
+  /* No transitions on the very first frame, so a page you arrive on (e.g. "Back to
+     home" from a case study) appears already in its final state instead of
+     animating into it. The class is removed by the script once it has set things up. */
+  html.no-anim *, html.no-anim *::before, html.no-anim *::after{ transition:none !important; }
+
+  section{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    padding: 6rem 8vw 6rem calc(var(--grid-inset) + var(--grid-gap));
+    position:relative;
+  }
+
+  /* Decorative grid reveal — ONE continuous set of dashed verticals
+     spanning the whole page (sized in JS to match total scroll
+     height), not per-section copies. This fixes two problems the
+     per-section version had: dash-phase resetting at every section
+     boundary (looked like a "cut"), and line color hard-switching
+     at the seam. mix-blend-mode makes the line auto-contrast against
+     whatever's behind it — dark on light sections, light on dark —
+     without hand-coding a color per template. */
+  #grid-lines-global{
+    position:absolute;
+    top:0; left:0;
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    padding: 0 var(--grid-inset);
+    pointer-events:none;
+    z-index:0;
+  }
+  #grid-lines-global span{
+    width:0;
+    border-left:1px dashed var(--grid-line-fg);
+    height:100%;
+    transition: border-color 0.35s var(--ease); /* matches the bg-layer's own transition timing */
+  }
+  section > *{
+    position:relative;
+    z-index:1;
+  }
+
+
+  /* ---------- Bookend sections (intro / outro) ---------- */
+  .bookend{
+    color: var(--text-light);
+  }
+  .bookend .eyebrow{
+    font-size:0.95rem;
+    color: var(--accent-personal);
+    margin:0 0 0.75rem;
+    font-weight:600;
+  }
+  .bookend h1{
+    font-size: clamp(3rem, 9vw, 7rem);
+    margin-bottom:1.25rem;
+  }
+  .bookend p{
+    max-width:34ch;
+    font-size:1.05rem;
+    line-height:1.6;
+    color:#D4D4CE;
+  }
+  .bookend .cta{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width: calc(2 * var(--grid-gap)); /* pinstripe 2 -> 4 */
+    min-width:max-content;
+    white-space:nowrap;
+    height: var(--u, 30px);   /* a nav button's height: 30px, 26px on phones */
+    margin-top:2rem;
+    padding:0 0.5rem;
+    border-radius:999px;
+    border:1px solid var(--accent-personal);
+    background: var(--ink); /* bookends are always this fixed dark color, so a solid fill here fully hides the grid line behind it */
+    color: var(--accent-personal);
+    text-decoration:none;
+    font-weight:600;
+    font-size:0.95rem;
+    transition: background 0.25s var(--ease), color 0.25s var(--ease);
+  }
+  .case .cta{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width: calc(2 * var(--grid-gap)); /* pinstripe 2 -> 4 */
+    min-width:max-content;
+    white-space:nowrap;
+    height: var(--u, 30px);   /* a nav button's height: 30px, 26px on phones */
+    margin-top:2rem;
+    padding:0 0.5rem;
+    border-radius:999px;
+    border:1px solid currentColor;
+    background: transparent;
+    text-decoration:none;
+    font-weight:600;
+    font-size:0.95rem;
+    transition: background 0.25s var(--ease), color 0.25s var(--ease);
+  }
+  .bookend .cta:hover,
+  .bookend .cta:focus-visible{
+    background: var(--accent-personal);
+    color: var(--ink);
+  }
+
+  /* ---------- Case study sections ---------- */
+  .case{
+    justify-content:flex-start;
+    padding-left: var(--card-left);
+    /* A quarter screen (+1.25rem) of runway above and below each card: about
+       half the gap we had when cards could not fade. Two case studies can now be
+       on screen together, so the script fades each card in and out with scroll
+       position (see "Fade the case-study cards") and only the card that owns the
+       current background is ever visible. */
+    padding-top: calc(25vh + 1.25rem);
+    padding-bottom: calc(25vh + 1.25rem);
+  }
+  .case-card{
+    background: var(--paper);
+    width: calc(var(--card-right) - var(--card-left));
+    max-width: none;
+    flex-shrink:0; /* keep the exact grid width even if the row is a hair narrower (e.g. a scrollbar) */
+    padding: 3rem 3rem 3rem calc(0.5 * var(--grid-gap)); /* left padding = half a column, so content lands on pinstripe 2 */
+    box-shadow: 12px 12px 22px -6px rgba(0,0,0,0.35);   /* tighter and a little darker, cast down and to the right at 45 degrees */
+  }
+  .case-index{
+    margin-bottom:1rem;
+  }
+  /* Circular numeral badge — also the link into that case study's own
+     page. Diameter is exactly 2x the nav buttons (30px -> 60px). */
+  .badge-link{
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size:1.5rem;
+    background: var(--badge-color);
+    color: var(--badge-text, #fff);
+    border: 1.5px solid transparent;
+    text-decoration:none;
+    flex-shrink:0;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), background 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease), border-width 0.25s var(--ease);
+  }
+  .badge-link:hover,
+  .badge-link:focus-visible{
+    background: var(--badge-text, #fff);
+    color: var(--badge-color);
+    border-width: 6px;
+    border-color: var(--badge-color-30);
+    transform: scale(1.08);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+  }
+  /* "No.1" convention: an inner wrapper top-aligns "No." with the
+     numeral (so their cap-heights line up), while the outer circle
+     still centers that whole block vertically within itself. */
+  .badge-link .badge-inner{
+    display:flex;
+    align-items:flex-start;
+  }
+  .badge-link .no{
+    font-size:0.5em;
+    position:relative;
+    margin-right:0.05em;
+  }
+  .badge-link .no-underline{
+    position:absolute;
+    left:0; right:0;
+    bottom:-0.3em;
+    width:100%;
+    height:4px;
+    overflow:visible;
+  }
+  .badge-link .num{
+    font-size:calc(1em + 2pt);
+    font-variant-numeric: lining-nums;
+  }
+  .case h2{
+    font-size: clamp(2.25rem, 5vw, 3.5rem);
+    margin-bottom:0.5rem;
+  }
+  .case .role{
+    font-size:1rem;
+    font-weight:500;
+    margin-bottom:1.5rem;
+    opacity:0.75;
+  }
+  .case p{
+    font-size:1.02rem;
+    line-height:1.65;
+    max-width:52ch;
+  }
+  .case-text{ display:grid; font-size:1.02rem; margin:1em 0; }
+  .case-text > p{ grid-area:1 / 1; margin:0; }
+  .case-text::before, .case-text::after{
+    grid-area:1 / 1;
+    visibility:hidden;
+    pointer-events:none;
+    line-height:1.65;
+    max-width:52ch;
+  }
+  .case-text::before{ content: var(--ruler-a); }
+  .case-text::after{ content: var(--ruler-b); }
+  .case .thread{
+    width: var(--thread-w);
+    height:6px;
+    margin:1.5rem 0 1.75rem;
+    display:block;
+  }
+  .case .thread svg{
+    display:block;
+    width:100%;
+    height:100%;
+    overflow:visible;
+  }
+
+  #liteload  .role{ color: var(--liteload-accent); }
+  #liteload  .cta{ border-color: var(--liteload-accent); color: var(--liteload-accent); }
+  #liteload  .cta:hover, #liteload  .cta:focus-visible{ background: var(--liteload-accent); color: var(--paper); }
+  #liteload  .thread{ color: var(--liteload-thread); }
+
+  #walgreens .role{ color: var(--walgreens-accent); }
+  #walgreens .cta{ border-color: var(--walgreens-accent); color: var(--walgreens-accent); }
+  #walgreens .cta:hover, #walgreens .cta:focus-visible{ background: var(--walgreens-accent); color: var(--paper); }
+  #walgreens .thread{ color: var(--walgreens-thread); }
+
+  #ebay      .role{ color: var(--ebay-accent); }
+  #ebay      .cta{ border-color: var(--ebay-accent); color: var(--ebay-accent); }
+  #ebay      .cta:hover, #ebay      .cta:focus-visible{ background: var(--ebay-accent); color: var(--paper); }
+  #ebay      .thread{ color: var(--ebay-thread); }
+
+  #cisco     .role{ color: var(--cisco-accent); }
+  #cisco     .cta{ border-color: var(--cisco-accent); color: var(--cisco-accent); }
+  #cisco     .cta:hover, #cisco     .cta:focus-visible{ background: var(--cisco-accent); color: var(--paper); }
+  #cisco     .thread{ color: var(--cisco-thread); }
+
+  #urban     .role{ color: var(--urban-accent); opacity: 1; }
+  #urban     .cta{ border-color: var(--urban-accent); color: var(--urban-accent); }
+  #urban     .cta:hover, #urban     .cta:focus-visible{ background: var(--urban-accent); color: var(--paper); }
+  #urban     .thread{ color: var(--urban-thread); }
+
+  /* ---------- Progress nav ---------- */
+  #progress-nav{
+    position:fixed;
+    right: calc(var(--grid-inset) - 15px);
+    top:50%;
+    transform: translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:1.1rem;
+    z-index:10;
+  }
+  #progress-nav button{
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    border:1.5px solid var(--nav-fg-soft);
+    background: var(--nav-fill); /* JS overrides this to match the background, lightened 8% */
+    padding:0;
+    cursor:pointer;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color: var(--nav-fg);
+    transition: transform 0.25s var(--ease), background-color 0.35s var(--ease), border-color 0.25s var(--ease);
+  }
+  #progress-nav button svg{
+    position:absolute;
+    inset:0;
+    margin:auto;
+    width:13px;
+    height:13px;
+    transition: transform 1.4s var(--ease), opacity 0.4s var(--ease);
+  }
+  /* Chevrons point away from the current position — up for sections
+     above it, down for sections below — reinforcing where you are
+     in the sequence, not just marking it with a dot. */
+  #progress-nav button[data-dir="up"] svg.chevron-icon{ transform: rotate(0deg); opacity:0.85; }
+  #progress-nav button[data-dir="down"] svg.chevron-icon{ transform: rotate(180deg); opacity:0.85; }
+  #progress-nav button[data-dir="current"] svg.chevron-icon{ opacity:0; transform: rotate(90deg); }
+  /* Eye icon only shows on the active ("you are here") dot, always
+     dark since that dot is always solid white regardless of theme. */
+  #progress-nav button svg.eye-icon{ opacity:0; color: var(--ink); }
+  #progress-nav button.active svg.eye-icon{ opacity:1; }
+
+  /* "See the work" / case-study click: the five middle buttons fade away,
+     the top one turns 90deg left (< = previous) and the bottom one turns
+     90deg right (> = next). They slide together and become the carousel
+     controls on the case-study pages. The same animation runs in reverse
+     when you head back home (see the work pages). */
+  #progress-nav{ --step: calc(30px + 1.1rem); }
+  #progress-nav.collapsed button{
+    pointer-events:none;
+    transition: opacity 0.18s var(--ease), transform 0.4s var(--ease), background-color 0.18s var(--ease), border-color 0.13s var(--ease);   /* twice as quick as the first version, so the click answers fast */
+  }
+  #progress-nav.collapsed button svg{ transition: transform 0.4s var(--ease), opacity 0.2s var(--ease); }
+  #progress-nav.collapsed button:not(:first-child):not(:last-child){ opacity:0; transform: scale(0.4); }
+  #progress-nav.collapsed button:first-child{ transform: translateY(calc(2.5 * var(--step))); }
+  #progress-nav.collapsed button:last-child{ transform: translateY(calc(-2.5 * var(--step))); }
+  #progress-nav.collapsed button:first-child svg.chevron-icon{ transform: rotate(-90deg); opacity:1; }
+  #progress-nav.collapsed button:last-child svg.chevron-icon{ transform: rotate(90deg); opacity:1; }
+  #progress-nav.collapsed .tooltip{ opacity:0 !important; }
+  /* A transformed button becomes its own stacking context, which would paint
+     its blurred halo OVER its own border and wash the ring out. The work-page
+     buttons have no halo, so drop it here to match. */
+  #progress-nav.collapsed button::before{ display:none; }
+  /* Soft blurred halo, same color as the dot, feathers the dashed
+     line into invisibility instead of hard-clipping a dash right at
+     the circle's edge (which looks like a cut, not a clean stop).
+     Skipped on the active dot — its fill is solid opaque white, so
+     it already fully occludes the line with no help needed, and the
+     colored halo was competing visually with the drop shadow. */
+  #progress-nav button::before{
+    content:'';
+    position:absolute;
+    inset:-8px;
+    border-radius:50%;
+    background: var(--halo-color, transparent);
+    filter: blur(7px);
+    z-index:-1;
+    pointer-events:none;
+  }
+  #progress-nav button.active::before{
+    display:none;
+  }
+  #progress-nav button:hover .tooltip,
+  #progress-nav button:focus-visible .tooltip{
+    opacity:1;
+  }
+  #progress-nav button.active{
+    background: rgb(255,255,255);
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transform:scale(1.15);
+  }
+  #progress-nav button:focus-visible{
+    outline:2px solid #fff;
+    outline-offset:3px;
+  }
+
+  /* Shared tooltip: a small rounded label with a triangular tip
+     pointing at whichever icon it belongs to. tip-right is used by
+     the progress dots (tooltip sits to their left, arrow points
+     right at the dot); tip-left is used by the icon rail (tooltip
+     sits to their right, arrow points left at the icon). */
+  .tooltip{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    white-space:nowrap;
+    font-size:0.78rem;
+    font-family:'IBM Plex Sans', sans-serif;
+    color:#fff;
+    background:rgba(16,17,20,0.85);
+    padding:0.25rem 0.6rem;
+    border-radius:5px;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity 0.2s var(--ease);
+  }
+  .tip-right{ right:40px; }
+  .tip-right::after{
+    content:'';
+    position:absolute;
+    left:100%;
+    top:50%;
+    transform:translateY(-50%);
+    width:0; height:0;
+    border-style:solid;
+    border-width:6px 0 6px 6px;
+    border-color: transparent transparent transparent rgba(16,17,20,0.85);
+  }
+  .tip-left{ left:40px; }
+  .tip-left::after{
+    content:'';
+    position:absolute;
+    right:100%;
+    top:50%;
+    transform:translateY(-50%);
+    width:0; height:0;
+    border-style:solid;
+    border-width:6px 6px 6px 0;
+    border-color: transparent rgba(16,17,20,0.85) transparent transparent;
+  }
+
+  /* ---------- Site icon rail ---------- */
+  #social-nav{
+    position:fixed;
+    left: calc(var(--grid-inset) - 15px);
+    bottom: 2.5rem;
+    z-index:10;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:1.1rem;
+  }
+  #icon-nav{
+    position:fixed;
+    left: calc(var(--grid-inset) - 15px);
+    top: 2.5rem;
+    z-index:10;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:1.1rem;
+  }
+  #icon-nav a,
+  #social-nav a{
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    background: var(--nav-fill); /* JS overrides this to match the background, lightened 8% */
+    border: 1.5px solid var(--nav-fg-soft);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color: var(--nav-fg);
+    text-decoration:none;
+    position:relative;
+    transition: transform 0.25s var(--ease), background-color 0.35s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease);
+  }
+  #icon-nav a::before,
+  #social-nav a::before{
+    content:'';
+    position:absolute;
+    inset:-3px;
+    border-radius:50%;
+    background: var(--halo-color, transparent);
+    filter: blur(3px);
+    z-index:-1;
+    pointer-events:none;
+  }
+  #icon-nav a.active,
+  #social-nav a.active{
+    background: #fff;
+    border-color: transparent;
+    color: var(--ink);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  #icon-nav a:hover .tooltip,
+  #icon-nav a:focus-visible .tooltip,
+  #social-nav a:hover .tooltip,
+  #social-nav a:focus-visible .tooltip{
+    opacity:1;
+  }
+  #icon-nav a svg,
+  #social-nav a svg{
+    width:15px;
+    height:15px;
+  }
+  #icon-nav a:hover,
+  #icon-nav a:focus-visible,
+  #social-nav a:hover,
+  #social-nav a:focus-visible{
+    transform: scale(1.12);
+  }
+  #icon-nav a:focus-visible,
+  #social-nav a:focus-visible{
+    outline:2px solid #fff;
+    outline-offset:3px;
+  }
+
+  @media (max-width: 720px){
+    section{
+      padding-top: 5.5rem;
+      padding-bottom: 5.5rem;
+      padding-left: calc(var(--grid-inset) + var(--mobile-grid-gap)); /* second visible line */
+      padding-right: calc(100vw - var(--grid-inset) - (3.5 * var(--mobile-grid-gap))); /* halfway through the last column */
+    }
+    .bookend p{ max-width:none; }
+    .case p{ max-width:none; }
+    .case-text::before, .case-text::after{ max-width:none; }
+    .bookend > div{ width:100%; min-width:0; }
+    .case{ padding-left: calc(var(--grid-inset) + 0.5 * var(--mobile-grid-gap)); }
+    .case-card{ padding:1.5rem 1.5rem 1.5rem calc(0.5 * var(--mobile-grid-gap)); width:100%; max-width:100%; }
+    /* One title line, always: size tracks the text column (width = 57.5vw - 24px)
+       so the longest title ("Cisco Systems", 5.46em) can never wrap or overflow. */
+    .case h2{ white-space:nowrap; font-size: min(2.25rem, calc((57.5vw - 24px) / 5.6)); }
+    /* Reserve two lines for the role so every card's divider and paragraph
+       start at the same height, however the role wraps (LiteLoad is the reference). */
+    .case .role{ min-height: 3.3em; }
+    .bookend .cta, .case .cta{ width:min(calc(2 * var(--mobile-grid-gap)), 100%); } /* pinstripe 2 -> 4 (of the 5 visible lines) */
+
+    /* Fewer lines on mobile — same grid, less clutter. Keeps both
+       outer edges and the center; drops the 2nd and 6th. */
+    #grid-lines-global span:nth-child(2),
+    #grid-lines-global span:nth-child(6){
+      display:none;
+    }
+
+    /* Progress dots become a horizontal bar pinned to the top. */
+    #progress-nav{
+      position:fixed;
+      top:auto;
+      left:0;
+      right:0;
+      top:0.9rem;
+      bottom:auto;
+      margin:0 auto;
+      width:fit-content;
+      transform:none;
+      flex-direction:row;
+      gap:0.65rem;
+      background: rgba(16,17,20,0.35);
+      padding:0.5rem 0.75rem;
+      border-radius:999px;
+    }
+    #progress-nav button{ width:9px; height:9px; border-width:1px; }
+    #progress-nav button svg{ display:none; }
+    #progress-nav button::before{ display:none; }
+    #progress-nav button.active{ border-width:1.5px; }
+    #progress-nav button .tooltip{ display:none; }
+    #progress-nav button::after{ content:''; position:absolute; inset:-9px -4px; }   /* a bigger tap area; the look is unchanged */
+
+    /* Site icon rail becomes a matching horizontal bar pinned to the bottom, within thumb reach. */
+    #icon-nav{
+      position:fixed;
+      left:50%;
+      top:auto;
+      bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+      transform:translateX(-50%);
+      flex-direction:row;
+      gap:0.6rem;
+      padding:0.4rem 0.6rem;
+      border-radius:999px;
+    }
+    #social-nav{ position:fixed; left: calc(var(--grid-inset) + 0.25 * var(--mobile-grid-gap) - 13px); top:50%; bottom:auto; transform: translateY(-50%); flex-direction:column; gap:0.65rem; padding:0; border-radius:0; } /* centered in the column between the first pinstripe and the card's left edge, and on the middle of the screen */
+    #icon-nav a,
+    #social-nav a{ width:26px; height:26px; background:var(--nav-fill); }
+    #social-nav a::before{ display:none; }
+    #social-nav a svg{ width:13px; height:13px; }
+    #social-nav a .tooltip{ display:none; }
+    #icon-nav a::before{ display:none; }
+    #icon-nav a.active{ background:#fff; color:var(--ink); border-color:transparent; }
+    #icon-nav a svg{ width:13px; height:13px; }
+    #icon-nav a .tooltip{ display:none; }
+  }
+  /* Each part of a card arrives in turn, rising into place. Slow on purpose: 1.2s per part, 0.14s apart. */
+  .case-card.is-in > *{
+    animation: partIn 1.2s cubic-bezier(0.25, 1, 0.5, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 0.14s);
+  }
+  @keyframes partIn{
+    from{ opacity:0; translate: 0 56px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .case-card.is-in > *{ animation-name: partFade; animation-duration: 0.4s; animation-delay: 0s; }
+    @keyframes partFade{ from{ opacity:0; } }
+  }
+  /* The intro and outro rise into place too: each element in turn, as it enters (site.js). */
+  .js .bookend > div > *:not(.is-shown){ opacity:0; }
+  .is-shown{
+    animation: partIn 1.2s cubic-bezier(0.25, 1, 0.5, 1) backwards;
+    animation-delay: calc(var(--b, 0s) + var(--d, 0) * 0.14s);
+  }
+  .is-shown.rv-static{ animation:none; }
+  @media (prefers-reduced-motion: reduce){ .is-shown{ animation-name: partFade; animation-duration: 0.4s; animation-delay: 0s; } }
+  @media (max-width: 720px){
+    :root{ --thread-w: calc(2 * var(--mobile-grid-gap)); --frame-top: calc(1.8rem + 26px); --frame-bottom: calc(1.8rem + 25px); --card-h: calc(100vh - var(--frame-top) - var(--frame-bottom)); }
+    @supports (height: 100svh){ :root{ --card-h: calc(100svh - var(--frame-top) - var(--frame-bottom)); } }
+    /* Each card is as tall as the case study's frame (the screen minus the room for the nav above and the dots below),
+       so the handoff changes nothing but the page. The button stays at the card's bottom edge: it leaves the flow and a
+       strip is reserved for it, so extra height opens up between the text and the button and nothing else moves. */
+    .case-card{ min-height: var(--card-h); }
+    .case-text{ flex: 1 0 auto; }   /* any extra height goes into the text's own box: every gap stays exactly one unit and the button stays at the bottom */
+    .case .cta{ height: var(--u); }   /* the height of a nav button, so the case study's version can shrink into one */
+  }
+
+  /* ---------- One unit of vertical space on every card ----------
+     --u is the height of a nav button: 30px, or 26px on phones. Every vertical gap on a card is one unit: the card's edge
+     to its first element, each element to the next, the last element to the card's edge. A card is a column with a single
+     gap, so nothing depends on margins that do or don't collapse. */
+  :root{ --u: 30px; }
+  .case-card{ display:flex; flex-direction:column; align-items:stretch; gap: var(--u); padding-top: var(--u); padding-bottom: var(--u); }
+  .case-card > *{ margin:0 !important; flex-shrink:0; }
+  .case-card > .badge-link, .case-card > .cta{ align-self:flex-start; }
+  @media (max-width: 720px){
+    :root{ --u: 26px; --col: calc(2 * var(--mobile-grid-gap)); --card-fs: clamp(0.85rem, calc(0.85rem + (100vh - 700px) * 0.025), 0.94rem); }
+    @supports (height: 100svh){ :root{ --card-fs: clamp(0.85rem, calc(0.85rem + (100svh - 700px) * 0.025), 0.94rem); } }
+    .case-card{ padding-right: calc(0.5 * var(--mobile-grid-gap)); }
+    .case h2{ font-size: min(2.25rem, calc(var(--col) / 5.6)); }
+    .case p, .case-text{ font-size: var(--card-fs); }
+    .case .role{ font-size: 1rem; }
+  }
+
+  /* ---------- Tooltips: pointer labels ----------
+     The label's shape (arrow, body and colour cap) is one layer behind the text: the arrow cut with clip-path, the
+     cap painted into the background and rounded off, so there are no seams and no corners peeking past the arrow.
+     The drop shadow is on the label itself, so it follows that finished shape exactly.
+     --tip-accent is lime on the personal pages, the case study's own colour on a case study, and on the homepage it
+     follows whichever case is in view. */
+  .tooltip{
+    height:24px; line-height:24px; box-sizing:border-box;
+    color:#1B1C1E; font-weight:500; box-shadow:none;
+  }
+  .tip-left, .tip-right{ background:none; filter: drop-shadow(0 5px 7px rgba(0,0,0,0.35)); }
+  .tip-left{ left:36px; padding: 0 calc(0.65rem + 12px) 0 calc(0.65rem + 10px); }
+  .tip-right{ right:36px; padding: 0 calc(0.65rem + 10px) 0 calc(0.65rem + 12px); }
+  .tip-left::before, .tip-right::before{ content:''; display:block; position:absolute; inset:0; z-index:-1; width:auto; height:auto; }
+  .tip-left::before{
+    background: linear-gradient(to left, var(--tip-accent, #ADD944) 12px, #F2F1EC 12px);
+    border-radius: 0 12px 12px 0;
+    clip-path: polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 50%);
+  }
+  .tip-right::before{
+    background: linear-gradient(to right, var(--tip-accent, #ADD944) 12px, #F2F1EC 12px);
+    border-radius: 12px 0 0 12px;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+  }
+  .tip-left::after, .tip-right::after{ content:none; display:none; }
+  
+  /* the fades under the dots (top) and the nav (bottom) on phones: same rules as shared.css, which this page doesn't load */
+#top-fade, #top-fade-lines{ display:none; }
+@media (max-width: 720px){
+  #top-fade{
+    display:block; position:fixed; top:0; left:0; right:0;
+    height: calc(0.9rem + 25px);   /* down to the bottom of the dots pill, no further */
+    z-index:9; pointer-events:none;
+  }
+  #top-fade-lines{
+    display:block; position:fixed; top:0; left:0; right:0;
+    height: calc(0.9rem + 25px);   /* down to the bottom of the dots pill, no further */
+    overflow:hidden; z-index:9; pointer-events:none;
+  }
+  #top-fade-lines > div{ position:absolute; left:0; width:100%; display:flex; justify-content:space-between; }
+  #top-fade-lines span{ width:0; height:100%; }
+}
+@media (max-width: 720px){
+  #bottom-fade{ display:block; position:fixed; left:0; right:0; bottom:0; height: calc(0.9rem + 26px + env(safe-area-inset-bottom, 0px));   /* up to the top of the nav circles, no further */ z-index:9; pointer-events:none; }
+  #bottom-fade-lines{ display:block; position:fixed; left:0; right:0; bottom:0; height: calc(0.9rem + 26px + env(safe-area-inset-bottom, 0px));   /* up to the top of the nav circles, no further */ overflow:hidden; z-index:9; pointer-events:none; }
+  #bottom-fade-lines > div{ position:absolute; left:0; width:100%; display:flex; justify-content:space-between; }
+  #bottom-fade-lines span{ width:0; height:100%; }
+}
+#bottom-fade, #bottom-fade-lines{ display:none; }
+@media (max-width: 720px){ #bottom-fade, #bottom-fade-lines{ display:block; } }
+
+
+  /* ---------- Frame gutters ----------
+     A faint solid partner just inside each outer pinstripe: right of pinstripe 1, touching the right side of the nav
+     buttons, and left of pinstripe 7, the mirror of it. Half a nav button (--u) from each. The pinstripe copies in
+     the fades on phones carry them too. */
+  #grid-lines-global span, #top-fade-lines span, #bottom-fade-lines span{ position:relative; }
+  #grid-lines-global span:nth-child(1)::after, #top-fade-lines span:nth-child(1)::after, #bottom-fade-lines span:nth-child(1)::after,
+  #grid-lines-global span:nth-child(7)::after, #top-fade-lines span:nth-child(7)::after, #bottom-fade-lines span:nth-child(7)::after{
+    content:''; position:absolute; top:0; bottom:0; width:0; border-left:1px solid; border-left-color:inherit; opacity:0.3;   /* the same colour as its own pinstripe, whatever page it's on */
+  }
+  #grid-lines-global span:nth-child(1)::after, #top-fade-lines span:nth-child(1)::after, #bottom-fade-lines span:nth-child(1)::after{ left: calc(var(--u, 30px) / 2 - 1px); }
+  #grid-lines-global span:nth-child(7)::after, #top-fade-lines span:nth-child(7)::after, #bottom-fade-lines span:nth-child(7)::after{ left: calc(var(--u, 30px) / -2 - 1px); }
+
+  /* Column gutters: pinstripes 2-6 (2-4 of the five visible on phones) each get a faint solid partner on either side,
+     half a nav button away, the same as the frame gutters, like the gutters in a book's grid. */
+  #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::before, #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::after,
+  #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::before, #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::after,
+  #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::before, #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::after{
+    content:''; position:absolute; top:0; bottom:0; width:0; border-left:1px solid; border-left-color:inherit; opacity:0.3;   /* the same colour as its own pinstripe, whatever page it's on */
+  }
+  #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::before, #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::before, #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::before{ left: calc(var(--u, 30px) / -2 - 1px); }
+  #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::after, #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::after, #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::after{ left: calc(var(--u, 30px) / 2 - 1px); }
+
+  /* ---------- Page to page: the nav and the dots carry over ----------
+     site.js (section 15) notes the outgoing page's dots pill and active nav button, and the incoming page starts from
+     them: the pill eases to its new width while its dots cross-fade, and the nav highlight fades from the old button
+     to the new one, so following a card to its case study (and back) has no jump. */
+  #icon-nav.nav-swap-init a{ transition:none !important; }
+  #icon-nav.nav-swap a{ transition: background-color 0.5s var(--ease), color 0.5s var(--ease), border-color 0.5s var(--ease), box-shadow 0.5s var(--ease) !important; }
+  .pill-morph{ overflow:hidden; transition: width 0.5s var(--ease); }
+  .pill-morph > *{ opacity:0; transition: opacity 0.35s var(--ease) 0.2s; }
+  .pill-morph.pill-in > *{ opacity:1; }
+  
+
+  /* ---------- No. badges: a Neue Machina "No.", a Playfair numeral ----------
+     "No." and its three dashes are set in Neue Machina Inktrap (from the copy installed on this computer until the web
+     font files are added; Playfair stands in meanwhile) and sit 5px further left of the numeral, which stays Playfair. */
+  @font-face{ font-family:'BP Machina'; font-weight:400; src: local('PP Neue Machina Inktrap Regular'), local('PPNeueMachina-InktrapRegular'), local('PP Neue Machina Inktrap'), local('Neue Machina Inktrap'); }
+  @font-face{ font-family:'BP Machina'; font-weight:700; src: local('PP Neue Machina Inktrap Ultrabold'), local('PPNeueMachina-InktrapUltrabold'), local('PP Neue Machina Inktrap Bold'), local('PPNeueMachina-InktrapBold'); }
+  .badge-link .no{ font-family:'BP Machina', 'Playfair Display', serif; font-weight:700; font-synthesis:none; left:-5px; }
+  
+</style>
+<script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight');},2500);})();</script>
+<link rel="stylesheet" href="liteload-card.css?v=1.0.8">
+<link rel="preload" as="image" href="images/liteload/tablet-flat.webp" fetchpriority="high">
+<script>/* LiteLoad card: apply the layout remembered from this page's last visit (site.js, section 14) before the first paint */
+(function(){ try { var c = JSON.parse(sessionStorage.getItem('llLayout:' + location.pathname) || 'null');
+  if (c && c.w === window.innerWidth && c.h === window.innerHeight && c.css){ var s = document.createElement('style'); s.id = 'll-cache'; s.textContent = c.css.replace(/;/g, ' !important;').replace(/!important !important/g, '!important'); document.head.appendChild(s); } } catch (e) {} })();</script>
+</head>
+<body>
+
+<div id="bg-layer"></div>
+<div id="grid-lines-global" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<nav id="social-nav" aria-label="Social links">
+  <a href="https://www.linkedin.com/in/beaupesa/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+    <span class="tooltip tip-left">LinkedIn</span>
+  </a>
+  <a href="https://github.com/BeauPesa" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+    <span class="tooltip tip-left">GitHub</span>
+  </a>
+  <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+    <span class="tooltip tip-left">Instagram</span>
+  </a>
+</nav>
+
+<nav id="icon-nav" aria-label="Site pages">
+  <a href="index.html" aria-label="Home" class="active" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+    <span class="tooltip tip-left">Home</span>
+  </a>
+  <a href="resume.html" aria-label="Resume">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6"/></svg>
+    <span class="tooltip tip-left">Resume</span>
+  </a>
+  <a href="process.html" aria-label="Other Projects">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="7"/><rect x="14" y="4" width="7" height="7"/><rect x="3" y="15" width="7" height="5"/><rect x="14" y="15" width="7" height="5"/></svg>
+    <span class="tooltip tip-left">Other Projects</span>
+  </a>
+  <a href="art.html" aria-label="Creative Endeavors">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
+    <span class="tooltip tip-left">Creative Endeavors</span>
+  </a>
+  <a href="about.html" aria-label="About / Contact">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.4 8.5 8.5 0 0 1-4-1L3 20l1.1-5.5A8.38 8.38 0 0 1 3 11.5 8.5 8.5 0 0 1 11.5 3 8.4 8.4 0 0 1 21 11.5z"/></svg>
+    <span class="tooltip tip-left">About / Contact</span>
+  </a>
+</nav>
+
+<nav id="progress-nav" aria-label="Section progress">
+  <button data-target="intro"      class="active">
+    <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    <span class="tooltip tip-right">Hi</span>
+  </button>
+  <button data-target="liteload"  >
+    <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    <span class="tooltip tip-right">LiteLoad</span>
+  </button>
+  <button data-target="walgreens" >
+    <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    <span class="tooltip tip-right">Walgreens</span>
+  </button>
+  <button data-target="ebay"      >
+    <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    <span class="tooltip tip-right">eBay</span>
+  </button>
+  <button data-target="cisco"     >
+    <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    <span class="tooltip tip-right">Cisco Systems</span>
+  </button>
+  <button data-target="urban"     >
+    <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    <span class="tooltip tip-right">Urban Design</span>
+  </button>
+  <button data-target="outro"     >
+    <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    <span class="tooltip tip-right">Bye</span>
+  </button>
+</nav>
+
+<section id="intro" class="bookend" data-color="var(--ink)">
+    <div>
+    <p class="eyebrow">Hi, it's me</p>
+    <h1>I'm Beau.</h1>
+    <p>A design engineer who's spent a decade solving friction wherever it shows up — retail checkout lines, enterprise dashboards, warehouse floors, even a polluted creek in São Paulo. Same problem, different medium.</p>
+    <a class="cta" href="#liteload">See the work ↓</a>
+  </div>
+</section>
+
+<section id="liteload" class="case">
+    <div class="case-card ll-card">
+    <a class="case-index badge-link" href="liteload.html" style="--badge-color:#001C38; --badge-color-30:rgba(0,28,56,0.3); --badge-text:#fff;" aria-label="View the liteload case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">1</span></span></a>
+    <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
+    <h2>LiteLoad</h2>
+    <p class="role">Founder &amp; designer, in progress</p>
+    <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
+    <div class="case-text"><p class="ll-long">LiteLoad translates legacy loading sheets into a clean, task-first screen, so loaders see what goes on the truck, and in what order.</p><p class="ll-short">LiteLoad translates legacy loading sheets into a clean, task-first screen, so loaders see what goes on the truck, and in what order.</p></div>
+    <a class="cta" href="liteload.html">See the work →</a>
+      <figure class="ll-tablet"><img src="images/liteload/tablet-flat.webp" width="1400" height="1007" alt="LiteLoad’s upload screen on a tablet: drag and drop a legacy PDF loading sheet to convert it" decoding="sync" fetchpriority="high"></figure>
+  </div>
+</section>
+
+<section id="walgreens" class="case" data-tip-accent="badge">
+    <div class="case-card">
+    <a class="case-index badge-link" href="walgreens.html" style="--badge-color:#323264; --badge-color-30:rgba(50,50,100,0.3); --badge-text:#fff;" aria-label="View the walgreens case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">2</span></span></a>
+    <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
+    <h2>Walgreens</h2>
+    <p class="role">Self-checkout experience</p>
+    <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
+    <div class="case-text"><p>Shoppers wanted to skip the line. We designed a self-checkout flow that felt fast and obvious on first use — no instructions needed, no hesitation at the pay screen.</p></div>
+    <a class="cta" href="walgreens.html">See the work →</a>
+  </div>
+</section>
+
+<section id="ebay" class="case">
+    <div class="case-card">
+    <a class="case-index badge-link" href="ebay.html" style="--badge-color:#0064D2; --badge-color-30:rgba(0,100,210,0.3); --badge-text:#fff;" aria-label="View the ebay case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">3</span></span></a>
+    <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
+    <h2>eBay</h2>
+    <p class="role">Two-factor authentication</p>
+    <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
+    <div class="case-text"><p>Security friction usually loses to convenience. This flow made two-factor verification fast enough that sellers stopped turning it off.</p></div>
+    <a class="cta" href="ebay.html">See the work →</a>
+  </div>
+</section>
+
+<section id="cisco" class="case">
+    <div class="case-card">
+    <a class="case-index badge-link" href="cisco.html" style="--badge-color:#06485C; --badge-color-30:rgba(6,72,92,0.3); --badge-text:#fff;" aria-label="View the cisco case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">4</span></span></a>
+    <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
+    <h2>Cisco Systems</h2>
+    <p class="role">Network diagnostic tools</p>
+    <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
+    <div class="case-text"><p>Support engineers were reading raw network data under time pressure. We redesigned the diagnostic interface around the questions they actually needed answered first.</p></div>
+    <a class="cta" href="cisco.html">See the work →</a>
+  </div>
+</section>
+
+<section id="urban" class="case">
+    <div class="case-card">
+    <a class="case-index badge-link" href="urban.html" style="--badge-color:#C52E72; --badge-color-30:rgba(197,46,114,0.3); --badge-text:#fff;" aria-label="View the urban case study"><span class="badge-inner"><span class="no">No.<svg class="no-underline" viewBox="0 0 18 4" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="2" x2="4" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="2" x2="10" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="14" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="num">5</span></span></a>
+    <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
+    <h2>Urban Design</h2>
+    <p class="role">São Paulo watershed thesis</p>
+    <div class="thread"><svg viewBox="0 0 90 6" width="90" height="6" aria-hidden="true"><line x1="3" y1="3" x2="87" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,4,4,12,4,12,4,4"/></svg></div>
+    <div class="case-text"><p>Before software, the same instinct: a thesis proposing constructed wetlands to filter urban runoff before it reached a contaminated creek in eastern São Paulo — systems thinking applied to water instead of software.</p></div>
+    <a class="cta" href="urban.html">See the work →</a>
+  </div>
+</section>
+
+<section id="outro" class="bookend">
+    <div>
+    <p class="eyebrow">Bye, for now</p>
+    <h1>Let's talk.</h1>
+    <p>Warehouse, watershed, or checkout line — if there's friction, I'm probably already thinking about how to remove it.</p>
+    <a class="cta" href="mailto:hello@beaupesa.com">Get in touch</a>
+  </div>
+</section>
+
+<script>
+(function(){
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Each section owns one flat color. No blending between them —
+  // the background snaps when a section takes over the majority
+  // of the viewport, matching the Figma mockup's hard-cut behavior.
+  var sectionColors = {
+    intro:     'rgb(16,17,20)',
+    liteload:  'rgb(194,194,194)',
+    walgreens: 'rgb(175,191,253)',
+    ebay:      'rgb(177,204,114)',
+    cisco:     'rgb(128,204,236)',
+    urban:     'rgb(44,42,47)',
+    outro:     'rgb(16,17,20)'
+  };
+
+  var bgLayer = document.getElementById('bg-layer');
+  var gridLinesGlobal = document.getElementById('grid-lines-global');
+
+  function sizeGridLines(){
+    gridLinesGlobal.style.height = document.documentElement.scrollHeight + 'px';
+  }
+  sizeGridLines();
+  window.addEventListener('resize', sizeGridLines);
+  window.addEventListener('load', sizeGridLines);
+  // Big Shoulders Display swapping in after the initial paint can
+  // change heading heights slightly; re-measure once fonts settle.
+  if (document.fonts && document.fonts.ready){
+    document.fonts.ready.then(sizeGridLines);
+  }
+  setTimeout(sizeGridLines, 500);
+  var navButtons = Array.prototype.slice.call(document.querySelectorAll('#progress-nav button'));
+
+  // Case-study sections now have a big empty runway above and below the
+  // card, so "go to section" must center the section (= center the card)
+  // rather than align its top edge with the top of the screen.
+  // The canonical line for a case study card's top edge: the bottom of the Home nav circle (on phones, as far below it
+  // as it is from the top of the screen). The case-study pages put their card on the same line, so a card never
+  // jumps when you go from one page to the other.
+  function cardTopLine(){
+    var c = document.querySelector('#icon-nav a');
+    if (!c) return 0;
+    var r = c.getBoundingClientRect();
+    if (window.innerWidth > 720) return r.bottom;
+    // Phones: the line is set by whichever row sits at the top of the screen. The nav moved to the bottom, so
+    // that's the dots pill now; fall back to the nav circles if they're ever back on top.
+    var d = document.getElementById('progress-nav'), dr = d && d.getBoundingClientRect();
+    if (dr && dr.height && dr.top < r.top) r = dr;
+    return r.bottom + r.top;
+  }
+  // Where the middle of a case section sits when its card is on the line (the section is symmetric around the card).
+  function anchorY(){ return cardTopLine() + fadeCards[0].card.offsetHeight / 2; }
+  function scrollToY(y, smooth){
+    var root = document.documentElement, prev = root.style.scrollBehavior;
+    var animate = smooth && !reduceMotion;
+    if (!animate) root.style.scrollBehavior = 'auto';
+    window.scrollTo({ top: y, behavior: animate ? 'smooth' : 'auto' });
+    if (!animate) root.style.scrollBehavior = prev;
+  }
+  function centerSection(el, smooth){
+    var card = el.querySelector('.case-card');
+    if (card){   // a case study: put its card exactly on the line
+      scrollToY(card.getBoundingClientRect().top + window.scrollY - cardTopLine(), smooth);
+      return;
+    }
+    var root = document.documentElement, prev = root.style.scrollBehavior;   // the intro and the outro: centered, as before
+    var animate = smooth && !reduceMotion;
+    if (!animate) root.style.scrollBehavior = 'auto';
+    el.scrollIntoView({ block: 'center', behavior: animate ? 'smooth' : 'auto' });
+    if (!animate) root.style.scrollBehavior = prev;
+  }
+  // A short, eased scroll by dy pixels (used to settle a card onto the line after "See the work" is clicked).
+  function glideBy(dy, ms, done){
+    var root = document.documentElement, prev = root.style.scrollBehavior, y0 = window.scrollY, t0 = null;
+    root.style.scrollBehavior = 'auto';
+    function step(now){
+      if (t0 === null) t0 = now;
+      var p = Math.min(1, (now - t0) / ms), e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      window.scrollTo(0, y0 + dy * e);
+      if (p < 1) requestAnimationFrame(step); else { root.style.scrollBehavior = prev; if (done) done(); }
+    }
+    requestAnimationFrame(step);
+  }
+
+  navButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      centerSection(document.getElementById(btn.dataset.target), true);
+    });
+  });
+
+  var iconLinks = Array.prototype.slice.call(document.querySelectorAll('#icon-nav a, #social-nav a'));
+
+  // Theme (dark/light) is computed from each color's actual brightness,
+  // not a hardcoded "bookends are dark" assumption — so it stays correct
+  // even as section colors get tuned (e.g. a case study going darker).
+  function isDarkColor(rgbString){
+    var m = rgbString.match(/\d+/g).map(Number);
+    var luminance = 0.299 * m[0] + 0.587 * m[1] + 0.114 * m[2];
+    return luminance < 140;
+  }
+
+  // Nav fills are ~10% lighter than the true background color, so they
+  // stand out slightly instead of camouflaging perfectly invisible.
+  // The halo (which softens the grid line) still uses the true color,
+  // since ITS job is to blend in, not stand out.
+  // Lighten a color by `amount` of HSL lightness (0.08 = 8 percentage points), keeping its hue and saturation.
+  function lighten(rgbString, amount){
+    var m = rgbString.match(/\d+/g).map(Number);
+    var r = m[0] / 255, g = m[1] / 255, b = m[2] / 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min, l = (max + min) / 2, h = 0, s = 0;
+    if (d){
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+      else if (max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h /= 6;
+    }
+    l = Math.min(1, l + amount);
+    function chan(p, q, t){
+      if (t < 0) t += 1; if (t > 1) t -= 1;
+      if (t < 1/6) return p + (q - p) * 6 * t;
+      if (t < 1/2) return q;
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    }
+    var R = l, G = l, B = l;
+    if (s){
+      var q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+      R = chan(p, q, h + 1/3); G = chan(p, q, h); B = chan(p, q, h - 1/3);
+    }
+    return 'rgb(' + Math.round(R * 255) + ',' + Math.round(G * 255) + ',' + Math.round(B * 255) + ')';
+  }
+
+  function setActive(id){
+    var sec = document.getElementById(id), th = sec && sec.querySelector('.thread'), bd = sec && sec.querySelector('.badge-link');   // tooltips take the colour of the case in view
+    var tip = (sec && sec.getAttribute('data-tip-accent') === 'badge' && bd) ? bd.style.getPropertyValue('--badge-color').trim() : (th ? getComputedStyle(th).color : '#ADD944');
+    document.documentElement.style.setProperty('--tip-accent', tip);
+    var color = sectionColors[id];
+    var fillColor = lighten(color, 0.08);
+    bgLayer.style.backgroundColor = color;
+    document.documentElement.dataset.theme = isDarkColor(color) ? 'dark' : 'light';
+    var activeIndex = navButtons.findIndex(function(btn){ return btn.dataset.target === id; });
+    navButtons.forEach(function(btn, i){
+      var isActive = i === activeIndex;
+      btn.style.backgroundColor = isActive ? '' : fillColor;
+      btn.style.setProperty('--halo-color', color);
+      btn.classList.toggle('active', isActive);
+      btn.dataset.dir = i < activeIndex ? 'up' : (i > activeIndex ? 'down' : 'current');
+    });
+    var isDesktop = window.innerWidth > 720;
+    iconLinks.forEach(function(a){
+      if (a.classList.contains('active')) return;
+      a.style.backgroundColor = fillColor;
+      a.style.setProperty('--halo-color', isDesktop ? color : 'transparent');
+    });
+  }
+
+  // The active section is whichever one is crossing the middle of the
+  // screen. With the empty runway around each card, that moment falls in
+  // the gap between cards, so the background finishes changing before the
+  // next case study scrolls into view.
+  var observer = null;   // built by watchSections() below, once the cards exist
+
+  // ---- Fade the case-study cards with scroll position ----
+  // Only the card whose section is crossing the middle of the screen is visible.
+  // A card is fully hidden within FADE_HOLD px of the point where the background
+  // changes (that point is a section edge crossing the screen's middle) and fades
+  // in/out over FADE_RAMP px beyond that. So a card fades out BEFORE the background
+  // starts changing, and the next one only fades in AFTER the change has had
+  // FADE_HOLD px of scrolling to finish. That is what lets the runway between
+  // cards be short without two case studies (or the wrong color) ever showing.
+  var leaving = false;   // set when heading into a case study: stops the scroll fade from touching the card
+  // Inside each card the parts arrive one after another, top to bottom (the animation is .case-card.is-in in the
+  // CSS: timed, not tied to scroll speed). A card is "active" once it has started to appear and goes inactive when
+  // it is gone, so the sequence replays every time you come back to it. On arrival from a case-study page
+  // (firstPass) the card is already in place, so nothing replays.
+  var firstPass = true;
+  var FADE_HOLD = 100;
+  var FADE_RAMP = 180;
+  var fadeCards = Array.prototype.map.call(document.querySelectorAll('.case'), function(sec){
+    var card = sec.querySelector('.case-card');
+    Array.prototype.forEach.call(card.children, function(el, k){ el.style.setProperty('--i', k); });   // order of arrival: badge, break, title, subhead, break, text, button
+    return { sec: sec, card: card, active: false };
+  });
+  function updateFades(){
+    if (leaving) return;
+    var mid = anchorY();   // a section's middle sits here when its card is on the line (it used to be the middle of the screen)
+    fadeCards.forEach(function(f){
+      var r = f.sec.getBoundingClientRect();
+      var edge = Math.min(mid - r.top, r.bottom - mid);   // distance from the middle line to the nearest section edge (negative = outside)
+      var t = Math.max(0, Math.min(1, (edge - FADE_HOLD) / FADE_RAMP));
+      t = t * t * (3 - 2 * t);                            // smoothstep
+      f.card.style.opacity = t;
+      f.card.style.pointerEvents = t < 0.05 ? 'none' : '';
+      if (!f.active && edge > FADE_HOLD + 30){
+        f.active = true;
+        if (!firstPass) f.card.classList.add('is-in');
+      } else if (f.active && edge < FADE_HOLD + 6){
+        f.active = false;
+        f.card.classList.remove('is-in');
+      }
+    });
+    firstPass = false;
+  }
+  var fadeQueued = false;
+  function queueFades(){
+    if (fadeQueued) return;
+    fadeQueued = true;
+    requestAnimationFrame(function(){ fadeQueued = false; updateFades(); });
+  }
+  window.addEventListener('scroll', queueFades, { passive: true });
+  window.addEventListener('resize', queueFades);
+  window.addEventListener('load', updateFades);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateFades);
+
+  // The active section is whichever one is crossing the anchor line (see anchorY): the line a case card's middle sits
+  // on when the card is on its canonical position. That moment falls in the gap between cards, exactly as it used to
+  // at the middle of the screen, so the background finishes changing before the next card fades in.
+  function watchSections(){
+    if (observer) observer.disconnect();
+    var vh = window.innerHeight, top = Math.max(0, Math.min(vh - 2, Math.round(anchorY())));
+    observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting) setActive(entry.target.id);
+      });
+    }, { rootMargin: '-' + top + 'px 0px -' + (vh - top - 1) + 'px 0px', threshold: 0 });
+    Object.keys(sectionColors).forEach(function(id){
+      observer.observe(document.getElementById(id));
+    });
+  }
+  watchSections();
+  window.addEventListener('resize', watchSections);
+  window.addEventListener('load', watchSections);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(watchSections);
+
+  // In-page anchors (e.g. the intro's "See the work") and #hash arrivals
+  // (the "Back to home" buttons) land with the card centered.
+  Array.prototype.forEach.call(document.querySelectorAll('a[href^="#"]'), function(a){
+    a.addEventListener('click', function(e){
+      var id = a.getAttribute('href').slice(1), el = document.getElementById(id);
+      if (el && sectionColors[id]){
+        e.preventDefault();
+        centerSection(el, true);
+      }
+    });
+  });
+  // "Back to home" links use #to-<case>. That deliberately does NOT match an
+  // element id, so the browser doesn't run its own jump-to-fragment scroll
+  // (which, with smooth scrolling on, animates the section's top edge to the
+  // top of the screen and fights the centering below). Plain #<case> works too.
+  function hashTarget(){
+    var h = location.hash.slice(1);
+    if (h.indexOf('to-') === 0) h = h.slice(3);
+    return sectionColors[h] ? h : null;
+  }
+  function goToHash(){
+    var id = hashTarget();
+    if (id) centerSection(document.getElementById(id), false);
+  }
+  // Arriving from a case study: center that card right away and start with ITS
+  // color and nav state, instead of fading in from the intro.
+  var startId = hashTarget() || 'intro';
+  window.addEventListener('load', goToHash);
+  window.addEventListener('hashchange', goToHash);
+  if (document.fonts && document.fonts.ready && location.hash){
+    document.fonts.ready.then(goToHash);
+  }
+  // Insurance for plain #<case> links: if the browser's own fragment scroll
+  // lands after ours, re-center (unless the visitor has already started scrolling).
+  var userMoved = false;
+  ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function(ev){
+    window.addEventListener(ev, function(){ userMoved = true; }, { passive: true, once: true });
+  });
+  if (hashTarget()){
+    [350, 900].forEach(function(ms){ setTimeout(function(){ if (!userMoved) goToHash(); }, ms); });
+  }
+
+  // Heading to a case study: the five middle nav buttons fade away and the
+  // outer two tilt into previous/next arrows, then we navigate. (Skipped on
+  // phones, where the nav is a row of dots, and for reduced motion.)
+  var progressNav = document.getElementById('progress-nav');
+  Array.prototype.forEach.call(document.querySelectorAll('.case a[href$=".html"]'), function(a){
+    a.addEventListener('click', function(e){
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      // Tell the case-study page the card is on its way, so it carries on from exactly here instead of starting over.
+      try { sessionStorage.setItem('cardFlight', JSON.stringify({ id: a.getAttribute('href').replace(/\.html.*$/, ''), t: Date.now() })); } catch (err) {}
+      // We can't choose where the card is when it is clicked, but we can choose what happens next: settle it onto the
+      // canonical line (a few pixels, eased) before the page changes, so the case study's card is exactly where it is.
+      var cardNow = a.closest('.case-card');
+      var dy = cardNow ? cardNow.getBoundingClientRect().top - cardTopLine() : 0;
+      var needGlide = Math.abs(dy) > 0.5;
+      if (reduceMotion){ if (needGlide) scrollToY(window.scrollY + dy, false); return; }
+      if (window.innerWidth <= 720){
+        if (!needGlide) return;                       // already on the line: a plain navigation
+        e.preventDefault();
+        leaving = true;
+        glideBy(dy, 190, function(){ window.location.href = a.href; });   // half the original 380ms
+        return;
+      }
+      e.preventDefault();
+      progressNav.classList.add('collapsed');
+      leaving = true;   // the card stays exactly as it is; the next page picks it up and extends it downwards
+      if (needGlide) glideBy(dy, 225);
+      setTimeout(function(){ window.location.href = a.href; }, 475);   // half the original 950ms: the click answers twice as fast
+    });
+  });
+  window.addEventListener('pageshow', function(ev){
+    if (ev.persisted){
+      progressNav.classList.remove('collapsed');
+      leaving = false;
+      updateFades();
+    }
+  });
+
+  setActive(startId);
+  if (startId !== 'intro') goToHash();
+  updateFades();
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){ document.documentElement.classList.remove('no-anim'); });
+  });
+})();
+</script>
+
+<script src="site.js?v=1.0.8"></script>
+</body>
+</html>

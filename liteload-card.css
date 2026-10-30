@@ -8,7 +8,7 @@
 @font-face{ font-family:'LL Machina'; font-weight:700; src: local('PP Neue Machina Inktrap Ultrabold'), local('PPNeueMachina-InktrapUltrabold'), local('PP Neue Machina Inktrap Bold'), local('PPNeueMachina-InktrapBold'); }
 .ll-card .role{ font-family:'LL Machina', 'IBM Plex Sans', sans-serif; font-weight:400 !important; letter-spacing:0; font-synthesis:none; }   /* the same weight on both pages, never faked */
 
-.ll-card{ position:relative; }   /* so the card is the reference for every measurement in site.js */
+.ll-card{ position:relative; }
 .ll-card .ll-tablet{ margin:0 !important; }
 .ll-card .case-text::before, .ll-card .case-text::after{ display:none !important; }   /* this card sets its own height: no equal-height rulers */
 .ll-card .ll-tablet img{ display:block; width:100%; height:auto; transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), filter 0.45s cubic-bezier(0.25, 1, 0.5, 1); }

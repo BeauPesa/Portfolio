@@ -1,4 +1,4 @@
-/* Beau.1 · v1.0.4 */
+/* Beau.1 · v1.0.8 */
 /* ===================================================================
    SHARED STYLESHEET
    Used by every page except the homepage (which is self-contained
@@ -554,7 +554,7 @@ h1,h2,h3{
   top:0;
   bottom: calc(-1 * var(--case-extend));
   background: inherit;
-  box-shadow: 12px 12px 30px -8px rgba(0,0,0,0.35); /* identical to the homepage card's shadow, so nothing changes at the handoff */
+  box-shadow: 12px 12px 22px -6px rgba(0,0,0,0.35); /* identical to the homepage card's shadow, so nothing changes at the handoff */
   pointer-events:none;
 }
 body.has-case-nav::after{ content:''; display:block; height: var(--case-extend); } /* room to scroll down the card */
@@ -709,7 +709,7 @@ body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-to
   padding: 3rem 3rem 3rem calc(0.5 * var(--grid-gap));
   background: var(--paper);
   color: #1B1C1E;
-  box-shadow: 12px 12px 30px -8px rgba(0,0,0,0.6);   /* the site's one card shadow, 45 degrees down-right (darker here for the dark pages) */
+  box-shadow: 12px 12px 22px -6px rgba(0,0,0,0.6);   /* the site's one card shadow, 45 degrees down-right (darker here for the dark pages) */
 }
 .page-card .eyebrow{ color:#4D4D4D; }
 .page-card .thread{ width: var(--thread-w); height:6px; margin:1.5rem 0 1.75rem; display:block; }
@@ -751,7 +751,7 @@ body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-to
   display:block;
   width: calc(4 * var(--grid-gap)); /* pinstripe 2 -> 6 */
   background:#fff;
-  box-shadow: 12px 12px 30px -8px rgba(0,0,0,0.6);   /* the site's one card shadow, 45 degrees down-right (darker here for the dark pages) */
+  box-shadow: 12px 12px 22px -6px rgba(0,0,0,0.6);   /* the site's one card shadow, 45 degrees down-right (darker here for the dark pages) */
   text-decoration:none;
   transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
 }
@@ -915,7 +915,7 @@ body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-to
     overflow-y:auto;
     overscroll-behavior:contain;
     scrollbar-width:none;
-    box-shadow: 12px 12px 30px -8px rgba(0,0,0,0.35) !important;
+    box-shadow: 12px 12px 22px -6px rgba(0,0,0,0.35) !important;
   }
   html.frame .case-page-card::before{ box-shadow:none; }   /* as a frame the card casts the one shadow itself; the sheet adding a second made it darker than the homepage card's */
   html.frame .case-page-card::-webkit-scrollbar{ display:none; }
@@ -1048,7 +1048,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 }
 
 /* ---------- Version ---------- (read by siteVersion() in site.js) */
-:root{ --site-version: "1.0.4"; }
+:root{ --site-version: "1.0.8"; }
 
 /* ---------- Gallery: a caption on hover, and the photo viewer ----------
    A tile with data-caption shows its title over the picture on hover or focus (touch screens have no hover: they get the
@@ -1359,3 +1359,10 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 .pill-morph{ overflow:hidden; transition: width 0.5s var(--ease); }
 .pill-morph > *{ opacity:0; transition: opacity 0.35s var(--ease) 0.2s; }
 .pill-morph.pill-in > *{ opacity:1; }
+
+/* ---------- No. badges: a Neue Machina "No.", a Playfair numeral ----------
+   "No." and its three dashes are set in Neue Machina Inktrap (from the copy installed on this computer until the web
+   font files are added; Playfair stands in meanwhile) and sit 5px further left of the numeral, which stays Playfair. */
+@font-face{ font-family:'BP Machina'; font-weight:400; src: local('PP Neue Machina Inktrap Regular'), local('PPNeueMachina-InktrapRegular'), local('PP Neue Machina Inktrap'), local('Neue Machina Inktrap'); }
+@font-face{ font-family:'BP Machina'; font-weight:700; src: local('PP Neue Machina Inktrap Ultrabold'), local('PPNeueMachina-InktrapUltrabold'), local('PP Neue Machina Inktrap Bold'), local('PPNeueMachina-InktrapBold'); }
+.badge-link .no{ font-family:'BP Machina', 'Playfair Display', serif; font-weight:700; font-synthesis:none; left:-5px; }

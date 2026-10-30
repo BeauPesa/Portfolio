@@ -1,0 +1,1368 @@
+/* Beau.1 · v1.0.8 */
+/* ===================================================================
+   SHARED STYLESHEET
+   Used by every page except the homepage (which is self-contained
+   since its grid-lines/nav colors are scroll-driven and JS-managed).
+   These are simple static pages: dark background, brand-color accent, light
+   text, matching the homepage's intro/outro "bookend" treatment.
+   =================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=Playfair+Display:wght@700&display=swap');
+
+:root{
+  --ink: #101114;
+  --text-light: #F2F1EC;
+  --paper: #F2F1EC;
+  --nav-fill: #22242B; /* nav button fill on dark pages: ink lightened 8% */
+  --accent-personal: #ADD944;
+  --nav-fg: #ffffff;
+  --nav-fg-soft: rgba(255,255,255,0.55);
+  --grid-line-fg: rgba(255,255,255,0.15);
+  --grid-inset: 4vw;
+  --grid-gap: calc((100vw - 2 * var(--grid-inset)) / 6); /* spacing between the 7 lines */
+  --mobile-grid-gap: calc((100vw - 2 * var(--grid-inset)) / 4);
+  --thread-w: calc(2 * var(--grid-gap)); /* the Morse breaks run from pinstripe 2 to pinstripe 4 */
+  --ease: cubic-bezier(.22,.61,.36,1);
+
+  /* Equal-height cards: hidden copies of the two LONGEST case blurbs (same as in index.html).
+     The text block of every card is as tall as the tallest of {its own text, these two} at
+     the current width, so every card matches. If you rewrite a blurb to be longer than these,
+     paste it here (and into index.html) so the cards stay equal. */
+  --ruler-a: "Warehouse loading sheets are generated straight out of legacy systems — dense, cluttered, hard to scan under fatigue. LiteLoad parses them into a clean, task-first interface built for the floor, not the back office.";
+  --ruler-b: "Before software, the same instinct: a thesis proposing constructed wetlands to filter urban runoff before it reached a contaminated creek in eastern São Paulo — systems thinking applied to water instead of software.";
+}
+
+*{ box-sizing: border-box; }
+html{ scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior: auto; }
+  *{ animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background: var(--ink);
+  color: var(--text-light);
+  font-family:'IBM Plex Sans', sans-serif;
+  position:relative;
+  overflow-x:hidden;
+}
+
+h1,h2,h3{
+  font-family:'Big Shoulders Display', sans-serif;
+  font-weight:800;
+  letter-spacing:0.01em;
+  line-height:0.95;
+  margin:0;
+}
+
+/* ---------- Decorative grid lines (static — these pages never
+   change background color, so no JS is needed to drive them) ---------- */
+#grid-lines-global{
+  position:absolute;
+  top:0; left:0;
+  width:100%;
+  height:100%;
+  display:flex;
+  justify-content:space-between;
+  padding: 0 var(--grid-inset);
+  pointer-events:none;
+  z-index:0;
+  /* Fade lines in a patch behind the text column — full pages have
+     no opaque card to block them, so without this the lines would
+     run distractingly through the copy. Harmless on the case-study
+     pages too, since their opaque card already blocks lines there. */
+  mask-image: radial-gradient(ellipse 34vw 46vh at 27% 50%, transparent 0%, transparent 45%, black 82%, black 100%);
+  -webkit-mask-image: radial-gradient(ellipse 34vw 46vh at 27% 50%, transparent 0%, transparent 45%, black 82%, black 100%);
+}
+#grid-lines-global span{
+  width:0;
+  border-left:1px dashed var(--grid-line-fg);
+  height:100%;
+}
+
+/* ---------- Page hero content (matches the homepage's bookend style) ---------- */
+.page-hero{
+  position:relative;
+  z-index:1;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  padding: 6rem 8vw 6rem calc(var(--grid-inset) + calc((100vw - 2 * var(--grid-inset)) / 6));
+}
+.page-hero .eyebrow{
+  font-size:0.95rem;
+  color: var(--accent-personal);
+  margin:0 0 0.75rem;
+  font-weight:600;
+}
+.page-hero h1{
+  font-size: clamp(3rem, 8vw, 6rem);
+  margin-bottom:1.25rem;
+}
+.page-hero p{
+  max-width:34ch;
+  font-size:1.05rem;
+  line-height:1.65;
+  color:#D4D4CE;
+  margin: 0 0 1.25rem;
+}
+.page-hero .cta{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width: calc(2 * var(--grid-gap)); /* pinstripe 2 -> 4 */
+  min-width:max-content;
+  white-space:nowrap;
+  height: var(--u, 30px);   /* a nav button's height: 30px, 26px on phones */
+  margin-top:1.5rem;
+  padding:0 0.5rem;
+  border-radius:999px;
+  border:1px solid var(--accent-personal);
+  background: var(--ink);
+  color: var(--accent-personal);
+  text-decoration:none;
+  font-weight:600;
+  font-size:0.95rem;
+  transition: background 0.25s var(--ease), color 0.25s var(--ease);
+}
+.page-hero .cta:hover,
+.page-hero .cta:focus-visible{
+  background: var(--accent-personal);
+  color: var(--ink);
+}
+
+@media (max-width: 720px){
+  .page-hero{
+    padding-top: 7rem;
+    padding-bottom: 5.5rem;
+    padding-left: calc(var(--grid-inset) + var(--mobile-grid-gap));
+    padding-right: 1.5rem;
+  }
+  .page-hero p{ max-width:none; }
+  .page-hero .cta{ width:min(calc(2 * var(--mobile-grid-gap)), 100%); padding:0 0.75rem; } /* pinstripe 2 -> 4 */
+}
+
+/* ---------- Shared tooltip (rounded bubble, arrow pointing at its icon) ---------- */
+.tooltip{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  white-space:nowrap;
+  font-size:0.78rem;
+  font-family:'IBM Plex Sans', sans-serif;
+  color:#fff;
+  background:rgba(16,17,20,0.85);
+  padding:0.25rem 0.6rem;
+  border-radius:5px;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity 0.2s var(--ease);
+}
+.tip-left{ left:40px; }
+.tip-left::after{
+  content:'';
+  position:absolute;
+  right:100%;
+  top:50%;
+  transform:translateY(-50%);
+  width:0; height:0;
+  border-style:solid;
+  border-width:6px 6px 6px 0;
+  border-color: transparent rgba(16,17,20,0.85) transparent transparent;
+}
+
+/* ---------- Site icon rail ---------- */
+#social-nav{
+  position:fixed;
+  left: calc(var(--grid-inset) - 15px);
+  bottom: 2.5rem;
+  z-index:10;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:1.1rem;
+}
+#icon-nav{
+  position:fixed;
+  left: calc(var(--grid-inset) - 15px);
+  top: 2.5rem;
+  z-index:10;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:1.1rem;
+}
+#icon-nav a,
+#social-nav a{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background: var(--nav-fill);
+  border: 1.5px solid var(--nav-fg-soft);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color: var(--nav-fg);
+  text-decoration:none;
+  position:relative;
+  transition: transform 0.25s var(--ease), background-color 0.35s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease);
+}
+#icon-nav a::before,
+#social-nav a::before{
+  content:'';
+  position:absolute;
+  inset:-3px;
+  border-radius:50%;
+  background: transparent;
+  filter: blur(3px);
+  z-index:-1;
+  pointer-events:none;
+}
+#icon-nav a.active,
+#social-nav a.active{
+  background: #fff;
+  border-color: transparent;
+  color: var(--ink);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+#icon-nav a:hover .tooltip,
+#social-nav a:hover .tooltip,
+#icon-nav a:focus-visible .tooltip,
+#social-nav a:focus-visible .tooltip{
+  opacity:1;
+}
+#icon-nav a svg,
+#social-nav a svg{
+  width:15px;
+  height:15px;
+}
+#icon-nav a:hover,
+#social-nav a:hover,
+#icon-nav a:focus-visible,
+#social-nav a:focus-visible{
+  transform: scale(1.12);
+}
+#icon-nav a:focus-visible,
+#social-nav a:focus-visible{
+  outline:2px solid #fff;
+  outline-offset:3px;
+}
+
+@media (max-width: 720px){
+  #icon-nav{
+    position:fixed;
+    left:50%;
+    top:0.5rem;
+    transform:translateX(-50%);
+    flex-direction:row;
+    gap:0.6rem;
+    padding:0.4rem 0.6rem;
+    border-radius:999px;
+  }
+  #social-nav{ position:fixed; left: calc(var(--grid-inset) + 0.25 * var(--mobile-grid-gap) - 13px); top:50%; bottom:auto; transform: translateY(-50%); flex-direction:column; gap:0.65rem; padding:0; border-radius:0; } /* centered in the column between the first pinstripe and the card's left edge, and on the middle of the screen */
+  #icon-nav a,
+  #social-nav a{ width:26px; height:26px; background:var(--nav-fill); }
+  #social-nav a::before{ display:none; }
+  #social-nav a svg{ width:13px; height:13px; }
+  #social-nav a .tooltip{ display:none; }
+  #icon-nav a::before{ display:none; }
+  #icon-nav a.active{ background:#fff; color:var(--ink); border-color:transparent; }
+  #icon-nav a svg{ width:13px; height:13px; }
+  #icon-nav a .tooltip{ display:none; }
+}
+
+
+/* ---------- Mobile: fewer lines, matches the homepage's own reduction ---------- */
+@media (max-width: 720px){
+  #grid-lines-global span:nth-child(2),
+  #grid-lines-global span:nth-child(6){
+    display:none;
+  }
+}
+
+/* ---------- Circular numeral badge — doubles as the link into that
+   section. Diameter is exactly 2x the nav buttons (30px -> 60px).
+   Serif numeral contrasts against Big Shoulders Display headlines. ---------- */
+.badge-link{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Playfair Display', serif;
+  font-weight:700;
+  font-size:1.5rem;
+  background: var(--badge-color);
+  color: var(--badge-text, #fff);
+  border: 1.5px solid transparent;
+  text-decoration:none;
+  flex-shrink:0;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), background 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease), border-width 0.25s var(--ease);
+}
+.badge-link:hover,
+.badge-link:focus-visible,
+.card:hover .badge-link,
+.card:focus-visible .badge-link{
+  background: var(--badge-hover-bg, var(--badge-text, #fff));
+  color: var(--badge-hover-text, var(--badge-color));
+  border-width: 6px;
+  border-color: var(--badge-color-30);
+  transform: scale(1.08);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+}
+.badge-link .badge-inner{
+  display:flex;
+  align-items:flex-start;
+}
+.badge-link .no{
+  font-size:0.5em;
+  position:relative;
+  margin-right:0.05em;
+}
+.badge-link .no-underline{
+  position:absolute;
+  left:0; right:0;
+  bottom:-0.3em;
+  width:100%;
+  height:4px;
+  overflow:visible;
+}
+.badge-link .num{
+  font-size:calc(1em + 2pt);
+  font-variant-numeric: lining-nums;
+}
+
+/* ---------- Creative Endeavors: category tiles (art page) ----------
+   Each tile is ONE link. Hover inverts it (ink fill, light text) and the badge
+   inside inverts with it, same language as the homepage buttons and badges. */
+.card-grid{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  width: calc(4 * var(--grid-gap)); /* pinstripe 2 -> 6 */
+  margin-top: 2.5rem;
+  position:relative;
+  z-index:1;
+}
+.page-card .card{
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+  padding:1.75rem;
+  text-decoration:none;
+  color: var(--ink);
+  background:#E9E8E2;
+  border:1px solid rgba(16,17,20,0.1);
+  cursor:pointer;
+  transition: background 0.3s var(--ease), color 0.3s var(--ease), transform 0.3s var(--ease), box-shadow 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+.page-card .card h3{ font-size:1.4rem; margin:0; }
+.page-hero .page-card .card p{ font-size:0.92rem; line-height:1.5; color:#55564F; margin:0; flex-grow:1; max-width:none; transition: color 0.3s var(--ease); }
+.page-card .card:hover,
+.page-card .card:focus-visible{
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+  transform: translateY(-4px);
+  box-shadow: 0 18px 30px -14px rgba(16,17,20,0.55);
+}
+.page-hero .page-card .card:hover p,
+.page-hero .page-card .card:focus-visible p{ color:#C9C9C3; }
+.page-card .card:focus-visible{ outline:2px solid var(--accent-personal); outline-offset:3px; }
+
+/* ---------- Gallery grid (Photography, Screen Printing, Sketchbooks) ----------
+   Every tile is one big link (see gallery.js). Placeholders are dashed boxes;
+   a real picture fills the tile. Hover lifts it and frames it in the accent color. */
+.gallery-grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  width: calc(3 * var(--grid-gap)); /* pinstripe 2 -> 5 */
+  margin-top: 2.5rem;
+  position:relative;
+  z-index:1;
+}
+.gallery-grid .tile{
+  position:relative;
+  aspect-ratio: 1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  padding:0.5rem;
+  text-align:center;
+  font-size:0.75rem;
+  text-decoration:none;
+  cursor:pointer;
+  color: rgba(16,17,20,0.5);
+  background: rgba(16,17,20,0.035);
+  border: 1px dashed rgba(16,17,20,0.3);
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), background 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease);
+}
+.gallery-grid .tile:has(img),
+.gallery-grid .tile.has-img{ border-style:solid; border-color:transparent; background:none; }
+.gallery-grid .tile img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  transition: transform 0.5s var(--ease);
+}
+/* accent frame drawn OVER the picture, so it shows on real photos too */
+.gallery-grid .tile::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  border:3px solid transparent;
+  pointer-events:none;
+  transition: border-color 0.25s var(--ease);
+}
+.gallery-grid .tile:hover,
+.gallery-grid .tile:focus-visible{
+  transform: translateY(-4px);
+  box-shadow: 0 16px 28px -14px rgba(16,17,20,0.55);
+  background: rgba(173,217,68,0.18);
+  color: var(--ink);
+}
+.gallery-grid .tile:hover::after,
+.gallery-grid .tile:focus-visible::after{ border-color: var(--accent-personal); }
+.gallery-grid .tile:hover img,
+.gallery-grid .tile:focus-visible img{ transform: scale(1.06); }
+.gallery-grid .tile:focus-visible{ outline:2px solid var(--ink); outline-offset:3px; }
+@media (max-width:720px){
+  .card-grid{ grid-template-columns: 1fr; width:auto; }
+  .gallery-grid{ grid-template-columns: repeat(2, 1fr); width:auto; }
+}
+
+
+/* ---------- Standalone work pages: card, text and back button ----------
+   This card mirrors the homepage card: same structure, spacing and padding, so
+   the two come out the same height (and every case's card matches the others).
+   It runs from the midpoint between pinstripes 1 & 2 to the midpoint between
+   6 & 7. Its left padding is half a column, so the badge, title, dividers, text
+   and button all start exactly on pinstripe 2. */
+.case-page-card{
+  width: calc(5 * var(--grid-gap));
+  flex-shrink:0;
+  margin-left: calc(-0.5 * var(--grid-gap));
+  padding: 3rem 3rem 3rem calc(0.5 * var(--grid-gap));
+  max-width:none;
+}
+.case-page-card .case-index{ margin-bottom:1rem; }
+.case-page-card .thread{ width: var(--thread-w); height:6px; margin:1.5rem 0 1.75rem; display:block; }
+.case-page-card .thread svg{ display:block; width:100%; height:100%; overflow:visible; }
+.case-page-title{ font-size: clamp(2.25rem, 5vw, 3.5rem); margin-bottom:0.5rem; }
+.page-hero .case-page-card p{ font-size:1.02rem; line-height:1.65; max-width:52ch; margin:1em 0; color:#1B1C1E; }
+.page-hero .case-page-card .role{ font-size:1rem; font-weight:500; margin:1em 0 1.5rem; opacity:0.75; }
+.case-text{ display:grid; font-size:1.02rem; margin:1em 0; }
+.page-hero .case-page-card .case-text > p{ grid-area:1 / 1; margin:0; }
+.case-text::before, .case-text::after{
+  grid-area:1 / 1;
+  visibility:hidden;
+  pointer-events:none;
+  line-height:1.65;
+  max-width:52ch;
+}
+.case-text::before{ content: var(--ruler-a); }
+.case-text::after{ content: var(--ruler-b); }
+/* Back button: pinstripe 2 -> 4, inverts on hover like every other button (colors set per page) */
+.case-page-cta{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width: calc(2 * var(--grid-gap));
+  min-width:max-content;
+  white-space:nowrap;
+  height: var(--u, 30px);   /* a nav button's height: 30px, 26px on phones */
+  margin-top:2rem;
+  padding:0 0.5rem;
+  border-radius:999px;
+  border:1px solid var(--cta-rest);
+  color: var(--cta-rest);
+  background: transparent;
+  text-decoration:none;
+  font-weight:600;
+  font-size:0.95rem;
+  transition: background 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease);
+}
+.case-page-cta:hover,
+.case-page-cta:focus-visible{ background: var(--cta-fill); border-color: var(--cta-fill); color: var(--paper); }
+@media (max-width: 720px){
+  .case-page-card{
+    width: calc(3 * var(--mobile-grid-gap));
+    margin-left: calc(-0.5 * var(--mobile-grid-gap));
+    padding: 1.5rem 1.5rem 1.5rem calc(0.5 * var(--mobile-grid-gap));
+  }
+  .page-hero .case-page-card p{ max-width:none; }
+  .case-text::before, .case-text::after{ max-width:none; }
+  /* One title line, always (longest title "Cisco Systems" = 5.46em); and two lines
+     reserved for the role so every page's divider and text sit at the same height. */
+  .case-page-title{ white-space:nowrap; font-size: min(2.25rem, calc((57.5vw - 24px) / 5.6)); }
+  .case-page-role{ min-height: 3.3em; }
+  .case-page-cta{ width:min(calc(2 * var(--mobile-grid-gap)), 100%); padding:0 0.75rem; } /* pinstripe 2 -> 4 */
+}
+
+/* Very narrow phones (320px class): a slightly smaller label so "Back to Endeavors" stays inside the card */
+@media (max-width: 340px){
+  .case-page-cta{ font-size:0.85rem; padding:0 0.5rem; }
+}
+
+/* ---------- Reveal: cards fade in, and every element rises into place ----------
+   All of it is driven by site.js. The page's own <head> script sets the .js class and takes it away again after
+   2.5s if site.js hasn't loaded, so nothing can ever stay hidden. Without JavaScript .js is never set either. */
+.js:not(.flight) .case-page-card,
+.js:not(.flight) .page-card{ opacity:0; }
+.js .case-page-card.is-in,
+.js .page-card.is-in{ opacity:1; animation: caseCardIn 0.6s var(--ease) backwards; }
+@keyframes caseCardIn{ from{ opacity:0; } }
+
+/* Hidden until revealed: everything directly inside a page's container (card, or the plain page's text), the
+   tiles inside a grid, and anything marked data-reveal. .rv-hide is the same thing, added by site.js to what is
+   still below the fold when a page opens in "flight" mode (see below). */
+.js:not(.flight) .page-hero > div > *:not(.is-shown):not(.gallery-grid):not(.card-grid),
+.js:not(.flight) .gallery-grid > *:not(.is-shown),
+.js:not(.flight) .card-grid > *:not(.is-shown),
+.js:not(.flight) [data-reveal]:not(.is-shown),
+.rv-hide{ opacity:0; }
+/* Each element rises into place (the same motion as the homepage cards). */
+.is-shown{
+  animation: partIn 1.2s cubic-bezier(0.25, 1, 0.5, 1) backwards;
+  animation-delay: calc(var(--b, 0s) + var(--d, 0) * 0.14s);
+}
+.is-shown.rv-static{ animation:none; }
+@keyframes partIn{ from{ opacity:0; translate: 0 56px; } }
+
+/* ---------- Case-study pages: the card is one long sheet ----------
+   The card itself is the first screen, exactly as on the homepage. Behind it runs a "sheet" (same paper, same
+   shadow) that continues --case-extend below it, off the bottom of the screen: this is where the case study
+   content will go. Coming from the homepage the sheet unrolls from the card's bottom edge; going back it rolls
+   up to the homepage card's size. The card never disappears. */
+:root{ --case-extend: 140vh; --card-top: calc(2.5rem + 30px); }   /* --card-top: the line a case study card's top sits on: the bottom of the Home nav circle */
+.case-page-card{ position:relative; isolation:isolate; box-shadow:none !important; }
+.case-page-card::before{
+  content:'';
+  position:absolute;
+  z-index:-1;
+  left:0;
+  right:0;
+  top:0;
+  bottom: calc(-1 * var(--case-extend));
+  background: inherit;
+  box-shadow: 12px 12px 22px -6px rgba(0,0,0,0.35); /* identical to the homepage card's shadow, so nothing changes at the handoff */
+  pointer-events:none;
+}
+body.has-case-nav::after{ content:''; display:block; height: var(--case-extend); } /* room to scroll down the card */
+/* The card's top edge sits on the same line as on the homepage (not centered), so it never jumps between the two pages. */
+body.has-case-nav .page-hero{ align-items:flex-start; padding-top: var(--card-top); padding-bottom: var(--card-top); min-height:0 !important; }
+/* arriving from the homepage: the sheet starts rolled up (the homepage card's size), then unrolls */
+.flight .case-page-card::before{ bottom:0; }
+.case-page-card.is-in::before{ animation: caseUnroll 0.84s linear 0.2s both; }
+.case-page-card.is-unrolling::before{ animation: caseUnroll 0.84s linear 0.05s both; }
+.case-page-card.is-rolling-up::before{ animation: caseRollUp 1.1s linear both; }
+/* --roll-stop is how far the sheet reaches when its edge leaves the bottom of the screen (set by site.js) */
+@keyframes caseUnroll{
+  0%{ bottom:0; animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1); }
+  60%{ bottom: calc(-1 * var(--roll-stop, 30vh)); animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
+  100%{ bottom: calc(-1 * var(--case-extend)); }
+}
+@keyframes caseRollUp{
+  0%{ bottom: calc(-1 * var(--case-extend)); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+  4%{ bottom: calc(-1 * var(--roll-stop, 30vh)); animation-timing-function: cubic-bezier(0.22, 0.7, 0.25, 1); }
+  100%{ bottom:0; }
+}
+@media (prefers-reduced-motion: reduce){
+  .case-page-card.is-in::before,
+  .case-page-card.is-unrolling::before{ animation:none; }
+  .is-shown{ animation-name: partFade; animation-duration: 0.4s; animation-delay: 0s; }
+  @keyframes partFade{ from{ opacity:0; } }
+}
+
+/* ---------- Case-study carousel nav (right-hand pinstripe) ----------
+   The same seven-slot column as the homepage's progress dots. At rest it is
+   "collapsed": the five middle dots are invisible and the outer two have slid
+   together and turned 90deg: < (previous) above > (next). Heading back home
+   removes .collapsed (see the script on each page), which plays the homepage
+   animation in reverse: the pair slides apart and turns back into up/down
+   chevrons while the five dots fade in. The slide uses the separate
+   `translate` property so the hover `scale` doesn't multiply it. */
+.tip-right{ right:40px; }
+.tip-right::after{
+  content:'';
+  position:absolute;
+  left:100%;
+  top:50%;
+  transform:translateY(-50%);
+  width:0; height:0;
+  border-style:solid;
+  border-width:6px 0 6px 6px;
+  border-color: transparent transparent transparent rgba(16,17,20,0.85);
+}
+#case-nav{
+  --step: calc(30px + 1.1rem);
+  position:fixed;
+  right: calc(var(--grid-inset) - 15px);
+  top:50%;
+  transform: translateY(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:1.1rem;
+  z-index:10;
+}
+#case-nav a,
+#case-nav .case-dot{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  border:1.5px solid var(--nav-fg-soft);
+  background: var(--nav-fill);
+  color: var(--nav-fg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  text-decoration:none;
+}
+#case-nav a{
+  transition: translate 0.8s var(--ease), scale 0.25s var(--ease), background-color 0.35s var(--ease), border-color 0.25s var(--ease);
+}
+#case-nav .case-dot{
+  pointer-events:none;
+  transition: opacity 0.35s var(--ease) 0.3s, transform 0.5s var(--ease) 0.3s, background-color 0.35s var(--ease), border-color 0.25s var(--ease);
+}
+#case-nav svg{
+  position:absolute;
+  inset:0;
+  margin:auto;
+  width:13px;
+  height:13px;
+  transition: transform 0.8s var(--ease), opacity 0.4s var(--ease);
+}
+/* Expanded (homepage look): chevrons point away from the current case */
+#case-nav .case-prev svg.chevron-icon,
+#case-nav .case-dot[data-dir="up"] svg.chevron-icon{ transform: rotate(0deg); opacity:0.85; }
+#case-nav .case-next svg.chevron-icon,
+#case-nav .case-dot[data-dir="down"] svg.chevron-icon{ transform: rotate(180deg); opacity:0.85; }
+#case-nav .case-dot[data-dir="current"] svg.chevron-icon{ opacity:0; transform: rotate(90deg); }
+#case-nav svg.eye-icon{ opacity:0; color: var(--ink); }
+#case-nav .case-dot.active svg.eye-icon{ opacity:1; }
+#case-nav .case-dot.active{
+  background: rgb(255,255,255);
+  border-color: transparent;
+  color: var(--ink);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  transform: scale(1.15);
+}
+#case-nav a:hover,
+#case-nav a:focus-visible{ scale:1.12; }
+#case-nav a:focus-visible{ outline:2px solid #fff; outline-offset:3px; }
+#case-nav a:hover .tooltip,
+#case-nav a:focus-visible .tooltip{ opacity:1; }
+/* Collapsed (the resting state): same pose the homepage animation ends in */
+#case-nav.collapsed .case-dot{ opacity:0; transform: scale(0.4); transition-delay: 0s, 0s, 0s, 0s; }
+#case-nav.collapsed .case-prev{ translate: 0 calc(2.5 * var(--step)); }
+#case-nav.collapsed .case-next{ translate: 0 calc(-2.5 * var(--step)); }
+#case-nav.collapsed .case-prev svg.chevron-icon{ transform: rotate(-90deg); opacity:1; }
+#case-nav.collapsed .case-next svg.chevron-icon{ transform: rotate(90deg); opacity:1; }
+#case-nav:not(.collapsed) .tooltip{ opacity:0 !important; }
+
+@media (max-width: 720px){
+  /* Phones: same convention as the homepage. Nav pill at the bottom, socials above it. */
+  #case-nav{
+    top:auto;
+    left:0;
+    right:0;
+    bottom:0.9rem;
+    margin:0 auto;
+    width:fit-content;
+    transform:none;
+    flex-direction:row;
+    gap:0.65rem;
+    background: rgba(16,17,20,0.35);
+    padding:0.4rem 0.6rem;
+    border-radius:999px;
+  }
+  #case-nav .case-dot{ display:none; }
+  #case-nav a{ width:26px; height:26px; }
+  #case-nav svg{ width:12px; height:12px; }
+  #case-nav a .tooltip{ display:none; }
+  #case-nav.collapsed .case-prev,
+  #case-nav.collapsed .case-next{ translate:none; }
+}
+
+
+/* ---------- Page card (Creative Endeavors and its sub-pages) ----------
+   The same card as the homepage and case-study pages: paper-colored, from the
+   midpoint between pinstripes 1 & 2 to the midpoint between 6 & 7, with everything
+   inside starting exactly on pinstripe 2. It is opaque, so pinstripes stop at its
+   edges and never run through the tiles. */
+.page-card{
+  width: calc(5 * var(--grid-gap));
+  flex-shrink:0;
+  margin-left: calc(-0.5 * var(--grid-gap));
+  padding: 3rem 3rem 3rem calc(0.5 * var(--grid-gap));
+  background: var(--paper);
+  color: #1B1C1E;
+  box-shadow: 12px 12px 22px -6px rgba(0,0,0,0.6);   /* the site's one card shadow, 45 degrees down-right (darker here for the dark pages) */
+}
+.page-card .eyebrow{ color:#4D4D4D; }
+.page-card .thread{ width: var(--thread-w); height:6px; margin:1.5rem 0 1.75rem; display:block; }
+.page-card .thread svg{ display:block; width:100%; height:100%; overflow:visible; }
+.page-card h1{ color: var(--ink); }
+.page-hero .page-card p{ color:#1B1C1E; max-width:52ch; }
+/* the card hides the pinstripes where it sits, so the fade-out patch isn't needed */
+.has-page-card #grid-lines-global{ mask-image:none; -webkit-mask-image:none; }
+@media (max-width: 720px){
+  .page-card{
+    width: calc(3 * var(--mobile-grid-gap));
+    margin-left: calc(-0.5 * var(--mobile-grid-gap));
+    padding: 1.5rem 1.5rem 1.5rem calc(0.5 * var(--mobile-grid-gap));
+  }
+  /* Headings track the text column so the longest word ("Photography.", 5.02em) never overflows */
+  .page-card h1{ font-size: min(clamp(3rem, 8vw, 6rem), calc((57.5vw - 24px) / 5.2)); }
+}
+
+/* The résumé headline's longest word ("downloadable.", 5.48em) must fit the phone text column (73vw - 24px) */
+@media (max-width: 720px){
+  .page-hero h1.long-word{ font-size: min(clamp(3rem, 8vw, 6rem), calc((73vw - 24px) / 5.6)); }
+}
+
+/* ---------- Résumé card ----------
+   A paper card that hugs the résumé: the résumé runs exactly from pinstripe 2 to pinstripe 6 (2 to 4 on
+   phones), and the card reaches a quarter of a column past it on every side. Only the résumé itself is the
+   link and the hover target: it lifts, casts a shadow onto the card, and an "Open PDF" chip appears beside
+   the card, where it can't cover anything. It opens in the browser's PDF viewer, which has its own download
+   button. */
+.resume-thumb{
+  position:relative;
+  display:block;
+  width:max-content;
+  padding:0;
+  margin: 4rem 0 0 0;   /* no card any more: just the résumé, casting its own shadow */
+}
+.resume-sheet{
+  position:relative;
+  display:block;
+  width: calc(4 * var(--grid-gap)); /* pinstripe 2 -> 6 */
+  background:#fff;
+  box-shadow: 12px 12px 22px -6px rgba(0,0,0,0.6);   /* the site's one card shadow, 45 degrees down-right (darker here for the dark pages) */
+  text-decoration:none;
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
+}
+.resume-sheet img{ display:block; width:100%; height:auto; }
+.resume-sheet::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  border:3px solid transparent;
+  pointer-events:none;
+  transition: border-color 0.25s var(--ease);
+}
+.resume-sheet:hover,
+.resume-sheet:focus-visible{
+  transform: translateY(-6px);
+  box-shadow: 0 26px 44px -14px rgba(16,17,20,0.55);
+}
+.resume-sheet:hover::after,
+.resume-sheet:focus-visible::after{ border-color: var(--accent-personal); }
+.resume-sheet:focus-visible{ outline:2px solid #fff; outline-offset:4px; }
+.resume-chip-rail{            /* a lane beside the résumé, as tall as it, for the chip to travel in */
+  position:absolute;
+  top:0;
+  bottom:0;
+  left: calc(100% + 0.75rem);
+  pointer-events:none;
+}
+.resume-thumb-chip{
+  position:sticky;
+  top: calc(50vh - 1.2rem);    /* rides along mid-screen, so it's visible wherever you hover the résumé */
+  display:inline-block;
+  white-space:nowrap;
+  padding:0.55rem 1rem;
+  border-radius:999px;
+  background: var(--accent-personal);
+  color: var(--ink);
+  font-weight:600;
+  font-size:0.9rem;
+  opacity:0;
+  transform: translateX(-4px);
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+}
+.resume-sheet:hover + .resume-chip-rail .resume-thumb-chip,
+.resume-sheet:focus-visible + .resume-chip-rail .resume-thumb-chip{ opacity:1; transform:none; }
+@media (max-width: 720px){
+  .resume-chip-rail{ display:none; }  /* no hover on touch; a tap simply opens the PDF */
+}
+
+/* ---------- Phones: Creative Endeavors and its sub-pages ----------
+   The card is a scroll container with a fixed maximum height, sitting between the nav pill at the top
+   and the social icons at the bottom, so it never runs underneath them. The page itself doesn't scroll.
+   A thin lime bar to the right of the card (see site.js) shows how far through it you are.
+   Grids are centered in the card: it runs from the midpoint of pinstripes 1-2 to the midpoint of 4-5,
+   so a grid from pinstripe 2 to 4 has an equal half-column of margin on both sides. */
+.card-progress{ display:none; }
+@media (max-width: 720px){
+  /* The card's frame: every gap is the same 0.9rem (14.4px): screen edge -> nav circles -> card -> dots -> screen edge.
+     The dots now sit on top and the nav circles at the bottom (within thumb reach), so the card's top is 0.9rem + 25px (the dots) + 0.9rem down,
+     and its bottom is 0.9rem + 26px (the circles) + 0.9rem up. site.js refines these from the
+     real elements on the case studies. */
+  :root{ --thread-w: calc(2 * var(--mobile-grid-gap)); --frame-top: calc(1.8rem + 25px); --frame-bottom: calc(1.8rem + 26px + env(safe-area-inset-bottom, 0px)); --card-top: calc(1.8rem + 25px); --card-h: calc(100vh - var(--frame-top) - var(--frame-bottom)); }
+  @supports (height: 100svh){ :root{ --card-h: calc(100svh - var(--frame-top) - var(--frame-bottom)); } }
+  body.has-page-card{ overflow:hidden; }
+  body.has-page-card .page-hero{
+    min-height:100vh;
+    min-height:100dvh;
+    padding-top: var(--frame-top);
+    padding-bottom: var(--frame-bottom);
+  }
+  .page-card{
+    max-height: calc(100vh - var(--frame-top) - var(--frame-bottom));
+    max-height: calc(100dvh - var(--frame-top) - var(--frame-bottom));
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+  }
+  .page-card::-webkit-scrollbar{ display:none; }
+  .card-grid{ grid-template-columns:1fr; width: calc(2 * var(--mobile-grid-gap)); }
+  .gallery-grid{ grid-template-columns: repeat(2, 1fr); width: calc(2 * var(--mobile-grid-gap)); }
+  .page-card .card{ padding:1.1rem; }
+  .card-progress{
+    position:fixed;
+    z-index:9;
+    width:3px;
+    border-radius:3px;
+    background: rgba(255,255,255,0.16);
+    pointer-events:none;
+    opacity:0;
+    transition: opacity 0.6s var(--ease);
+  }
+  .card-progress.is-in{ opacity:1; }
+  body.has-case-nav .card-progress{ background: rgba(255,255,255,0.5); }   /* lighter pages: a lighter track */
+  .card-progress-thumb{
+    width:100%;
+    border-radius:3px;
+    background: var(--bar, var(--accent-personal));   /* case studies set --bar to their No. button's color */
+  }
+}
+
+/* ---------- Phones: case studies use the same dots as the homepage ----------
+   One pill of seven dots (intro, the five case studies, contact), identical to the homepage's in size, spacing,
+   colors and position, with the current case study lit. The bigger arrow pill is gone on phones: it took more room
+   and made the two pages look different at the bottom of the screen. The sheet of the card is centered in the
+   screen exactly as the homepage card is, so the card doesn't move when you go from one to the other. */
+#case-dots{ display:none; }
+@media (max-width: 720px){
+  #case-nav{ display:none; }
+  #case-dots{
+    display:flex;
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0.9rem;
+    margin:0 auto;
+    width:fit-content;
+    flex-direction:row;
+    gap:0.65rem;
+    background: rgba(16,17,20,0.35);
+    padding:0.5rem 0.75rem;
+    border-radius:999px;
+    z-index:10;
+  }
+  #case-dots a{
+    position:relative;
+    display:block;
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    border:1px solid var(--nav-fg-soft);
+    background: var(--nav-fill);
+    transition: transform 0.25s var(--ease), background-color 0.35s var(--ease), border-color 0.25s var(--ease);
+  }
+  #case-dots a::after{ content:''; position:absolute; inset:-9px -4px; }   /* a bigger tap area; the look is unchanged */
+  #case-dots a.active{
+    background: rgb(255,255,255);
+    border-width:1.5px;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transform: scale(1.15);
+  }
+  #case-dots a:focus-visible{ outline:2px solid #fff; outline-offset:3px; }
+  body.has-case-nav .page-hero{ padding-bottom:0; }   /* the card's top is on the line (--card-top), exactly where the homepage card is */
+}
+
+/* ---------- Phones: the case-study card is a fixed frame ----------
+   site.js adds html.frame on phones. The card then sits between the nav circles and the dots, exactly like the
+   Creative Endeavors card, and its content scrolls INSIDE it while everything around it stays put: the progress bar
+   on the right shows how far through you are. Coming from the homepage the card expands to the frame around its
+   content (the text doesn't move); "Back to home" rolls it back to the homepage card's size first. Without
+   JavaScript the card stays in the page exactly as before. */
+@media (max-width: 720px){
+  html.frame body.has-case-nav{ overflow:hidden; }
+  html.frame body.has-case-nav::after{ display:none; }
+  html.frame .case-page-card{
+    position:fixed;
+    left: calc(var(--grid-inset) + 0.5 * var(--mobile-grid-gap));
+    width: calc(3 * var(--mobile-grid-gap));
+    top: var(--frame-top);
+    height: var(--card-h);   /* the same expression as the homepage card's height, so the two can never differ */
+    margin:0;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+    box-shadow: 12px 12px 22px -6px rgba(0,0,0,0.35) !important;
+  }
+  html.frame .case-page-card::before{ box-shadow:none; }   /* as a frame the card casts the one shadow itself; the sheet adding a second made it darker than the homepage card's */
+  html.frame .case-page-card::-webkit-scrollbar{ display:none; }
+  html.frame .case-page-card::before{ display:none; }
+  html.frame .case-page-card::after{ content:''; position:absolute; left:0; top: calc(100% + var(--case-extend)); width:1px; height:1px; }   /* placeholder scroll length until the real content is in (out of the flow, so it takes no space from the card) */
+}
+
+/* ---------- Desktop: the Back to home button docks into a circle ----------
+   site.js scrolls the button up to the height of the Home nav circle, then morphs it into a circle the size of the nav
+   buttons (an arrow instead of the label), parked in the column pinstripes 6 and 7 make. This is that circle: a copy
+   of the button that site.js resizes and moves. Phones keep the plain button. */
+.back-dock{ position:fixed; z-index:20; margin:0; padding:0; overflow:hidden; min-width:0; display:flex; align-items:center; justify-content:center; }
+.back-dock .dock-arrow{ position:absolute; left:50%; top:50%; width:15px; height:15px; margin:-7.5px 0 0 -7.5px; opacity:0; pointer-events:none; }
+.back-dock.is-circle{ background: var(--dock-bg, var(--cta-rest)); border-color: var(--dock-bg, var(--cta-rest)); color: var(--dock-fg, var(--paper)); box-shadow: 0 0 0 var(--dock-ring-w, 0px) var(--paper); }   /* a case study on a dark ground sets --dock-ring-w so the circle keeps its shape against it */   /* inverted: the case study's own solid colour, the same as its No. button */
+.back-dock.is-circle:hover, .back-dock.is-circle:focus-visible{ background: var(--paper); color: var(--dock-hover-fg, var(--cta-rest)); border-color: var(--dock-bg, var(--cta-rest)); }   /* and back the other way on hover */
+
+/* ---------- Phones: the case-study card is exactly as tall as the frame, and so is the homepage card ----------
+   --card-h is the frame's height (the screen minus the room for the nav above and the dots below). Both cards are at
+   least that tall, so going from one to the other changes nothing but the page. The button stays at the card's bottom
+   edge, where it has always been: it is taken out of the flow and a strip is reserved for it, so any extra height
+   opens up between the text and the button and nothing else moves. */
+@media (max-width: 720px){
+  .case-page-card{ min-height: var(--card-h); }
+  .page-hero .case-page-card .case-text{ flex: 1 0 auto; }   /* any extra height goes into the text's own box: every gap stays exactly one unit and the button stays at the bottom */
+  .case-page-cta{ height: var(--u); }                         /* the height of a nav button, so it can shrink into one */
+  html.frame .case-page-card{ min-height:0; }
+}
+
+/* ---------- Phones: swipe between case studies ----------
+   A page that was arrived at by a swipe starts with its card just off the screen on the side the swipe came from
+   (site.js, and the script in each page's <head>, which sets html.swipe-next / html.swipe-prev), then slides it in.
+   touch-action: pan-y hands vertical scrolling to the browser and leaves horizontal drags to the swipe. */
+@media (max-width: 720px){
+  html.swipe-next, html.swipe-prev{ overflow-x:hidden; }
+  html.swipe-next .case-page-card{ transform: translateX(110vw); }
+  html.swipe-prev .case-page-card{ transform: translateX(-110vw); }
+  html.frame body, html.frame .case-page-card{ touch-action: pan-y; }
+}
+
+/* ---------- Desktop: the docked circle's tooltip (the same bubble as every other nav button) ---------- */
+.back-dock.is-circle{ overflow:visible; }
+.back-dock:focus-visible{ outline:2px solid var(--cta-rest); outline-offset:2px; }   /* traces the circle only (the browser's own ring would also wrap the tooltip) */
+.back-dock.is-circle .dock-label{ display:none; }   /* invisible by now, but its box would stretch the keyboard focus ring */
+.back-dock.is-circle:hover .tooltip, .back-dock.is-circle:focus-visible .tooltip{ opacity:1; }
+
+/* ---------- One unit of vertical space on every card ----------
+   --u is the height of a nav button: 30px, or 26px on phones. Every vertical gap on a card is one unit: the card's edge
+   to its first element, each element to the next, the last element to the card's edge. A card is a column with a single
+   gap, so nothing depends on margins that do or don't collapse. */
+:root{ --u: 30px; }
+.page-hero .case-page-card, .page-hero .page-card{ display:flex; flex-direction:column; align-items:stretch; gap: var(--u); padding-top: var(--u); padding-bottom: var(--u); }
+.page-hero .case-page-card > *, .page-hero .page-card > *{ margin:0 !important; flex-shrink:0; }
+.page-hero .case-page-card > .badge-link, .page-hero .case-page-card > .case-page-cta, .page-hero .page-card > .cta, .page-hero .page-card > .case-page-cta{ align-self:flex-start; }
+.page-hero .page-card .card-grid{ row-gap: var(--u); }
+html.frame .case-page-card::after{ flex-shrink:0; }
+.page-hero h2.eyebrow{ font-family:'IBM Plex Sans', sans-serif; line-height:1.65; letter-spacing:normal; max-width:34ch; }   /* an h2 that keeps the eyebrow's small-label look */
+.case-page-cta.back-dock{ position:fixed; left:auto; bottom:auto; }   /* beats the phones' in-card button position */
+
+/* ---------- Phones: text wraps at pinstripe 4; one unit is 26px ----------
+   Every text column runs from pinstripe 2 to pinstripe 4 (two grid gaps wide), the card's own padding being a half gap on
+   either side. Headings are sized so that their longest word fits that column. */
+@media (max-width: 720px){
+  :root{ --u: 26px; --col: calc(2 * var(--mobile-grid-gap)); --card-fs: clamp(0.85rem, calc(0.85rem + (100vh - 700px) * 0.025), 0.94rem); }
+  @supports (height: 100svh){ :root{ --card-fs: clamp(0.85rem, calc(0.85rem + (100svh - 700px) * 0.025), 0.94rem); } }
+  .page-hero p, .page-hero h1, .page-hero h2.eyebrow, .page-hero .page-card p{ max-width: var(--col); }
+  .page-hero p{ font-size:1rem; }
+  .page-hero .cta{ font-size: min(0.85rem, calc(var(--col) / 11.5)); }   /* its label must fit the column even on the narrowest phone */
+  .page-hero h1{ font-size: min(clamp(3rem, 8vw, 6rem), calc(var(--col) / 5.2)); }
+  .case-page-title{ font-size: min(2.25rem, calc(var(--col) / 5.6)); }
+  .case-page-card, .page-card{ padding-right: calc(0.5 * var(--mobile-grid-gap)); }
+  .page-hero .case-page-card p, .page-hero .case-page-card .case-text{ font-size: var(--card-fs); }
+  .page-hero .case-page-card .role{ font-size: 1rem; }
+  html.swipe-next .page-card{ transform: translateX(110vw); }
+  html.swipe-prev .page-card{ transform: translateX(-110vw); }
+  body.has-page-card, body.has-page-card .page-card{ touch-action: pan-y; }
+  .js.flight .page-card{ opacity:1; }
+}
+
+/* ---------- Phones: no tooltip on the docked circle (on a touch screen it isn't doing any work) ---------- */
+@media (max-width: 720px){ .back-dock .tooltip{ display:none; } }
+
+/* ---------- A second button under the first (About) ---------- */
+.page-hero .cta.cta-stacked{ display:flex; margin-top: var(--u); }
+
+/* ---------- Phones: the swipe hint at the foot of a case study card ----------
+   Vertical scrolling ends at the foot of the card, and from there the move is sideways, so this is where the hint sits:
+   one unit above the end of the scroll. A finger sways between a left and a right arrow. site.js adds it to the card. */
+.swipe-hint{ display:none; }
+@media (max-width: 720px){
+  html.frame .swipe-hint{
+    display:flex; align-items:center; justify-content:space-between;
+    position:absolute; width:128px; height: var(--u);
+    left: calc(0.5 * var(--mobile-grid-gap) + (var(--col) - 128px) / 2);
+    top: calc(100% + var(--case-extend) - 2 * var(--u) + 1px);   /* +1px: the end-of-scroll marker below it is 1px tall */
+    color:#1B1C1E; opacity:0.8; pointer-events:none;
+  }
+  .swipe-hint svg{ display:block; fill:none; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; }
+  .swipe-hint .sh-arrow{ width:20px; height:20px; stroke-width:2.2; }
+  .swipe-hint .sh-hand{ width:26px; height:26px; stroke-width:2; animation: shSway 2.6s ease-in-out infinite; }
+  .swipe-hint .sh-left{ animation: shNudgeL 2.6s ease-in-out infinite; }
+  .swipe-hint .sh-right{ animation: shNudgeR 2.6s ease-in-out infinite; }
+}
+@keyframes shSway{ 0%, 100%{ transform: translateX(-9px); } 50%{ transform: translateX(9px); } }
+@keyframes shNudgeL{ 0%, 100%{ transform: translateX(-3px); opacity:1; } 50%{ transform: translateX(0); opacity:0.45; } }
+@keyframes shNudgeR{ 0%, 100%{ transform: translateX(0); opacity:0.45; } 50%{ transform: translateX(3px); opacity:1; } }
+@media (prefers-reduced-motion: reduce){ .swipe-hint svg{ animation:none !important; } }
+
+/* ---------- Gallery tiles: black and white until you hover ----------
+   Hovering (or focusing) a tile lifts it (the lift is the one every tile already had), brings its picture back into colour
+   and frames it in a colour taken from that picture's own histogram (gallery.js sets --tile-border; the lime accent is the
+   fallback). The same goes for every tile with a picture on Photography, Sketchbooks and Screen Printing. */
+.gallery-grid .tile img{ filter: grayscale(1); transition: transform 0.5s var(--ease), filter 0.45s var(--ease); }
+.gallery-grid .tile:hover img, .gallery-grid .tile:focus-visible img{ filter: none; }
+.gallery-grid .tile:hover::after, .gallery-grid .tile:focus-visible::after{ border-color: var(--tile-border, var(--accent-personal)); }
+
+/* Article tiles (Writing): two to a row, the title sitting on the picture, an arrow to say it leaves the site */
+.gallery-grid.is-articles{ grid-template-columns: repeat(2, 1fr); }
+.gallery-grid .tile .tile-caption{ position:absolute; left:0; right:0; bottom:0; display:flex; flex-direction:column; align-items:flex-start; padding: 2.6rem 0.95rem 0.95rem; text-align:left; color:#fff; background: linear-gradient(to top, rgba(16,17,20,0.88), rgba(16,17,20,0.6) 55%, rgba(16,17,20,0)); }
+.gallery-grid .tile .tile-title{ font-family:'IBM Plex Sans', sans-serif; font-weight:600; font-size:1rem; line-height:1.25; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden; }
+.gallery-grid .tile .tile-arrow{ position:absolute; top:0.6rem; right:0.6rem; width:1.7rem; height:1.7rem; display:flex; align-items:center; justify-content:center; border-radius:50%; background: rgba(255,255,255,0.9); color: var(--ink); font-size:0.95rem; line-height:1; transition: background 0.25s var(--ease), color 0.25s var(--ease); }
+.gallery-grid .tile:hover .tile-arrow, .gallery-grid .tile:focus-visible .tile-arrow{ background: var(--tile-border, var(--accent-personal)); color:#fff; }
+
+@media (max-width: 720px){
+  .gallery-grid.is-articles{ grid-template-columns: 1fr; width: var(--col); }   /* one to a row: the text column's width */
+  .gallery-grid .tile .tile-caption{ padding: 1.8rem 0.7rem 0.7rem; }
+  .gallery-grid .tile .tile-title{ font-size:0.8rem; }
+  .gallery-grid .tile .tile-arrow{ width:1.5rem; height:1.5rem; font-size:0.85rem; top:0.5rem; right:0.5rem; }
+  /* the swipe hint on the Creative Endeavors pages: the last thing on the card, centred in the text column */
+  .page-card > .swipe-hint{ display:flex; align-items:center; justify-content:space-between; align-self:center; position:static; width:128px; height: var(--u); color:#1B1C1E; opacity:0.8; pointer-events:none; }
+}
+
+/* ---------- Version ---------- (read by siteVersion() in site.js) */
+:root{ --site-version: "1.0.8"; }
+
+/* ---------- Gallery: a caption on hover, and the photo viewer ----------
+   A tile with data-caption shows its title over the picture on hover or focus (touch screens have no hover: they get the
+   caption in the viewer). Clicking opens the viewer: the picture over a see-through, blurred backdrop. */
+/* The hover caption: a darker gradient fades up along the bottom edge, and the title eases in over it (a beat later). */
+.gallery-grid .tile .tile-caption.is-hover{ background:none; padding: 0 0.95rem 0.95rem; pointer-events:none; }
+.gallery-grid .tile .tile-caption.is-hover::before{ content:''; position:absolute; left:0; right:0; bottom:0; height: calc(100% + 3.4rem); background: linear-gradient(to top, rgba(8,9,11,0.96) 0%, rgba(8,9,11,0.86) 38%, rgba(8,9,11,0.45) 72%, rgba(8,9,11,0) 100%); opacity:0; transition: opacity 0.4s var(--ease); }
+.gallery-grid .tile .tile-caption.is-hover .tile-title, .gallery-grid .tile .tile-caption.is-hover .tile-meta{ position:relative; opacity:0; transform: translateY(12px); transition: opacity 0.45s var(--ease) 0.08s, transform 0.55s var(--ease) 0.08s; }
+.gallery-grid .tile .tile-caption.is-hover .tile-meta{ transition-delay: 0.14s; }
+.gallery-grid .tile:hover .tile-caption.is-hover::before, .gallery-grid .tile:focus-visible .tile-caption.is-hover::before{ opacity:1; }
+.gallery-grid .tile:hover .tile-caption.is-hover .tile-title, .gallery-grid .tile:focus-visible .tile-caption.is-hover .tile-title{ opacity:1; transform:none; }
+.gallery-grid .tile:hover .tile-caption.is-hover .tile-meta, .gallery-grid .tile:focus-visible .tile-caption.is-hover .tile-meta{ opacity:0.85; transform:none; }
+.gallery-grid .tile .tile-meta{ font-family:'IBM Plex Sans', sans-serif; font-size:0.72rem; letter-spacing:0.04em; opacity:0.85; margin-top:0.2rem; }
+@media (hover: none){ .gallery-grid .tile .tile-caption.is-hover{ display:none; } }
+
+.lb{ position:fixed; inset:0; z-index:60000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition: opacity 0.24s var(--ease), visibility 0s linear 0.24s; touch-action:none; overscroll-behavior:contain; user-select:none; -webkit-user-select:none; }
+.lb[hidden]{ display:none; }
+.lb.is-open{ opacity:1; visibility:visible; transition: opacity 0.24s var(--ease); }
+.lb-backdrop{ position:absolute; inset:0; background: rgba(16,17,20,0.6); -webkit-backdrop-filter: blur(14px) saturate(1.15); backdrop-filter: blur(14px) saturate(1.15); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))){ .lb-backdrop{ background: rgba(16,17,20,0.88); } }
+/* --lb-w is the widest the picture's frame may be: 1100px at most, and never wide enough to slide under the side buttons */
+.lb{ --lb-w: min(calc(100vw - 2 * (max(16px, 2.5vw) + 60px)), 1100px); }
+.lb-fig{ position:relative; margin:0; display:flex; flex-direction:column; align-items:stretch; gap: 0.9rem; width:max-content; max-width: var(--lb-w); transform: scale(0.97); transition: transform 0.28s var(--ease); }
+.lb.is-open .lb-fig{ transform:none; }
+.lb-frame{ background: rgba(0,0,0,0.25); box-shadow: 0 30px 80px rgba(0,0,0,0.5); line-height:0; will-change: transform; }   /* no border: the picture stands on its own */
+.lb-img{ display:block; max-width: var(--lb-w); max-height: calc(100vh - 180px); max-height: calc(100dvh - 180px); width:auto; height:auto; object-fit:contain; pointer-events:none; }
+.lb-cap{ display:flex; align-items:baseline; justify-content:space-between; gap: 1rem; flex-wrap:wrap; color:#fff; font-family:'IBM Plex Sans', sans-serif; }
+.lb-text{ display:flex; flex-direction:column; gap:0.15rem; min-width:0; }
+.lb-title{ font-weight:600; font-size:1.05rem; line-height:1.25; }
+.lb-meta{ font-size:0.8rem; letter-spacing:0.04em; opacity:0.8; }
+.lb-tools{ display:flex; align-items:baseline; gap:1rem; font-size:0.8rem; }
+.lb-full{ color:#fff; text-decoration:none; opacity:0.85; border-bottom:1px solid rgba(255,255,255,0.4); }
+.lb-full:hover, .lb-full:focus-visible{ opacity:1; border-bottom-color:#fff; outline:none; }
+.lb-count{ font-variant-numeric: tabular-nums; letter-spacing:0.06em; color:#fff; font-weight:600; }   /* white: a dark picture colour (the organ's blue) would vanish on the dark backdrop */
+.lb-count::before{ content:''; display:inline-block; width:0.5em; height:0.5em; margin-right:0.55em; border-radius:50%; background: var(--lb-accent, #ADD944); box-shadow: 0 0 0 1.5px rgba(255,255,255,0.75); vertical-align:0.05em; }   /* the picture's colour, as a dot */
+.lb-btn{ position:absolute; width:44px; height:44px; display:flex; align-items:center; justify-content:center; padding:0; border-radius:50%; background: rgba(255,255,255,0.14); border:1.5px solid rgba(255,255,255,0.55); color:#fff; cursor:pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: background 0.2s var(--ease), color 0.2s var(--ease), transform 0.2s var(--ease); }
+.lb-btn svg{ width:20px; height:20px; }
+.lb-btn:hover, .lb-btn:focus-visible{ background:#fff; color: var(--ink); outline:none; }
+.lb-btn:focus-visible{ box-shadow: 0 0 0 3px #fff; }
+.lb-prev{ left: max(16px, 2.5vw); top:50%; margin-top:-22px; }
+.lb-next{ right: max(16px, 2.5vw); top:50%; margin-top:-22px; }
+.lb-close{ top: 20px; right: 20px; }
+@media (max-width: 900px){   /* phones and tablets: the two arrows move to the bottom corners, so the picture can use the full width */
+  .lb{ --lb-w: 92vw; }
+  .lb-fig{ gap:0.7rem; }
+  .lb-img{ max-height: calc(100vh - 210px); max-height: calc(100dvh - 210px); }
+  .lb-btn{ width:40px; height:40px; }
+  .lb-prev, .lb-next{ top:auto; bottom: 20px; margin-top:0; }
+  .lb-prev{ left: 20px; } .lb-next{ right: 20px; }
+  .lb-close{ top: 14px; right: 14px; }
+}
+/* the swipe clue inside the viewer: the same finger and arrows as on the pages, in white, between the two arrow buttons (phones only) */
+@media (max-width: 720px){
+  html .lb .swipe-hint.lb-hint{ display:flex; align-items:center; justify-content:space-between; position:absolute; top:auto; left:50%; bottom:27px; width:128px; height: var(--u); transform: translateX(-50%); color:#fff; opacity:0.9; pointer-events:none; }
+}
+@media (prefers-reduced-motion: reduce){
+  .lb, .lb-fig{ transition:none; }
+  .gallery-grid .tile .tile-caption.is-hover::before, .gallery-grid .tile .tile-caption.is-hover .tile-title, .gallery-grid .tile .tile-caption.is-hover .tile-meta{ transition:none; }
+}
+
+/* ---------- A tile for something that is not out yet (data-soon) ----------
+   Its picture, its title and a "Coming soon" label where the arrow would be. It keeps the colour reveal on hover, but not the lift or the
+   pointer: those say "click me". */
+.gallery-grid .tile.is-soon{ cursor:default; }
+.gallery-grid .tile.is-soon:hover{ transform:none; box-shadow:none; background:none; }
+.gallery-grid .tile .tile-soon{ position:absolute; top:0.6rem; right:0.6rem; padding:0.3rem 0.7rem; border-radius:999px; background: rgba(16,17,20,0.78); color:#fff; font-family:'IBM Plex Sans', sans-serif; font-size:0.66rem; font-weight:600; letter-spacing:0.09em; text-transform:uppercase; line-height:1.2; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+@media (max-width: 720px){ .gallery-grid .tile .tile-soon{ top:0.5rem; right:0.5rem; padding:0.26rem 0.58rem; font-size:0.6rem; } }
+
+/* ---------- Photography: theme filters ----------
+   A row of pill buttons above the gallery, the same outline pills as the page's back button. The one showing is
+   filled lime, the Creative Endeavors color. Each carries a small count of the photos in that theme. */
+.gallery-filters{ display:flex; flex-wrap:wrap; gap:0.5rem; width: calc(3 * var(--grid-gap)); max-width:100%; }
+.gallery-filters button{ display:inline-flex; align-items:center; gap:0.45em; height: var(--u); padding:0 0.85rem; border-radius:999px; border:1px solid #4D4D4D; background:transparent; color:#4D4D4D; font:600 0.85rem/1 'IBM Plex Sans', sans-serif; cursor:pointer; transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease); }
+.gallery-filters button:hover{ border-color:#1B1C1E; color:#1B1C1E; }
+.gallery-filters button[aria-pressed="true"]{ background: var(--accent-personal); border-color: var(--accent-personal); color:#1B1C1E; }
+.gallery-filters button:focus-visible{ outline:2px solid #1B1C1E; outline-offset:2px; }
+.gallery-filters .filter-count{ font-weight:400; font-size:0.75rem; opacity:0.7; font-variant-numeric: tabular-nums; }
+.gallery-grid .tile[hidden], .gallery-filters button[hidden]{ display:none; }
+@media (max-width: 720px){
+  .gallery-filters{ width: calc(2 * var(--mobile-grid-gap)); gap:0.4rem; }
+  .gallery-filters button{ padding:0 0.65rem; font-size:0.78rem; }
+}
+
+/* ---------- About: the Polaroid ---------- */
+.about-polaroid{ display:block; width: calc(2 * var(--grid-gap)); max-width:100%; height:auto; margin: 0.5rem 0; border-radius:2px; box-shadow: 0 18px 40px -18px rgba(0,0,0,0.6); }
+@media (max-width: 720px){ .about-polaroid{ width: var(--col, 100%); } }
+
+/* ---------- A photo whose colour is the point stays in colour in the grid (data-color on the tile) ---------- */
+.gallery-grid .tile[data-color] img{ filter:none; }
+
+/* ---------- Sketchbooks: whole spreads, laid out like open books on a table ----------
+   Each spread keeps its own shape (--ar) and its book-edge transparency, sits a touch askew with a soft
+   shadow, and straightens up into color on hover. Wide spreads take the row; "is-half" ones pair up. */
+.gallery-grid.spread-table{ grid-template-columns: repeat(2, 1fr); gap: 2.6rem 1.8rem; width: calc(4 * var(--grid-gap)); max-width:100%; }
+.gallery-grid.spread-table .tile{ grid-column: 1 / -1; aspect-ratio: var(--ar, 2 / 1); padding:0; overflow:visible; background:none; border:0; }
+.gallery-grid.spread-table .tile.is-half{ grid-column: auto; }
+.gallery-grid.spread-table .tile::after{ display:none; }
+.gallery-grid.spread-table .tile:hover, .gallery-grid.spread-table .tile:focus-visible{ background:none; box-shadow:none; transform:none; }
+.gallery-grid.spread-table .tile img{ object-fit:contain; filter: grayscale(1) drop-shadow(0 14px 18px rgba(16,17,20,0.28)); transform: rotate(-0.7deg);
+  transition: transform 0.6s var(--ease), filter 0.5s var(--ease); }
+.gallery-grid.spread-table .tile:nth-child(3n+2) img{ transform: rotate(0.6deg); }
+.gallery-grid.spread-table .tile:nth-child(3n) img{ transform: rotate(-0.3deg); }
+.gallery-grid.spread-table .tile:hover img, .gallery-grid.spread-table .tile:focus-visible img{ transform: rotate(0deg) translateY(-6px) scale(1.015);
+  filter: grayscale(0) drop-shadow(0 24px 28px rgba(16,17,20,0.35)); }
+@media (max-width: 720px){
+  .gallery-grid.spread-table{ grid-template-columns: 1fr; gap: 1.6rem; width:auto; }
+  .gallery-grid.spread-table .tile.is-half{ grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce){ .gallery-grid.spread-table .tile img{ transform:none !important; transition:none; } }
+
+/* ---------- Every card ends on the Instagram button ----------
+   Scrolled to the end, a card's bottom edge lines up with the center of the last icon in the left rail:
+   the rail sits 2.5rem from the bottom and its buttons are 30px, so the center is 2.5rem + 15px up.
+   Endeavors cards also fill at least that far, so a short page still ends on the line. Phones keep their own frame. */
+:root{ --card-end: calc(2.5rem + 15px); }
+@media (min-width: 721px){
+  body.has-page-card .page-hero{ align-items:flex-start; padding-bottom: var(--card-end); }
+  body.has-page-card .page-card{ min-height: calc(100vh - 6rem - var(--card-end)); }
+  body.has-case-nav .page-hero{ padding-bottom: var(--card-end); }
+  .page-hero:has(.resume-thumb){ padding-bottom: var(--card-end); }   /* the résumé card ends on the line too */
+}
+/* gallery pages: a little more air under the last row of tiles */
+.page-hero .page-card:has(> .gallery-grid:last-child){ padding-bottom: calc(2 * var(--u)); }
+
+/* ---------- Résumé page ----------
+   Desktop: the résumé spans pinstripe 2 -> 6 (no card behind it). The two
+   buttons sit side by side below it: Back to home starting on pinstripe 2, Download ending on pinstripe 6.
+   Phones: the résumé reaches 1/8 of a column past pinstripes 2 and 4; buttons stack below. */
+.page-hero:has(.resume-thumb){ align-items:flex-start; }
+.resume-wrap .resume-thumb{ margin-top:2.5rem; }
+.resume-wrap .resume-sheet{ width: calc(4 * var(--grid-gap)); aspect-ratio: 2210 / 2860; height:auto; }   /* pinstripe 2 -> 6 */
+.resume-wrap .resume-sheet img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }   /* absolute, so the 2210px image never sets the card's width */
+.resume-actions{ display:flex; flex-direction:row-reverse; justify-content:space-between; width: calc(4 * var(--grid-gap)); margin-top:2rem; }
+.resume-actions .cta{ margin-top:0 !important; width: calc(2 * var(--grid-gap) - 0.75rem); }
+@media (max-width: 720px){
+  .page-hero:has(.resume-thumb){ padding-top: 2.5rem; }
+  .resume-wrap .resume-thumb{ margin-top:1.5rem; margin-left: calc(-0.125 * var(--mobile-grid-gap)); }
+  .resume-wrap .resume-sheet{ width: calc(2.25 * var(--mobile-grid-gap)); }   /* the size the card used to be: 1/8 of a column past pinstripes 2 and 4 */
+  .resume-actions{ flex-direction:column; width:auto; margin-top:1.5rem; }
+  .resume-actions .cta{ width:min(calc(2 * var(--mobile-grid-gap)), 100%); }
+  .resume-actions .cta + .cta{ margin-top: var(--u) !important; }
+}
+
+/* ---------- Phones: pages without a card fade their content out under the nav ----------
+   (Home, About, Résumé, Other Projects.) Card pages clip their content below the nav; these pages get a band
+   instead: the page's own background color, solid down to the bottom of the nav icons, then fading to clear
+   over two icon diameters. The band follows the homepage's changing background color, and a copy of the
+   pinstripes rides on top of it, scrolled in step with the real ones, so the lines run unbroken to the top
+   of the screen. Built in site.js (section 9); these are its two layers. */
+#top-fade, #top-fade-lines{ display:none; }
+@media (max-width: 720px){
+  #top-fade{
+    display:block; position:fixed; top:0; left:0; right:0;
+    height: calc(0.9rem + 25px);   /* down to the bottom of the dots pill, no further */
+    z-index:9; pointer-events:none;
+  }
+  #top-fade-lines{
+    display:block; position:fixed; top:0; left:0; right:0;
+    height: calc(0.9rem + 25px);   /* down to the bottom of the dots pill, no further */
+    overflow:hidden; z-index:9; pointer-events:none;
+  }
+  #top-fade-lines > div{ position:absolute; left:0; width:100%; display:flex; justify-content:space-between; }
+  #top-fade-lines span{ width:0; height:100%; }
+}
+
+/* ---------- Creative Endeavors tiles: a line icon in the top-right corner ----------
+   Same family as the nav icons (24-unit grid, round caps), drawn large and quiet: a darker grey than the tile,
+   so it reads as a watermark. On hover the tile turns ink and the icon turns to a faint light line. */
+.page-card .card{ position:relative; }
+.page-card .card .card-mark{ overflow:visible; position:absolute; top:1.5rem; right:1.5rem; width:64px; height:64px; color:#A6A59F; opacity:0.4; transform: rotate(-45deg); pointer-events:none; transition: color 0.3s var(--ease); }   /* tipped 45° to the left, at 40% strength */
+.page-card .card:hover .card-mark, .page-card .card:focus-visible .card-mark{ color: rgba(242,241,236,0.24); }
+@media (max-width: 720px){ .page-card .card .card-mark{ top:1rem; right:1rem; width:44px; height:44px; } }
+
+/* ---------- Sketchbooks: hover label on a solid bar of the spread's own colour ----------
+   A bar six x-heights tall, 70% opaque, in a deep shade of the spread's colour (gallery.js darkens it until
+   white text passes WCAG AA even with white paper showing through). The label layer covers the whole tile and
+   moves exactly as the spread does on hover, so the bar stays locked to the bottom of the page; --cap-l/r/b
+   (set per spread from the scan's own edges) inset it to the paper, not the transparent margin around it.
+   It rises once the spread has straightened, the label a beat later; leaving, both drop away at once. */
+.gallery-grid.spread-table .tile .tile-caption.is-hover{
+  top:0; bottom:0; height:auto; padding:0; justify-content:flex-end;
+  font-size:1rem; font-family:'IBM Plex Sans', sans-serif; font-weight:600;
+  transition: transform 0.6s var(--ease);
+}
+.gallery-grid.spread-table .tile:hover .tile-caption.is-hover,
+.gallery-grid.spread-table .tile:focus-visible .tile-caption.is-hover{ transform: translateY(-6px) scale(1.015); }
+.gallery-grid.spread-table .tile .tile-caption.is-hover::before{
+  top:auto; bottom: var(--cap-b, 0%); left: var(--cap-l, 0%); right: var(--cap-r, 0%); height:6ex;
+  opacity:1; background: rgb(var(--tile-shade, 8 9 11) / 0.7);
+  transform: scaleY(0); transform-origin: bottom; transition: transform 0.25s var(--ease);
+}
+.gallery-grid.spread-table .tile .tile-caption.is-hover .tile-title{
+  margin: 0 0 calc(var(--cap-b, 0%) * 0) 0;
+  position:absolute; left: calc(var(--cap-l, 0%) + 0.95rem); bottom: calc(var(--cap-b, 0%) + (6ex - 1.25em) / 2);
+  transform: translateY(6px); transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.gallery-grid.spread-table .tile:hover .tile-caption.is-hover::before,
+.gallery-grid.spread-table .tile:focus-visible .tile-caption.is-hover::before{ transform: scaleY(1); transition: transform 0.45s var(--ease) 0.5s; }
+.gallery-grid.spread-table .tile:hover .tile-caption.is-hover .tile-title,
+.gallery-grid.spread-table .tile:focus-visible .tile-caption.is-hover .tile-title{ transform:none; transition: opacity 0.4s var(--ease) 0.72s, transform 0.5s var(--ease) 0.72s; }
+
+/* ---------- Creative Endeavors tiles on desktop and tablet ----------
+   One tile per row, each spanning pinstripe 2 -> 5, and taller than before. */
+@media (min-width: 721px){
+  .card-grid{ grid-template-columns: 1fr; width: calc(3 * var(--grid-gap)); }   /* pinstripe 2 -> 5 */
+  .page-card .card-grid .card{ min-height: calc(1.25 * var(--grid-gap)); }
+}
+
+/* Larger watermarks on the wide desktop/tablet tiles: centred on the right, about half the tile's height. */
+@media (min-width: 721px){
+  .page-card .card-grid .card .card-mark{ top:50%; right:2rem; width: calc(0.7 * var(--grid-gap)); height: calc(0.7 * var(--grid-gap)); max-width:160px; max-height:160px; transform: translateY(-50%) rotate(-45deg); stroke-width:1.1; }   /* thinner line at this size (48-unit icons), so it stays a hairline, not a marker */
+}
+
+/* Endeavors tiles, desktop/tablet: the title and description wrap halfway between pinstripes 3 and 4,
+   so they never run under the watermark. (The tile starts on pinstripe 2; 1.75rem is its padding.) */
+@media (min-width: 721px){
+  .page-card .card-grid .card h3, .page-card .card-grid .card p{ max-width: calc(1.5 * var(--grid-gap) - 1.75rem); }
+}
+/* Phones: site.js (section 11) sizes and places each watermark so its highest and lowest points line up with
+   the top and bottom of the tile's No. badge. */
+@media (max-width: 720px){
+  .page-card .card .card-mark{ transform: translate(var(--mk-dx, 0px), var(--mk-dy, 0px)) scale(var(--mk-k, 1)) rotate(-45deg); }
+}
+
+/* ---------- Phones: main nav at the bottom, position dots at the top ----------
+   The nav circles move to the bottom of the screen, where a thumb reaches them, and sit as far from the bottom
+   (0.9rem to the circles) as the dots now sit from the top; both clear the iPhone home bar. Same pills, same look.
+   The photo viewer drops its arrow buttons on phones: the swipe clue already says how to move between photos. */
+@media (max-width: 720px){
+  #icon-nav{ top:auto; bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px)); }
+  #case-dots{ bottom:auto; top:0.9rem; }
+  .lb .lb-prev, .lb .lb-next{ display:none; }
+  #bottom-fade{ display:block; position:fixed; left:0; right:0; bottom:0; height: calc(0.9rem + 26px + env(safe-area-inset-bottom, 0px));   /* up to the top of the nav circles, no further */ z-index:9; pointer-events:none; }
+  #bottom-fade-lines{ display:block; position:fixed; left:0; right:0; bottom:0; height: calc(0.9rem + 26px + env(safe-area-inset-bottom, 0px));   /* up to the top of the nav circles, no further */ overflow:hidden; z-index:9; pointer-events:none; }
+  #bottom-fade-lines > div{ position:absolute; left:0; width:100%; display:flex; justify-content:space-between; }
+  #bottom-fade-lines span{ width:0; height:100%; }
+}
+#bottom-fade, #bottom-fade-lines{ display:none; }
+@media (max-width: 720px){ #bottom-fade, #bottom-fade-lines{ display:block; } }
+
+/* ---------- Tooltips: pointer labels ----------
+   The label's shape (arrow, body and colour cap) is one layer behind the text: the arrow cut with clip-path, the
+   cap painted into the background and rounded off, so there are no seams and no corners peeking past the arrow.
+   The drop shadow is on the label itself, so it follows that finished shape exactly.
+   --tip-accent is lime on the personal pages, the case study's own colour on a case study, and on the homepage it
+   follows whichever case is in view. */
+.tooltip{
+  height:24px; line-height:24px; box-sizing:border-box;
+  color:#1B1C1E; font-weight:500; box-shadow:none;
+}
+.tip-left, .tip-right{ background:none; filter: drop-shadow(0 5px 7px rgba(0,0,0,0.35)); }
+.tip-left{ left:36px; padding: 0 calc(0.65rem + 12px) 0 calc(0.65rem + 10px); }
+.tip-right{ right:36px; padding: 0 calc(0.65rem + 10px) 0 calc(0.65rem + 12px); }
+.tip-left::before, .tip-right::before{ content:''; display:block; position:absolute; inset:0; z-index:-1; width:auto; height:auto; }
+.tip-left::before{
+  background: linear-gradient(to left, var(--tip-accent, #ADD944) 12px, #F2F1EC 12px);
+  border-radius: 0 12px 12px 0;
+  clip-path: polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 50%);
+}
+.tip-right::before{
+  background: linear-gradient(to right, var(--tip-accent, #ADD944) 12px, #F2F1EC 12px);
+  border-radius: 12px 0 0 12px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+}
+.tip-left::after, .tip-right::after{ content:none; display:none; }
+
+/* ---------- Phones: pages without a card (About, Résumé, More proof) ----------
+   Body text wraps where the homepage's does, halfway between pinstripes 4 and 5, and the About Polaroid and the
+   résumé widen to the same line, starting on pinstripe 2. Headings, buttons and the nav keep the 2 -> 4 column. */
+@media (max-width: 720px){
+  .page-hero:not(:has(.page-card)) p,
+  .page-hero:not(:has(.page-card)) h2.eyebrow{ max-width: calc(2.5 * var(--mobile-grid-gap)); }
+  .about-polaroid{ width: calc(2.5 * var(--mobile-grid-gap)); }
+  .resume-wrap .resume-thumb{ margin-left:0; }
+  .resume-wrap .resume-sheet{ width: calc(2.5 * var(--mobile-grid-gap)); }
+  /* Endeavors watermarks: a lighter line on phones */
+  .page-card .card .card-mark{ stroke-width:1.2; }
+}
+
+/* ---------- Frame gutters ----------
+   A faint solid partner just inside each outer pinstripe: right of pinstripe 1, touching the right side of the nav
+   buttons, and left of pinstripe 7, the mirror of it. Half a nav button (--u) from each. The pinstripe copies in
+   the fades on phones carry them too. */
+#grid-lines-global span, #top-fade-lines span, #bottom-fade-lines span{ position:relative; }
+#grid-lines-global span:nth-child(1)::after, #top-fade-lines span:nth-child(1)::after, #bottom-fade-lines span:nth-child(1)::after,
+#grid-lines-global span:nth-child(7)::after, #top-fade-lines span:nth-child(7)::after, #bottom-fade-lines span:nth-child(7)::after{
+  content:''; position:absolute; top:0; bottom:0; width:0; border-left:1px solid; border-left-color:inherit; opacity:0.3;   /* the same colour as its own pinstripe, whatever page it's on */
+}
+#grid-lines-global span:nth-child(1)::after, #top-fade-lines span:nth-child(1)::after, #bottom-fade-lines span:nth-child(1)::after{ left: calc(var(--u, 30px) / 2 - 1px); }
+#grid-lines-global span:nth-child(7)::after, #top-fade-lines span:nth-child(7)::after, #bottom-fade-lines span:nth-child(7)::after{ left: calc(var(--u, 30px) / -2 - 1px); }
+
+/* Column gutters: pinstripes 2-6 (2-4 of the five visible on phones) each get a faint solid partner on either side,
+   half a nav button away, the same as the frame gutters, like the gutters in a book's grid. */
+#grid-lines-global span:nth-child(n+2):nth-child(-n+6)::before, #grid-lines-global span:nth-child(n+2):nth-child(-n+6)::after,
+#top-fade-lines span:nth-child(n+2):nth-child(-n+6)::before, #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::after,
+#bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::before, #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::after{
+  content:''; position:absolute; top:0; bottom:0; width:0; border-left:1px solid; border-left-color:inherit; opacity:0.3;   /* the same colour as its own pinstripe, whatever page it's on */
+}
+#grid-lines-global span:nth-child(n+2):nth-child(-n+6)::before, #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::before, #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::before{ left: calc(var(--u, 30px) / -2 - 1px); }
+#grid-lines-global span:nth-child(n+2):nth-child(-n+6)::after, #top-fade-lines span:nth-child(n+2):nth-child(-n+6)::after, #bottom-fade-lines span:nth-child(n+2):nth-child(-n+6)::after{ left: calc(var(--u, 30px) / 2 - 1px); }
+
+/* ---------- Page to page: the nav and the dots carry over ----------
+   site.js (section 15) notes the outgoing page's dots pill and active nav button, and the incoming page starts from
+   them: the pill eases to its new width while its dots cross-fade, and the nav highlight fades from the old button
+   to the new one, so following a card to its case study (and back) has no jump. */
+#icon-nav.nav-swap-init a{ transition:none !important; }
+#icon-nav.nav-swap a{ transition: background-color 0.5s var(--ease), color 0.5s var(--ease), border-color 0.5s var(--ease), box-shadow 0.5s var(--ease) !important; }
+.pill-morph{ overflow:hidden; transition: width 0.5s var(--ease); }
+.pill-morph > *{ opacity:0; transition: opacity 0.35s var(--ease) 0.2s; }
+.pill-morph.pill-in > *{ opacity:1; }
+
+/* ---------- No. badges: a Neue Machina "No.", a Playfair numeral ----------
+   "No." and its three dashes are set in Neue Machina Inktrap (from the copy installed on this computer until the web
+   font files are added; Playfair stands in meanwhile) and sit 5px further left of the numeral, which stays Playfair. */
+@font-face{ font-family:'BP Machina'; font-weight:400; src: local('PP Neue Machina Inktrap Regular'), local('PPNeueMachina-InktrapRegular'), local('PP Neue Machina Inktrap'), local('Neue Machina Inktrap'); }
+@font-face{ font-family:'BP Machina'; font-weight:700; src: local('PP Neue Machina Inktrap Ultrabold'), local('PPNeueMachina-InktrapUltrabold'), local('PP Neue Machina Inktrap Bold'), local('PPNeueMachina-InktrapBold'); }
+.badge-link .no{ font-family:'BP Machina', 'Playfair Display', serif; font-weight:700; font-synthesis:none; left:-5px; }
