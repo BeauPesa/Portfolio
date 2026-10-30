@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="site-release" content="Beau.1">
-<meta name="site-version" content="1.0.8">
+<meta name="site-version" content="1.1.1">
 <title>LiteLoad — Beau Pesa</title>
-<link rel="stylesheet" href="shared.css?v=1.0.8">
+<link rel="stylesheet" href="shared.css?v=1.1.1">
 <style>
   /* All five case-study backgrounds are light, so the icon rail needs dark icons here.
      The button fills are the page color lightened 8%; pinstripes are white. */
@@ -28,10 +28,10 @@
   }
 </style>
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');var s=JSON.parse(sessionStorage.getItem('caseSwipe')||'null');if(s&&s.dir&&Date.now()-s.t<5000&&innerWidth<=720)d.classList.add('swipe-'+s.dir);}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight','swipe-next','swipe-prev');},2500);})();</script>
-<link rel="stylesheet" href="liteload-card.css?v=1.0.8">
+<link rel="stylesheet" href="liteload-card.css?v=1.1.1">
 <link rel="preload" as="image" href="images/liteload/tablet-flat.webp" fetchpriority="high">
 <script>/* LiteLoad card: apply the layout remembered from this page's last visit (site.js, section 14) before the first paint */
-(function(){ try { var c = JSON.parse(sessionStorage.getItem('llLayout:' + location.pathname) || 'null');
+(function(){ try { var v = (document.querySelector('meta[name="site-version"]') || {}).content || ''; var c = JSON.parse(sessionStorage.getItem('llLayout:' + v + ':' + location.pathname) || 'null');
   if (c && c.w === window.innerWidth && c.h === window.innerHeight && c.css){ var s = document.createElement('style'); s.id = 'll-cache'; s.textContent = c.css.replace(/;/g, ' !important;').replace(/!important !important/g, '!important'); document.head.appendChild(s); } } catch (e) {} })();</script>
 </head>
 <body class="has-case-nav" style="background:#C2C2C2;">
@@ -112,6 +112,6 @@
 </section>
 
 
-<script src="site.js?v=1.0.8"></script>
+<script src="site.js?v=1.1.1"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-// Beau.1 · v1.0.8
+// Beau.1 · v1.1.1
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.0.8' };
+  var SITE = { release: 'Beau.1', version: '1.1.1' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -913,7 +913,7 @@
     }
     if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed');
   }
-  var FACES = ['800 1em "Big Shoulders Display"', '400 1em "IBM Plex Sans"'];
+  var FACES = ['800 1em "Big Shoulders Display"', '400 1em "IBM Plex Sans"', '400 1em "Space Grotesk"'];
   function fontsIn(){ try { return FACES.every(function(f){ return document.fonts.check(f); }); } catch (e){ return true; } }
   function all(){
     // With a remembered layout already applied (the <head> script), don't re-measure until the real fonts are in:
@@ -935,7 +935,8 @@
           Array.prototype.forEach.call(el.querySelectorAll('p'), function(p, n){ rule(sel + ' > :nth-child(' + (k + 1) + ') p:nth-of-type(' + (n + 1) + ')', p); });
         });
       });
-      sessionStorage.setItem('llLayout:' + location.pathname, JSON.stringify({ w: window.innerWidth, h: window.innerHeight, css: css }));
+      var ver = (document.querySelector('meta[name="site-version"]') || {}).content || '';
+      sessionStorage.setItem('llLayout:' + ver + ':' + location.pathname, JSON.stringify({ w: window.innerWidth, h: window.innerHeight, css: css }));   // keyed by version, so an update never replays an old layout
     } catch (e) {}
   }
   var q = 0; function soon(){ cancelAnimationFrame(q); q = requestAnimationFrame(all); }

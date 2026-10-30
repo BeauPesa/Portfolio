@@ -2,11 +2,8 @@
    so following "See the work" changes nothing but the unroll and the nav. site.js (section 14) places the tablet and
    evens out the spacing. */
 
-/* The role line is set in Neue Machina Inktrap as a trial, from the copy installed on this computer; until the web
-   font files are added it falls back to the site's sans. */
-@font-face{ font-family:'LL Machina'; font-weight:400; src: local('PP Neue Machina Inktrap Regular'), local('PPNeueMachina-InktrapRegular'), local('PP Neue Machina Inktrap'), local('Neue Machina Inktrap'); }
-@font-face{ font-family:'LL Machina'; font-weight:700; src: local('PP Neue Machina Inktrap Ultrabold'), local('PPNeueMachina-InktrapUltrabold'), local('PP Neue Machina Inktrap Bold'), local('PPNeueMachina-InktrapBold'); }
-.ll-card .role{ font-family:'LL Machina', 'IBM Plex Sans', sans-serif; font-weight:400 !important; letter-spacing:0; font-synthesis:none; }   /* the same weight on both pages, never faked */
+/* The role line is set in Space Grotesk (free under the Open Font License, loaded with the site's other fonts). */
+.ll-card .role{ font-family:'Space Grotesk', 'IBM Plex Sans', sans-serif; font-weight:400 !important; letter-spacing:0; font-synthesis:none; }   /* the same weight on both pages, never faked */
 
 .ll-card{ position:relative; }
 .ll-card .ll-tablet{ margin:0 !important; }
