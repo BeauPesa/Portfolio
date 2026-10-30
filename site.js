@@ -1,4 +1,4 @@
-// Beau.1 · v1.0.0
+// Beau.1 · v1.0.4
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.0.0' };
+  var SITE = { release: 'Beau.1', version: '1.0.4' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -799,9 +799,10 @@
        second rule to description) and from the tablet's bottom to the button;
      - the description is set in five lines (its type steps down if it would need a sixth), and its leading and that
        gap are solved together so the baseline of its last line lands on the tablet's bottom edge.
-   Phones (tablet stacked above): one even gap, the space from the second dashed rule down to the description's first
-   line, repeats from the first dashed rule to the title, from the title to the role line, from the role line to the
-   second rule, and from the description's last line to the button. */
+   Phones (tablet stacked above): an even gap G (half the natural space below the second rule) runs from the first
+   dashed rule to the title, the title to the role line and the role line to the second rule; twice G sits between the
+   second rule and the description and between the description and the button; the tablet keeps its natural distance
+   above the first rule. */
 (function(){
   var cards = document.querySelectorAll('.ll-card');
   if (!cards.length) return;
@@ -841,14 +842,13 @@
     var t, r, first, last, gapTo;
     if (phone.matches){
       gapTo = function(){ return lines(card, p)[0].xtop - edges(card, rule2).bottom; };
-      var G = gapTo() / 2;                                              // half the natural gap, everywhere
-      var img = fig.querySelector('img'), body = topIn(card, fig) + (img ? img.offsetHeight : fig.offsetHeight) * BB;
-      nudge(rule, -(topIn(card, rule) - body) / 2);                      // tablet's lower edge to the first rule: half as far
-      nudge(p.parentNode, G - gapTo());                                  // second rule to the description
+      var G = gapTo() / 2;                                              // half the natural gap between the headline parts
+      // (the tablet keeps its natural distance above the first rule; the description and the button get twice G)
+      nudge(p.parentNode, 2 * G - gapTo());                              // second rule to the description: 2G
       t = lines(card, h2); nudge(h2, G - (t[0].cap - edges(card, rule).bottom));
       t = lines(card, h2); r = lines(card, role); nudge(role, G - (r[0].xtop - t[t.length - 1].base));
       r = lines(card, role); nudge(rule2, G - (edges(card, rule2).top - r[r.length - 1].base));
-      if (btn){ last = lines(card, p); nudge(btn, G - (topIn(card, btn) - last[last.length - 1].base)); }
+      if (btn){ last = lines(card, p); nudge(btn, 2 * G - (topIn(card, btn) - last[last.length - 1].base)); }   // description to the button: 2G
       if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed');
       return;
     }
@@ -904,4 +904,48 @@
     cards.forEach(function(c){ mo.observe(c, { attributes:true, attributeFilter:['class'] }); });
   }
   [400, 1200, 2400].forEach(function(t){ setTimeout(soon, t); });
+})();
+
+/* ---------------- 15. Page to page: the dots pill and the nav highlight carry over ----------------
+   On the way out, a page notes its dots pill's width and which nav button is lit. The next page, if it arrives within
+   a few seconds, starts from those: on phones the pill eases from the old width to its own while its dots cross-fade
+   (seven dots to five, and back); everywhere, the highlight fades from the old nav button to the new one. */
+(function(){
+  var KEY = 'bpCarry', nav = document.querySelectorAll('#icon-nav a');
+  var pill = document.getElementById('progress-nav') || document.getElementById('case-dots');
+  function lit(){ for (var i = 0; i < nav.length; i++) if (nav[i].classList.contains('active')) return i; return -1; }
+  window.addEventListener('pagehide', function(){
+    try { sessionStorage.setItem(KEY, JSON.stringify({ t: Date.now(), page: location.pathname, w: pill ? pill.offsetWidth : 0, lit: lit() })); } catch (e) {}
+  });
+  var prev = null;
+  try { prev = JSON.parse(sessionStorage.getItem(KEY) || 'null'); sessionStorage.removeItem(KEY); } catch (e) {}
+  if (!prev || Date.now() - prev.t > 6000 || prev.page === location.pathname) return;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;
+  // the nav highlight: start lit where the last page was lit, then fade across
+  var cur = lit(), navEl = document.getElementById('icon-nav');
+  if (navEl && prev.lit !== cur){
+    navEl.classList.add('nav-swap-init');
+    if (cur > -1) nav[cur].classList.remove('active');
+    if (prev.lit > -1 && nav[prev.lit]) nav[prev.lit].classList.add('active');
+    void navEl.offsetWidth;
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      navEl.classList.remove('nav-swap-init'); navEl.classList.add('nav-swap');
+      if (prev.lit > -1 && nav[prev.lit]) nav[prev.lit].classList.remove('active');
+      if (cur > -1){ nav[cur].classList.add('active'); nav[cur].style.removeProperty('background-color'); }   // the homepage tints unlit buttons inline; this one is lit again
+      setTimeout(function(){ navEl.classList.remove('nav-swap'); }, 650);
+    }); });
+  }
+  // the dots pill (phones): from the old width to this page's, its dots fading in
+  if (pill && prev.w && window.matchMedia('(max-width: 720px)').matches){
+    var to = pill.offsetWidth;
+    if (to && Math.abs(to - prev.w) > 1){
+      pill.style.transition = 'none'; pill.style.width = prev.w + 'px'; pill.classList.add('pill-morph');
+      void pill.offsetWidth;
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){
+        pill.style.transition = ''; pill.style.width = to + 'px'; pill.classList.add('pill-in');
+        setTimeout(function(){ pill.classList.remove('pill-morph', 'pill-in'); pill.style.width = ''; }, 700);
+      }); });
+    }
+  }
 })();
