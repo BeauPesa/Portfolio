@@ -1,4 +1,4 @@
-// Beau.1 · v1.2.5
+// Beau.1 · v1.2.7
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.2.5' };
+  var SITE = { release: 'Beau.1', version: '1.2.7' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -922,9 +922,8 @@
       var minH = gh.getBoundingClientRect().bottom - home.getBoundingClientRect().bottom;
       if (minH > 0) px(card, 'min-height', minH);
     }
-    // The whole composition (badge, rules, title, description, button, tablet and phone) moves as one so the second
-    // dashed rule sits halfway down the card; it never rides closer than 24px to the card's top or bottom. The portrait
-    // tablet on the right stays where it was.
+    // The whole composition (badge, rules, title, description, button, tablet and both hover devices) moves as one so the
+    // second dashed rule sits halfway down the card; it never rides closer than 24px to the card's top or bottom.
     var shiftD = card.offsetHeight / 2 - (topIn(card, rule2) + rule2.offsetHeight / 2);
     var badgeEl = card.querySelector('.badge-link');
     if (badgeEl){
@@ -933,21 +932,23 @@
       nudge(badgeEl, shiftD);
       fig.style.top = (parseFloat(fig.style.top) + shiftD) + 'px';
     } else shiftD = 0;
-    // The homepage hover extras (liteload-card.css): a phone centred on pinstripe 4, above the tablet, and a portrait
-    // tablet over its lower-right corner, both in front of it; each grows out of the tablet's middle.
+    // The homepage hover extras (liteload-card.css): a portrait tablet above the landscape tablet's top-left and a phone
+    // at its right side, both in front of it; each grows out of the tablet's middle.
     var g = stripes[4] - stripes[3], T = topIn(card, rule), tcx = (stripes[3] + stripes[5]) / 2, tcy = T + (BB - BT) * h / 2;
     // The phone never rises past 16px below the top of the screen (cards settle with their top at the Home button's
     // bottom).
     var homeB = document.querySelector('#icon-nav a'), minTop = homeB ? 16 - homeB.getBoundingClientRect().bottom : -9999;
         // ...and its foot stays 16px above the bottom of the screen: it narrows (to no less than 0.8 of a column) to fit
     var maxBottom = homeB ? window.innerHeight - homeB.getBoundingClientRect().bottom - 16 : 99999;
-    // The portrait tablet overlaps the landscape tablet's lower-right corner only a little (its top an eighth of a column
-    // above the tablet's bottom edge) and reaches out past the card's right edge, ending a fifth of a column beyond it
-    // (never on the edge itself: an edge-on-edge alignment reads as a false depth cue).
-    var cardEdge = card.offsetWidth, portTop = T - shiftD + (BB - BT) * h - 0.12 * g;   // (where it sat before the composition moved)
-    var portW = Math.max(0.8, Math.min(1.0, (maxBottom - portTop) / 1.3082 / g));
-    [['.ll-phone', 0.68, stripes[3] + 0.03 * g, Math.max(minTop, T - 0.92 * g), 0.0974, 0.9026, 0.0106, 900 / 485],
-     ['.ll-port', portW, cardEdge + 0.2 * g - portW * g / 2, portTop, 0.0547, 0.9453, 0.0087, 900 / 707]].forEach(function(d){
+    // Sizes stay true to life: the portrait tablet (0.88 of a column wide) rises above the landscape tablet's top-left,
+    // centred just right of pinstripe 4 so it clears the end of the first dashed rule; the phone (0.45 of a column)
+    // stands at the landscape tablet's right side,
+    // overlapping it by a sliver, its right edge clearly inside the card's edge (never on it), and its foot 0.12 of a
+    // column above the button, so the button's row is never covered.
+    var btnTopNow = btn ? topIn(card, btn) : T + (BB - BT) * h + 0.2 * g;
+    var phoneW = 0.45, phoneTop = btnTopNow - 0.12 * g - phoneW * g * 2.067;
+    [['.ll-port', 0.88, stripes[3] + 0.04 * g, Math.max(minTop, T - 0.92 * g), 0.0547, 0.9453, 0.0087, 900 / 707],
+     ['.ll-phone', phoneW, stripes[5] - 0.12 * g + phoneW * g / 2, phoneTop, 0.0974, 0.9026, 0.0106, 900 / 485]].forEach(function(d){
       var ex = card.querySelector(d[0]); if (!ex || getComputedStyle(ex).display === 'none') return;
       var bw = d[1] * g, iw = bw / (d[5] - d[4]), ih = iw * d[7], l = d[2] - bw / 2 - d[4] * iw, tp = d[3] - d[6] * ih;
       ex.style.width = iw + 'px'; ex.style.left = l + 'px'; ex.style.top = tp + 'px';
@@ -963,6 +964,16 @@
     card.addEventListener('click', function(e){
       if (e.target.closest('a, button') || !window.matchMedia('(min-width: 1100px) and (hover: hover)').matches) return;
       var cta = card.querySelector('.cta'); if (cta) cta.click();
+    });
+  });
+  // The surprise is triggered by the tablet itself: pointing at it (or at the devices once they're out) brings them out
+  // (.ll-hover); leaving all three tucks them back after a moment. The button's row never triggers it.
+  cards.forEach(function(card){
+    if (card.classList.contains('case-page-card')) return;
+    var parts = card.querySelectorAll('.ll-tablet, .ll-extra'), off = 0;
+    Array.prototype.forEach.call(parts, function(el){
+      el.addEventListener('pointerenter', function(e){ if (e.pointerType === 'touch') return; clearTimeout(off); card.classList.add('ll-hover'); });
+      el.addEventListener('pointerleave', function(){ clearTimeout(off); off = setTimeout(function(){ card.classList.remove('ll-hover'); }, 220); });
     });
   });
   // The homepage extras wait their turn: once the card has been on screen long enough for it and its tablet to arrive,
