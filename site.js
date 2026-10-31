@@ -1,4 +1,4 @@
-// Beau.1 · v1.1.1
+// Beau.1 · v1.2.5
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.1.1' };
+  var SITE = { release: 'Beau.1', version: '1.2.5' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -799,10 +799,8 @@
        second rule to description) and from the tablet's bottom to the button;
      - the description is set in five lines (its type steps down if it would need a sixth), and its leading and that
        gap are solved together so the baseline of its last line lands on the tablet's bottom edge.
-   Phones (tablet stacked above): an even gap G (half the natural space below the second rule) runs from the first
-   dashed rule to the title, the title to the role line and the role line to the second rule; twice G sits between the
-   second rule and the description and between the description and the button; the tablet keeps its natural distance
-   above the first rule. */
+   Phones (tablet stacked above): the exact spacing of Beau's mockup (see the phone branch below); the homepage card takes
+   the case study's frame height, and the button sits midway between the description and the card's bottom. */
 (function(){
   var cards = document.querySelectorAll('.ll-card');
   if (!cards.length) return;
@@ -829,10 +827,11 @@
   function nudge(el, by){ px(el, 'margin-top', (parseFloat(el.style.getPropertyValue('margin-top')) || 0) + by); }
   function reset(card){
     var cache = document.getElementById('ll-cache'); if (cache) cache.remove();   // measuring now: the remembered layout steps aside (same frame, so nothing is drawn in between)
-    card.querySelectorAll('h2, .role, .thread, .case-text, .cta, .case-page-cta').forEach(function(el){ el.style.removeProperty('margin-top'); });
+    card.querySelectorAll('h2, .role, .thread, .case-text, .cta, .case-page-cta, .badge-link, .ll-tablet').forEach(function(el){ el.style.removeProperty('margin-top'); });
     card.querySelectorAll('.case-text p').forEach(function(p){ p.style.removeProperty('line-height'); p.style.removeProperty('font-size'); });
     card.style.removeProperty('min-height'); card.style.removeProperty('padding-top'); card.style.removeProperty('height');
     var fig = card.querySelector('.ll-tablet'); if (fig){ ['width', 'left', 'top'].forEach(function(k){ fig.style.removeProperty(k); }); }
+    card.querySelectorAll('.ll-extra').forEach(function(ex){ ['width', 'left', 'top', '--dx', '--dy'].forEach(function(k){ ex.style.removeProperty(k); }); });
   }
   function visible(card){ return Array.prototype.filter.call(card.querySelectorAll('.case-text p'), function(p){ return p.offsetHeight > 0; })[0]; }
   function place(card){
@@ -842,26 +841,38 @@
     if (!rule || !rule2 || !h2 || !role || !p || !fig){ if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed'); return; }
     var t, r, first, last, gapTo;
     if (phone.matches){
-      gapTo = function(){ return lines(card, p)[0].xtop - edges(card, rule2).bottom; };
-      var G = gapTo() / 2;                                              // half the natural gap between the headline parts
-      // (the tablet keeps its natural distance above the first rule, less 10px; the description and the button get twice G)
-      var pad = parseFloat(getComputedStyle(card).paddingTop) || 0;
-      px(card, 'padding-top', Math.max(0, pad - 10));                    // the whole card's contents 10px closer to its top
-      nudge(rule, -10);                                                  // everything from the first rule down, 10px closer to the tablet...
-      var img = fig.querySelector('img'), body = topIn(card, fig) + (img ? img.offsetHeight : fig.offsetHeight) * BB;
-      nudge(rule, -(topIn(card, rule) - body) / 4);                      // ...and then a quarter of what's left
-      nudge(p.parentNode, 1.5 * G - gapTo());                            // second rule to the description: 2G, less a quarter
-      t = lines(card, h2); nudge(h2, G - (t[0].cap - edges(card, rule).bottom));
-      t = lines(card, h2); r = lines(card, role); nudge(role, G - (r[0].xtop - t[t.length - 1].base));
-      r = lines(card, role); nudge(rule2, G - (edges(card, rule2).top - r[r.length - 1].base));
-      // The homepage card takes the case study's frame height exactly (between the dots above and the nav below), so the
-      // two are the same card; then the button sits midway: as far below the description as it is above the card's bottom.
+      // Phones: the spacing from Beau's mockup, in CSS px, measured letter to letter: card top to badge 32, badge to
+      // tablet 32, tablet to first rule 38, rule to title capitals 19, title baseline to role x-height 13, role baseline
+      // to second rule 18, second rule to the description's capitals 36.5; the button then sits midway below.
+      // (The headline group, rule to rule, sits 5px higher than the mockup; everything else is where the mockup has it.)
+      var badge = card.querySelector('.badge-link'), img = fig.querySelector('img');
+      var imgH = img ? img.offsetHeight : fig.offsetHeight;
+      if (badge){
+        nudge(badge, 32 - topIn(card, badge));
+        nudge(fig, 32 - ((topIn(card, fig) + BT * imgH) - (topIn(card, badge) + badge.offsetHeight)));
+      }
+      nudge(rule, 38 - (topIn(card, rule) - (topIn(card, fig) + BB * imgH)));
+      t = lines(card, h2); nudge(h2, 19 - (t[0].cap - edges(card, rule).bottom));
+      t = lines(card, h2); r = lines(card, role); nudge(role, 13 - (r[0].xtop - t[t.length - 1].base));
+      r = lines(card, role); nudge(rule2, 18 - (edges(card, rule2).top - r[r.length - 1].base));
+      last = lines(card, p); nudge(p.parentNode, 36.5 - (last[0].cap - edges(card, rule2).bottom));
       if (!card.classList.contains('case-page-card')){
         var up = document.getElementById('progress-nav'), down = document.querySelector('#icon-nav a');
         if (up && down){
           var ur = up.getBoundingClientRect(), dr = down.getBoundingClientRect(), vh = window.innerHeight;
           var frameH = vh - (ur.bottom + ur.top) - (2 * (vh - dr.bottom) + dr.height);
           if (frameH > 200){ px(card, 'height', frameH); px(card, 'min-height', frameH); }
+        }
+      }
+      // On shorter phones that would leave the button squeezed: if it would get less than 16px above and below, the four
+      // larger gaps (32, 32, 38, 36.5) give up the difference in proportion, so the rhythm stays the mockup's.
+      if (btn){
+        last = lines(card, p);
+        var spare = card.offsetHeight - last[last.length - 1].base - btn.offsetHeight, short = 32 - spare;
+        if (short > 0){
+          var k = Math.min(0.85, short / 138.5);
+          if (badge) nudge(badge, -32 * k);
+          nudge(fig, -32 * k); nudge(rule, -38 * k); nudge(p.parentNode, -36.5 * k);
         }
       }
       if (btn){
@@ -911,10 +922,64 @@
       var minH = gh.getBoundingClientRect().bottom - home.getBoundingClientRect().bottom;
       if (minH > 0) px(card, 'min-height', minH);
     }
+    // The whole composition (badge, rules, title, description, button, tablet and phone) moves as one so the second
+    // dashed rule sits halfway down the card; it never rides closer than 24px to the card's top or bottom. The portrait
+    // tablet on the right stays where it was.
+    var shiftD = card.offsetHeight / 2 - (topIn(card, rule2) + rule2.offsetHeight / 2);
+    var badgeEl = card.querySelector('.badge-link');
+    if (badgeEl){
+      var lowest = btn ? topIn(card, btn) + btn.offsetHeight : topIn(card, rule2);
+      shiftD = Math.max(24 - topIn(card, badgeEl), Math.min(card.offsetHeight - 24 - lowest, shiftD));
+      nudge(badgeEl, shiftD);
+      fig.style.top = (parseFloat(fig.style.top) + shiftD) + 'px';
+    } else shiftD = 0;
+    // The homepage hover extras (liteload-card.css): a phone centred on pinstripe 4, above the tablet, and a portrait
+    // tablet over its lower-right corner, both in front of it; each grows out of the tablet's middle.
+    var g = stripes[4] - stripes[3], T = topIn(card, rule), tcx = (stripes[3] + stripes[5]) / 2, tcy = T + (BB - BT) * h / 2;
+    // The phone never rises past 16px below the top of the screen (cards settle with their top at the Home button's
+    // bottom).
+    var homeB = document.querySelector('#icon-nav a'), minTop = homeB ? 16 - homeB.getBoundingClientRect().bottom : -9999;
+        // ...and its foot stays 16px above the bottom of the screen: it narrows (to no less than 0.8 of a column) to fit
+    var maxBottom = homeB ? window.innerHeight - homeB.getBoundingClientRect().bottom - 16 : 99999;
+    // The portrait tablet overlaps the landscape tablet's lower-right corner only a little (its top an eighth of a column
+    // above the tablet's bottom edge) and reaches out past the card's right edge, ending a fifth of a column beyond it
+    // (never on the edge itself: an edge-on-edge alignment reads as a false depth cue).
+    var cardEdge = card.offsetWidth, portTop = T - shiftD + (BB - BT) * h - 0.12 * g;   // (where it sat before the composition moved)
+    var portW = Math.max(0.8, Math.min(1.0, (maxBottom - portTop) / 1.3082 / g));
+    [['.ll-phone', 0.68, stripes[3] + 0.03 * g, Math.max(minTop, T - 0.92 * g), 0.0974, 0.9026, 0.0106, 900 / 485],
+     ['.ll-port', portW, cardEdge + 0.2 * g - portW * g / 2, portTop, 0.0547, 0.9453, 0.0087, 900 / 707]].forEach(function(d){
+      var ex = card.querySelector(d[0]); if (!ex || getComputedStyle(ex).display === 'none') return;
+      var bw = d[1] * g, iw = bw / (d[5] - d[4]), ih = iw * d[7], l = d[2] - bw / 2 - d[4] * iw, tp = d[3] - d[6] * ih;
+      ex.style.width = iw + 'px'; ex.style.left = l + 'px'; ex.style.top = tp + 'px';
+      ex.style.setProperty('--dx', (tcx - (l + iw / 2)) + 'px'); ex.style.setProperty('--dy', (tcy - (tp + ih / 2)) + 'px');
+    });
     if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed');
   }
   var FACES = ['800 1em "Big Shoulders Display"', '400 1em "IBM Plex Sans"', '400 1em "Space Grotesk"'];
   function fontsIn(){ try { return FACES.every(function(f){ return document.fonts.check(f); }); } catch (e){ return true; } }
+  // The homepage card is one big link to its case study on desktop: a click anywhere on it (not on a link) is "See the work".
+  cards.forEach(function(card){
+    if (card.classList.contains('case-page-card')) return;
+    card.addEventListener('click', function(e){
+      if (e.target.closest('a, button') || !window.matchMedia('(min-width: 1100px) and (hover: hover)').matches) return;
+      var cta = card.querySelector('.cta'); if (cta) cta.click();
+    });
+  });
+  // The homepage extras wait their turn: once the card has been on screen long enough for it and its tablet to arrive,
+  // hovering can bring them out (.ll-ready); a few seconds later they come out on their own (.ll-pop) and stay.
+  cards.forEach(function(card){
+    if (card.classList.contains('case-page-card') || !card.querySelector('.ll-extra')) return;
+    var started = false;
+    function start(){
+      if (started) return; started = true;
+      setTimeout(function(){ card.classList.add('ll-ready'); }, 2100);   // after the tablet (the last part in) has landed
+      setTimeout(function(){ card.classList.add('ll-pop'); }, 4500);
+    }
+    if ('IntersectionObserver' in window){
+      var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting && e.intersectionRatio >= 0.6){ start(); io.disconnect(); } }); }, { threshold: [0.6] });
+      io.observe(card);
+    } else start();
+  });
   function all(){
     // With a remembered layout already applied (the <head> script), don't re-measure until the real fonts are in:
     // measuring a fallback font would nudge things away from the remembered layout and back again.
@@ -924,11 +989,20 @@
   // Remember the finished layout (per page and window size) so the next visit to this page can apply it in the <head>,
   // before anything is drawn: without it the page paints once with default spacing, then again in place (a blink).
   function remember(){
+    // a phone case study is only in its resting state as a frame (not while it expands on arrival or rolls back up to leave)
+    // Only the homepage card is remembered: a phone case study arrives mid-expansion (a different width) before it becomes
+    // a frame, so a remembered layout would be wrong for its first frames; it lays itself out live instead.
+    if (document.querySelector('.case-page-card.ll-card')) return;
     try {
       var css = '';
       cards.forEach(function(card){
         var sel = card.classList.contains('case-page-card') ? '.case-page-card.ll-card' : '#liteload .ll-card';
-        var rule = function(target, el){ var st = el.getAttribute('style'); if (st) css += target + '{' + st.replace(/;?\s*$/, ';').replace(/opacity:[^;]*;/g, '') + '}'; };
+        var KEEP = /^(margin-top|padding-top|height|min-height|line-height|font-size|width|left|top)$/;   // layout only: never colours, visibility or animation state
+        var rule = function(target, el){
+          var out = '';
+          for (var i = 0; i < el.style.length; i++){ var k = el.style[i]; if (KEEP.test(k)) out += k + ':' + el.style.getPropertyValue(k) + ';'; }
+          if (out) css += target + '{' + out + '}';
+        };
         rule(sel, card);
         Array.prototype.forEach.call(card.children, function(el, k){
           rule(sel + ' > :nth-child(' + (k + 1) + ')', el);

@@ -5,11 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="site-release" content="Beau.1">
 <meta name="case-lock" content="250000.7UQfEvr96RLeJHRN5wsiEg==.wA3GJOvFhlLHYUs+.4ZOTIMZiRHupDcbxajhbNrhCEEGqnfqB">
-<meta name="site-version" content="1.1.1">
+<meta name="site-version" content="1.2.5">
 <title>Beau Pesa — Portfolio</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=Playfair+Display:wght@700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="fonts/big-shoulders-display-800.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/ibm-plex-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/space-grotesk-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/space-grotesk-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/playfair-display-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="fonts.css?v=1.2.5">
 <style>
 
   /* ===================================================================
@@ -19,7 +22,7 @@
      for your exact Figma / brand hex codes.
      =================================================================== */
   :root{
-    --site-version: "1.1.1";
+    --site-version: "1.2.5";
     --ink: #101114;           /* intro / outro base */
     --paper: #F2F1EC;         /* card surface */
     --text-dark: #1B1C1E;
@@ -266,7 +269,7 @@
   .badge-link:focus-visible{
     background: var(--badge-text, #fff);
     color: var(--badge-color);
-    border-width: 6px;
+    border-width: 4px;   /* 2px slimmer, so the ring never touches the "No." */
     border-color: var(--badge-color-30);
     transform: scale(1.08);
     box-shadow: 0 8px 20px rgba(0,0,0,0.35);
@@ -791,9 +794,9 @@
   
 
   /* ---------- No. badges: a Space Grotesk "No.", a Playfair numeral ----------
-     "No." and its three dashes are set in Space Grotesk Bold (free under the Open Font License) and sit 5px further
+     "No." and its three dashes are set in Space Grotesk Bold (free under the Open Font License) and sit 3px further
      left of the numeral, which stays Playfair. */
-  .badge-link .no{ font-family:'Space Grotesk', 'Playfair Display', sans-serif; font-weight:700; font-synthesis:none; left:-5px; }
+  .badge-link .no{ font-family:'Space Grotesk', 'Playfair Display', sans-serif; font-weight:700; font-synthesis:none; left:-3px; }
   
 
   /* ---------- Labels: Space Grotesk ----------
@@ -803,7 +806,7 @@
   
 </style>
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight');},2500);})();</script>
-<link rel="stylesheet" href="liteload-card.css?v=1.1.1">
+<link rel="stylesheet" href="liteload-card.css?v=1.2.5">
 <link rel="preload" as="image" href="images/liteload/tablet-flat.webp" fetchpriority="high">
 <script>/* LiteLoad card: apply the layout remembered from this page's last visit (site.js, section 14) before the first paint */
 (function(){ try { var v = (document.querySelector('meta[name="site-version"]') || {}).content || ''; var c = JSON.parse(sessionStorage.getItem('llLayout:' + v + ':' + location.pathname) || 'null');
@@ -909,6 +912,8 @@
     <div class="case-text"><p class="ll-long">LiteLoad translates legacy loading sheets into a clean, task-first screen, so loaders see what goes on the truck, and in what order.</p><p class="ll-short">LiteLoad translates legacy loading sheets into a clean, task-first screen, so loaders see what goes on the truck, and in what order.</p></div>
     <a class="cta" href="liteload.html">See the work →</a>
       <figure class="ll-tablet"><img src="images/liteload/tablet-flat.webp" width="1400" height="1007" alt="LiteLoad’s upload screen on a tablet: drag and drop a legacy PDF loading sheet to convert it" decoding="sync" fetchpriority="high"></figure>
+      <figure class="ll-extra ll-phone" aria-hidden="true"><img src="images/liteload/phone-portrait.webp" width="485" height="900" alt="" decoding="async"></figure>
+      <figure class="ll-extra ll-port" aria-hidden="true"><img src="images/liteload/tab-portrait.webp" width="707" height="900" alt="" decoding="async"></figure>
   </div>
 </section>
 
@@ -1293,6 +1298,6 @@
 })();
 </script>
 
-<script src="site.js?v=1.1.1"></script>
+<script src="site.js?v=1.2.5"></script>
 </body>
 </html>

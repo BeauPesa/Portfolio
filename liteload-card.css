@@ -9,7 +9,7 @@
 .ll-card .ll-tablet{ margin:0 !important; }
 .ll-card .case-text::before, .ll-card .case-text::after{ display:none !important; }   /* this card sets its own height: no equal-height rulers */
 .ll-card .ll-tablet img{ display:block; width:100%; height:auto; transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), filter 0.45s cubic-bezier(0.25, 1, 0.5, 1); }
-.ll-card .ll-tablet:hover img{ transform: translateY(-6px); filter: drop-shadow(0 22px 26px rgba(20, 30, 50, 0.28)); }
+.ll-card .ll-tablet:hover img, #liteload .ll-card:hover .ll-tablet img{ transform: translateY(-6px); filter: drop-shadow(0 22px 26px rgba(20, 30, 50, 0.28)); }
 #liteload .ll-card.is-in > .ll-tablet{ animation-name: tabletIn; }   /* homepage only: on the case study it's simply there, as the rest of the card is */
 @keyframes tabletIn{ from{ opacity:0; translate: 0 -56px; } }
 
@@ -37,7 +37,29 @@
   .ll-card .ll-tablet:hover img{ transform:none; filter:none; }
   .ll-card .case-text p:not(.ll-short){ display:none; }
   .ll-card .case-text .ll-short{ display:block; font-size: calc(var(--card-fs, 0.9rem) * 0.92); line-height:1.65; }   /* the same five-line description on the homepage card and the case study */
+  .ll-card > h2{ font-size: min(3.125rem, calc(var(--col, 179px) / 4.03)) !important; }   /* the mockup's title: about 1.4 times the other cards' */
   .ll-card .role{ font-size: calc(var(--card-fs, 0.9rem) * 0.85) !important; line-height:1.3; white-space:nowrap; min-height:0; }   /* one line, so it needn't hold room for two */
   .ll-card .case-text{ flex-grow:0 !important; }   /* the button follows the description at the even gap; any spare height stays below it */
 }
 @media (prefers-reduced-motion: reduce){ .ll-card .ll-tablet img{ transition:none; } .ll-card .ll-tablet:hover img{ transform:none; } }
+
+/* ---------- Homepage hover: the phone and portrait-tablet versions grow out of the tablet ----------
+   Desktop with a mouse, wide enough for them (1100px+): hovering the LiteLoad card grows a phone (above the tablet,
+   centred on pinstripe 4) and a portrait tablet (over the tablet's lower-right corner) out of the tablet's middle, in
+   front of it, breaking the card's edges. site.js places them on the grid and sets where each starts from (--dx, --dy:
+   the tablet's middle). A click anywhere on the card opens the case study.
+   They wait their turn: hovering only brings them out once the card and its tablet have arrived (.ll-ready), and if the
+   visitor doesn't hover, they come out on their own a few seconds later (.ll-pop) and stay. */
+.ll-card .ll-extra{ display:none; }
+@media (min-width: 1100px) and (hover: hover){
+  #liteload .ll-card{ cursor:pointer; }
+  #liteload .ll-card .ll-extra{ display:block; position:absolute; z-index:4; margin:0 !important; pointer-events:none; opacity:0;
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(0.5);
+    transition: opacity 0.35s var(--ease), transform 0.6s cubic-bezier(0.3, 0.7, 0.4, 1); }
+  #liteload .ll-card .ll-extra img{ display:block; width:100%; height:auto; filter: drop-shadow(0 16px 22px rgba(20, 30, 50, 0.22)); }   /* a deeper shadow than the tablet's: one layer nearer */
+  #liteload .ll-card.ll-ready:hover .ll-extra, #liteload .ll-card.ll-pop .ll-extra{ pointer-events:auto; cursor:pointer; opacity:1; transform:none; transition: opacity 0.45s var(--ease), transform 0.8s cubic-bezier(0.2, 0.9, 0.25, 1.06); }
+  #liteload .ll-card.ll-ready:hover .ll-phone, #liteload .ll-card.ll-pop .ll-phone{ transition-delay: 0.05s; }
+  #liteload .ll-card.ll-ready:hover .ll-port, #liteload .ll-card.ll-pop .ll-port{ transition-delay: 0.13s; }
+  #liteload .ll-card.is-in > .ll-extra{ animation:none; }
+}
+@media (prefers-reduced-motion: reduce){ #liteload .ll-card .ll-extra, #liteload .ll-card.ll-ready:hover .ll-extra, #liteload .ll-card.ll-pop .ll-extra{ transform:none; transition: opacity 0.3s linear; } }
