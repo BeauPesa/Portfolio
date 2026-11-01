@@ -4,15 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="site-release" content="Beau.1">
-<meta name="site-version" content="1.2.7">
+<meta name="site-version" content="1.3.0">
 <title>LiteLoad — Beau Pesa</title>
 <link rel="preload" href="fonts/big-shoulders-display-800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/ibm-plex-sans-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/space-grotesk-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/space-grotesk-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/playfair-display-700.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="fonts.css?v=1.2.7">
-<link rel="stylesheet" href="shared.css?v=1.2.7">
+<link rel="stylesheet" href="fonts.css?v=1.3.0">
+<link rel="stylesheet" href="shared.css?v=1.3.0">
 <style>
   /* All five case-study backgrounds are light, so the icon rail needs dark icons here.
      The button fills are the page color lightened 8%; pinstripes are white. */
@@ -34,11 +34,14 @@
   }
 </style>
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');var s=JSON.parse(sessionStorage.getItem('caseSwipe')||'null');if(s&&s.dir&&Date.now()-s.t<5000&&innerWidth<=720)d.classList.add('swipe-'+s.dir);}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight','swipe-next','swipe-prev');},2500);})();</script>
-<link rel="stylesheet" href="liteload-card.css?v=1.2.7">
+<link rel="stylesheet" href="liteload-card.css?v=1.3.0">
 <link rel="preload" as="image" href="images/liteload/tablet-flat.webp" fetchpriority="high">
 <script>/* LiteLoad card: apply the layout remembered from this page's last visit (site.js, section 14) before the first paint */
 (function(){ try { var v = (document.querySelector('meta[name="site-version"]') || {}).content || ''; var c = JSON.parse(sessionStorage.getItem('llLayout:' + v + ':' + location.pathname) || 'null');
   if (c && c.w === window.innerWidth && c.h === window.innerHeight && c.css){ var s = document.createElement('style'); s.id = 'll-cache'; s.textContent = c.css.replace(/;/g, ' !important;').replace(/!important !important/g, '!important'); document.head.appendChild(s); } } catch (e) {} })();</script>
+<script>/* LiteLoad: if the hover devices were out when the homepage card was clicked, keep them exactly where they were (site.js, section 14) */
+(function(){ try { var v = (document.querySelector('meta[name="site-version"]') || {}).content || ''; var c = JSON.parse(sessionStorage.getItem('llHeld') || 'null'); sessionStorage.removeItem('llHeld');
+  if (c && c.v === v && c.w === window.innerWidth && c.h === window.innerHeight && Date.now() - c.t < 8000 && c.css){ document.documentElement.classList.add('ll-held'); var s = document.createElement('style'); s.id = 'll-held-pos'; s.textContent = c.css; document.head.appendChild(s); } } catch (e) {} })();</script>
 </head>
 <body class="has-case-nav" style="background:#C2C2C2;">
 
@@ -114,10 +117,12 @@
     <div class="case-text"><p class="ll-long">LiteLoad translates legacy loading sheets into a clean, task-first screen, so loaders see what goes on the truck, and in what order.</p><p class="ll-short">LiteLoad translates legacy loading sheets into a clean, task-first screen, so loaders see what goes on the truck, and in what order.</p></div>
     <a class="case-page-cta" href="index.html#to-liteload" style="--cta-rest:#001C38; --cta-fill:#001C38;">Back to home ←</a>
     <figure class="ll-tablet"><img src="images/liteload/tablet-flat.webp" width="1400" height="1007" alt="LiteLoad’s upload screen on a tablet: drag and drop a legacy PDF loading sheet to convert it" decoding="sync" fetchpriority="high"></figure>
+    <figure class="ll-extra ll-port" aria-hidden="true"><img src="images/liteload/tab-portrait.webp" width="707" height="900" alt="" decoding="sync"></figure>
+    <figure class="ll-extra ll-phone" aria-hidden="true"><img src="images/liteload/phone-portrait.webp" width="485" height="900" alt="" decoding="sync"></figure>
   </div>
 </section>
 
 
-<script src="site.js?v=1.2.7"></script>
+<script src="site.js?v=1.3.0"></script>
 </body>
 </html>

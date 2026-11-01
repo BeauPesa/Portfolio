@@ -1,4 +1,4 @@
-// Beau.1 · v1.2.7
+// Beau.1 · v1.3.0
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.2.7' };
+  var SITE = { release: 'Beau.1', version: '1.3.0' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -967,27 +967,49 @@
     });
   });
   // The surprise is triggered by the tablet itself: pointing at it (or at the devices once they're out) brings them out
-  // (.ll-hover); leaving all three tucks them back after a moment. The button's row never triggers it.
+  // at once (.ll-hover); after the pointer leaves all three, they linger for 1.5 seconds, then tuck back. The button's
+  // row never triggers them, but a click on it (or anywhere on the card) while they're still out, lingering included,
+  // holds them (.ll-hold) and hands their exact places to the case study, which draws them in
+  // the same spots from its very first frame (its <head> reads llHeld), so following the card has no blink.
+  var HELD = 'llHeld';
   cards.forEach(function(card){
-    if (card.classList.contains('case-page-card')) return;
+    var extras = card.querySelectorAll('.ll-extra');
+    if (!extras.length) return;
     var parts = card.querySelectorAll('.ll-tablet, .ll-extra'), off = 0;
     Array.prototype.forEach.call(parts, function(el){
       el.addEventListener('pointerenter', function(e){ if (e.pointerType === 'touch') return; clearTimeout(off); card.classList.add('ll-hover'); });
-      el.addEventListener('pointerleave', function(){ clearTimeout(off); off = setTimeout(function(){ card.classList.remove('ll-hover'); }, 220); });
+      el.addEventListener('pointerleave', function(){ clearTimeout(off); off = setTimeout(function(){ card.classList.remove('ll-hover'); }, 1500); });
     });
+    if (card.classList.contains('case-page-card')) return;
+    card.addEventListener('click', function(){
+      if (!(card.classList.contains('ll-hover') && card.classList.contains('ll-ready'))) return;
+      card.classList.add('ll-hold');
+      try {
+        var css = '', ver = (document.querySelector('meta[name="site-version"]') || {}).content || '';
+        Array.prototype.forEach.call(extras, function(ex){
+          var cls = ex.classList.contains('ll-phone') ? '.ll-phone' : '.ll-port';
+          css += '.case-page-card.ll-card ' + cls + '{width:' + ex.style.width + ';left:' + ex.style.left + ';top:' + ex.style.top + ';}';
+        });
+        sessionStorage.setItem(HELD, JSON.stringify({ v: ver, w: window.innerWidth, h: window.innerHeight, t: Date.now(), css: css }));
+      } catch (e) {}
+    }, true);   // (capture: noted before the click is turned into "See the work")
   });
-  // The homepage extras wait their turn: once the card has been on screen long enough for it and its tablet to arrive,
-  // hovering can bring them out (.ll-ready); a few seconds later they come out on their own (.ll-pop) and stay.
+  // The hover is armed once the tablet has landed: on the homepage when the card's float-in has finished (or straight
+  // away if the card is already in place, as on a return); on the case study at once.
   cards.forEach(function(card){
-    if (card.classList.contains('case-page-card') || !card.querySelector('.ll-extra')) return;
-    var started = false;
+    if (!card.querySelector('.ll-extra')) return;
+    if (card.classList.contains('case-page-card')){ card.classList.add('ll-ready'); if (document.documentElement.classList.contains('ll-held')) card.classList.add('ll-hold'); return; }
+    var started = false, fig = card.querySelector('.ll-tablet');
+    function ready(){ card.classList.add('ll-ready'); }
     function start(){
       if (started) return; started = true;
-      setTimeout(function(){ card.classList.add('ll-ready'); }, 2100);   // after the tablet (the last part in) has landed
-      setTimeout(function(){ card.classList.add('ll-pop'); }, 4500);
+      if (card.classList.contains('is-in') && fig && fig.getAnimations && fig.getAnimations().length){
+        fig.addEventListener('animationend', ready, { once: true });
+        setTimeout(ready, 2200);   // whatever happens
+      } else setTimeout(ready, 150);
     }
     if ('IntersectionObserver' in window){
-      var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting && e.intersectionRatio >= 0.6){ start(); io.disconnect(); } }); }, { threshold: [0.6] });
+      var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting && e.intersectionRatio >= 0.6){ setTimeout(start, 60); io.disconnect(); } }); }, { threshold: [0.6] });
       io.observe(card);
     } else start();
   });

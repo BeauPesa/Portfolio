@@ -43,23 +43,24 @@
 }
 @media (prefers-reduced-motion: reduce){ .ll-card .ll-tablet img{ transition:none; } .ll-card .ll-tablet:hover img{ transform:none; } }
 
-/* ---------- Homepage hover: the phone and portrait-tablet versions grow out of the tablet ----------
-   Desktop with a mouse, wide enough for them (1100px+): pointing at the LiteLoad tablet grows a portrait tablet (above the
-   tablet, about pinstripe 4) and a phone (at the tablet's right side) out of the tablet's middle, in
-   front of it, breaking the card's edges. site.js places them on the grid and sets where each starts from (--dx, --dy:
-   the tablet's middle). A click anywhere on the card opens the case study.
-   They wait their turn: pointing at the tablet only brings them out once the card and its tablet have arrived (.ll-ready), and if the
-   visitor doesn't hover, they come out on their own a few seconds later (.ll-pop) and stay. */
+/* ---------- Hover: the portrait-tablet and phone versions grow out of the tablet ----------
+   Desktop with a mouse, wide enough for them (1100px+): pointing at the LiteLoad tablet grows a portrait tablet (above
+   it, about pinstripe 4) and a phone (at its right side) out of its middle, in front of it, breaking the card's edges;
+   they linger 1.5 seconds after the pointer leaves the tablet and the devices, then tuck back. Both moves are quick,
+   about a sixth of a second. site.js places them on the grid (--dx, --dy: where each starts, the tablet's middle) and only arms the hover
+   once the tablet has landed (.ll-ready). A click anywhere on the card opens the case study, and if the devices are
+   out at that moment they stay exactly where they are, on through the case study (html.ll-held). */
 .ll-card .ll-extra{ display:none; }
 @media (min-width: 1100px) and (hover: hover){
   #liteload .ll-card{ cursor:pointer; }
-  #liteload .ll-card .ll-extra{ display:block; position:absolute; z-index:4; margin:0 !important; pointer-events:none; opacity:0;
+  .ll-card .ll-extra{ display:block; position:absolute; z-index:4; margin:0 !important; pointer-events:none; opacity:0;
     transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(0.5);
-    transition: opacity 0.35s var(--ease), transform 0.6s cubic-bezier(0.3, 0.7, 0.4, 1); }
-  #liteload .ll-card .ll-extra img{ display:block; width:100%; height:auto; filter: drop-shadow(0 16px 22px rgba(20, 30, 50, 0.22)); }   /* a deeper shadow than the tablet's: one layer nearer */
-  #liteload .ll-card.ll-ready.ll-hover .ll-extra, #liteload .ll-card.ll-pop .ll-extra{ pointer-events:auto; cursor:pointer; opacity:1; transform:none; transition: opacity 0.45s var(--ease), transform 0.8s cubic-bezier(0.2, 0.9, 0.25, 1.06); }
-  #liteload .ll-card.ll-ready.ll-hover .ll-port, #liteload .ll-card.ll-pop .ll-port{ transition-delay: 0.05s; }
-  #liteload .ll-card.ll-ready.ll-hover .ll-phone, #liteload .ll-card.ll-pop .ll-phone{ transition-delay: 0.13s; }
-  #liteload .ll-card.is-in > .ll-extra{ animation:none; }
+    transition: opacity 0.14s var(--ease), transform 0.22s cubic-bezier(0.4, 0, 0.6, 1); }
+  .ll-card .ll-extra img{ display:block; width:100%; height:auto; filter: drop-shadow(0 16px 22px rgba(20, 30, 50, 0.22)); }   /* a deeper shadow than the tablet's: one layer nearer */
+  .ll-card.ll-ready.ll-hover .ll-extra, .ll-card.ll-hold .ll-extra{ pointer-events:auto; cursor:pointer; opacity:1; transform:none;
+    transition: opacity 0.16s var(--ease), transform 0.32s cubic-bezier(0.2, 0.9, 0.25, 1.08); }
+  .ll-card.ll-ready.ll-hover .ll-phone{ transition-delay: 0.04s; }
+  html.ll-held .ll-card .ll-extra{ opacity:1 !important; transform:none !important; transition:none !important; }
+  .ll-card.is-in > .ll-extra{ animation:none; }
 }
-@media (prefers-reduced-motion: reduce){ #liteload .ll-card .ll-extra, #liteload .ll-card.ll-ready.ll-hover .ll-extra, #liteload .ll-card.ll-pop .ll-extra{ transform:none; transition: opacity 0.3s linear; } }
+@media (prefers-reduced-motion: reduce){ .ll-card .ll-extra, .ll-card.ll-ready.ll-hover .ll-extra{ transform:none; transition: opacity 0.15s linear; } }
