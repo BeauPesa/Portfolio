@@ -1,4 +1,4 @@
-// Beau.1 · v1.3.5
+// Beau.1 · v1.3.6
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.3.5' };
+  var SITE = { release: 'Beau.1', version: '1.3.6' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -459,13 +459,23 @@
         var href = a.href;
         if (nav && !isPhone.matches) nav.classList.remove('collapsed');   // the nav plays its animation in reverse
         if (!rollUp){ setTimeout(function(){ window.location.href = href; }, 950); return; }
+        // If the visitor came here from the homepage, "Back to home" is literally a step back: the browser puts the homepage
+        // back exactly as it was left (its back/forward cache), instead of drawing it from scratch, so there's no flash.
+        // (The homepage marks this as it sends someone here, and also tucks #to-<case> into its own address, so even a
+        // browser that redraws it lands on this card.)
+        var cameFromHome = false;
+        try {
+          var hb = sessionStorage.getItem('homeBack'), ref = document.referrer ? new URL(document.referrer) : null;
+          cameFromHome = hb === here && ref && ref.origin === location.origin && /(\/|index\.html)$/.test(ref.pathname) && history.length > 1;
+        } catch (err) {}
+        var go = function(){ if (cameFromHome){ try { sessionStorage.removeItem('homeBack'); } catch (err) {} history.back(); } else window.location.href = href; };
         var roll = function(){
-          if (framed){ rollUpFrame(function(){ window.location.href = href; }); return; }
+          if (framed){ rollUpFrame(go); return; }
           var r = caseCard.getBoundingClientRect();
           caseCard.style.setProperty('--roll-stop', Math.max(60, window.innerHeight - r.bottom + 4) + 'px');
           caseCard.classList.remove('is-unrolling');
           caseCard.classList.add('is-rolling-up');
-          setTimeout(function(){ window.location.href = href; }, 950);
+          setTimeout(go, 950);
         };
         var y = framed ? caseCard.scrollTop : window.scrollY;
         if (y > 4){   // back to the top first, so the roll-up happens where you can see it
@@ -1035,6 +1045,9 @@
       io.observe(card);
     } else start();
   });
+  window.addEventListener('pageshow', function(ev){
+    if (ev.persisted) cards.forEach(function(card){ if (!card.classList.contains('case-page-card')) card.classList.remove('ll-hold', 'll-hover'); });
+  });
   function all(){
     // With a remembered layout already applied (the <head> script), don't re-measure until the real fonts are in:
     // measuring a fallback font would nudge things away from the remembered layout and back again.
@@ -1092,35 +1105,40 @@
   window.addEventListener('pagehide', function(){
     try { sessionStorage.setItem(KEY, JSON.stringify({ t: Date.now(), page: location.pathname, w: pill ? pill.offsetWidth : 0, lit: lit() })); } catch (e) {}
   });
-  var prev = null;
-  try { prev = JSON.parse(sessionStorage.getItem(KEY) || 'null'); sessionStorage.removeItem(KEY); } catch (e) {}
-  if (!prev || Date.now() - prev.t > 6000 || prev.page === location.pathname) return;
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) return;
-  // the nav highlight: start lit where the last page was lit, then fade across
-  var cur = lit(), navEl = document.getElementById('icon-nav');
-  if (navEl && prev.lit !== cur){
-    navEl.classList.add('nav-swap-init');
-    if (cur > -1) nav[cur].classList.remove('active');
-    if (prev.lit > -1 && nav[prev.lit]) nav[prev.lit].classList.add('active');
-    void navEl.offsetWidth;
-    requestAnimationFrame(function(){ requestAnimationFrame(function(){
-      navEl.classList.remove('nav-swap-init'); navEl.classList.add('nav-swap');
-      if (prev.lit > -1 && nav[prev.lit]) nav[prev.lit].classList.remove('active');
-      if (cur > -1){ nav[cur].classList.add('active'); nav[cur].style.removeProperty('background-color'); }   // the homepage tints unlit buttons inline; this one is lit again
-      setTimeout(function(){ navEl.classList.remove('nav-swap'); }, 650);
-    }); });
-  }
-  // the dots pill (phones): from the old width to this page's, its dots fading in
-  if (pill && prev.w && window.matchMedia('(max-width: 720px)').matches){
-    var to = pill.offsetWidth;
-    if (to && Math.abs(to - prev.w) > 1){
-      pill.style.transition = 'none'; pill.style.width = prev.w + 'px'; pill.classList.add('pill-morph');
-      void pill.offsetWidth;
+  function arrive(){
+    var prev = null;
+    try { prev = JSON.parse(sessionStorage.getItem(KEY) || 'null'); sessionStorage.removeItem(KEY); } catch (e) {}
+    if (!prev || Date.now() - prev.t > 6000 || prev.page === location.pathname) return;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    // the nav highlight: start lit where the last page was lit, then fade across
+    var cur = lit(), navEl = document.getElementById('icon-nav');
+    if (navEl && prev.lit !== cur){
+      navEl.classList.add('nav-swap-init');
+      if (cur > -1) nav[cur].classList.remove('active');
+      if (prev.lit > -1 && nav[prev.lit]) nav[prev.lit].classList.add('active');
+      void navEl.offsetWidth;
       requestAnimationFrame(function(){ requestAnimationFrame(function(){
-        pill.style.transition = ''; pill.style.width = to + 'px'; pill.classList.add('pill-in');
-        setTimeout(function(){ pill.classList.remove('pill-morph', 'pill-in'); pill.style.width = ''; }, 700);
+        navEl.classList.remove('nav-swap-init'); navEl.classList.add('nav-swap');
+        if (prev.lit > -1 && nav[prev.lit]) nav[prev.lit].classList.remove('active');
+        if (cur > -1){ nav[cur].classList.add('active'); nav[cur].style.removeProperty('background-color'); }   // the homepage tints unlit buttons inline; this one is lit again
+        setTimeout(function(){ navEl.classList.remove('nav-swap'); }, 650);
       }); });
     }
+    // the dots pill (phones): from the old width to this page's, its dots fading in
+    if (pill && prev.w && window.matchMedia('(max-width: 720px)').matches){
+      var to = pill.offsetWidth;
+      if (to && Math.abs(to - prev.w) > 1){
+        pill.style.transition = 'none'; pill.style.width = prev.w + 'px'; pill.classList.add('pill-morph');
+        void pill.offsetWidth;
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){
+          pill.style.transition = ''; pill.style.width = to + 'px'; pill.classList.add('pill-in');
+          setTimeout(function(){ pill.classList.remove('pill-morph', 'pill-in'); pill.style.width = ''; }, 700);
+        }); });
+      }
+    }
   }
+  arrive();
+  // (a page brought back from the browser's back/forward cache doesn't run its scripts again, so do it here)
+  window.addEventListener('pageshow', function(ev){ if (ev.persisted) arrive(); });
 })();
