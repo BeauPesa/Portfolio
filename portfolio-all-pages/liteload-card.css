@@ -2,17 +2,14 @@
    so following "See the work" changes nothing but the unroll and the nav. site.js (section 14) places the tablet and
    evens out the spacing. */
 
-/* The role line is set in Neue Machina Inktrap as a trial, from the copy installed on this computer; until the web
-   font files are added it falls back to the site's sans. */
-@font-face{ font-family:'LL Machina'; font-weight:400; src: local('PP Neue Machina Inktrap Regular'), local('PPNeueMachina-InktrapRegular'), local('PP Neue Machina Inktrap'), local('Neue Machina Inktrap'); }
-@font-face{ font-family:'LL Machina'; font-weight:700; src: local('PP Neue Machina Inktrap Ultrabold'), local('PPNeueMachina-InktrapUltrabold'), local('PP Neue Machina Inktrap Bold'), local('PPNeueMachina-InktrapBold'); }
-.ll-card .role{ font-family:'LL Machina', 'IBM Plex Sans', sans-serif; font-weight:400 !important; letter-spacing:0; font-synthesis:none; }   /* the same weight on both pages, never faked */
+/* The role line is set in Space Grotesk (free under the Open Font License, loaded with the site's other fonts). */
+.ll-card .role{ font-family:'Space Grotesk', 'IBM Plex Sans', sans-serif; font-weight:400 !important; letter-spacing:0; font-synthesis:none; }   /* the same weight on both pages, never faked */
 
 .ll-card{ position:relative; }
 .ll-card .ll-tablet{ margin:0 !important; }
 .ll-card .case-text::before, .ll-card .case-text::after{ display:none !important; }   /* this card sets its own height: no equal-height rulers */
 .ll-card .ll-tablet img{ display:block; width:100%; height:auto; transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), filter 0.45s cubic-bezier(0.25, 1, 0.5, 1); }
-.ll-card .ll-tablet:hover img{ transform: translateY(-6px); filter: drop-shadow(0 22px 26px rgba(20, 30, 50, 0.28)); }
+.ll-card .ll-tablet:hover img, #liteload .ll-card.ll-hover .ll-tablet img, .ll-card.ll-hold .ll-tablet img, html.ll-held .ll-card .ll-tablet img{ transform: translateY(-6px); filter: drop-shadow(0 22px 26px rgba(20, 30, 50, 0.28)); }
 #liteload .ll-card.is-in > .ll-tablet{ animation-name: tabletIn; }   /* homepage only: on the case study it's simply there, as the rest of the card is */
 @keyframes tabletIn{ from{ opacity:0; translate: 0 -56px; } }
 
@@ -40,7 +37,39 @@
   .ll-card .ll-tablet:hover img{ transform:none; filter:none; }
   .ll-card .case-text p:not(.ll-short){ display:none; }
   .ll-card .case-text .ll-short{ display:block; font-size: calc(var(--card-fs, 0.9rem) * 0.92); line-height:1.65; }   /* the same five-line description on the homepage card and the case study */
+  .ll-card > h2{ font-size: min(3.125rem, calc(var(--col, 179px) / 4.03)) !important; }   /* the mockup's title: about 1.4 times the other cards' */
   .ll-card .role{ font-size: calc(var(--card-fs, 0.9rem) * 0.85) !important; line-height:1.3; white-space:nowrap; min-height:0; }   /* one line, so it needn't hold room for two */
   .ll-card .case-text{ flex-grow:0 !important; }   /* the button follows the description at the even gap; any spare height stays below it */
 }
 @media (prefers-reduced-motion: reduce){ .ll-card .ll-tablet img{ transition:none; } .ll-card .ll-tablet:hover img{ transform:none; } }
+
+/* ---------- Hover: the portrait-tablet and phone versions grow out of the tablet ----------
+   Desktop with a mouse, wide enough for them (1100px+): pointing at the LiteLoad tablet grows a portrait tablet (above
+   it, about pinstripe 4) and a phone (at its right side) out of its middle, in front of it, breaking the card's edges;
+   they tuck back in the moment the pointer leaves the tablet. Both moves are quick,
+   about a sixth of a second. site.js places them on the grid (--dx, --dy: where each starts, the tablet's middle) and only arms the hover
+   once the tablet has landed (.ll-ready). A click anywhere on the card opens the case study, and if the devices are
+   out at that moment they stay exactly where they are, the tablet still lifted, on through the case study (html.ll-held);
+   if they weren't, the click pops them out. On the case study all three stay out, and any of them (or "Back to home")
+   takes the visitor home, tucking them back in. */
+.ll-card .ll-extra{ display:none; }
+@media (min-width: 1100px) and (hover: hover){
+  #liteload .ll-card{ cursor:pointer; }
+  .ll-card .ll-extra{ display:block; position:absolute; z-index:4; margin:0 !important; pointer-events:none; opacity:0;
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(0.5);
+    transition: opacity 0.1s var(--ease), transform 0.16s cubic-bezier(0.4, 0, 0.6, 1); }
+  /* The tablet's hit area is exactly its body (the image's soft shadow around it doesn't count), so the devices start
+     tucking back the instant the pointer crosses the tablet's visible edge. */
+  .ll-card .ll-tablet, .ll-card .ll-tablet img{ pointer-events:none; }
+  .ll-card .ll-tablet::after{ content:''; position:absolute; left:4.86%; right:4.86%; top:1.39%; bottom:11.02%; pointer-events:auto; cursor:pointer; }
+  /* On the case study the tablet doesn't react to hover; it keeps whatever state it arrived in until the visitor leaves. */
+  .case-page-card .ll-tablet:hover img{ transform:none; filter:none; }
+  .case-page-card.ll-hold .ll-extra{ pointer-events:auto; cursor:pointer; }   /* on the case study, all three are a way back home */
+  .ll-card .ll-extra img{ display:block; width:100%; height:auto; filter: drop-shadow(0 16px 22px rgba(20, 30, 50, 0.22)); }   /* a deeper shadow than the tablet's: one layer nearer */
+  .ll-card.ll-ready.ll-hover .ll-extra, .ll-card.ll-hold .ll-extra{ opacity:1; transform:none;
+    transition: opacity 0.16s var(--ease), transform 0.32s cubic-bezier(0.2, 0.9, 0.25, 1.08); }
+  .ll-card.ll-ready.ll-hover .ll-phone{ transition-delay: 0.04s; }
+  html.ll-held .ll-card .ll-extra{ opacity:1 !important; transform:none !important; transition:none !important; }
+  .ll-card.is-in > .ll-extra{ animation:none; }
+}
+@media (prefers-reduced-motion: reduce){ .ll-card .ll-extra, .ll-card.ll-ready.ll-hover .ll-extra{ transform:none; transition: opacity 0.15s linear; } }
