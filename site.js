@@ -1,4 +1,4 @@
-// Beau.1 · v1.3.7
+// Beau.1 · v1.3.9
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.3.7' };
+  var SITE = { release: 'Beau.1', version: '1.3.9' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -459,14 +459,16 @@
         var href = a.href;
         if (nav && !isPhone.matches) nav.classList.remove('collapsed');   // the nav plays its animation in reverse
         if (!rollUp){ setTimeout(function(){ window.location.href = href; }, 950); return; }
-        // If the visitor came here from the homepage, "Back to home" is literally a step back: the browser puts the homepage
-        // back exactly as it was left (its back/forward cache), instead of drawing it from scratch, so there's no flash.
+        // On phones, if the visitor came here from the homepage, "Back to home" is literally a step back: the browser puts
+        // the homepage back exactly as it was left (its back/forward cache) instead of drawing it from scratch, which on
+        // iPhone browsers flashed an empty frame. (Desktop browsers don't have that flash, and a frozen homepage would show
+        // its hover devices for a frame, so on desktop it loads normally.)
         // (The homepage marks this as it sends someone here, and also tucks #to-<case> into its own address, so even a
         // browser that redraws it lands on this card.)
         var cameFromHome = false;
         try {
           var hb = sessionStorage.getItem('homeBack'), ref = document.referrer ? new URL(document.referrer) : null;
-          cameFromHome = hb === here && ref && ref.origin === location.origin && /(\/|index\.html)$/.test(ref.pathname) && history.length > 1;
+          cameFromHome = isPhone.matches && hb === here && ref && ref.origin === location.origin && /(\/|index\.html)$/.test(ref.pathname) && history.length > 1;
         } catch (err) {}
         var go = function(){ if (cameFromHome){ try { sessionStorage.removeItem('homeBack'); } catch (err) {} history.back(); } else window.location.href = href; };
         var roll = function(){
@@ -896,12 +898,16 @@
     var cr = card.getBoundingClientRect();
     var stripes = Array.prototype.map.call(document.querySelectorAll('#grid-lines-global > *'), function(e){ return e.getBoundingClientRect().left - cr.left; });
     if (stripes.length < 6){ if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed'); return; }
-    var w = (stripes[5] - stripes[3]) / (BR - BL), h = w * AR;
-    fig.style.width = w + 'px'; fig.style.left = (stripes[3] - BL * w) + 'px'; fig.style.top = (topIn(card, rule) - BT * h) + 'px';
+    // Tablet-sized windows (721-1099px) are "compact": the left column is wider (pinstripe 2 to 4), so the tablet starts
+    // a little right of pinstripe 4, and the spacing is a steady 22px instead of being solved against the tablet.
+    var compact = window.innerWidth < 1100, gcol = stripes[4] - stripes[3];
+    var tl = compact ? stripes[3] + 0.12 * gcol : stripes[3];
+    var w = (stripes[5] - tl) / (BR - BL), h = w * AR;
+    fig.style.width = w + 'px'; fig.style.left = (tl - BL * w) + 'px'; fig.style.top = (topIn(card, rule) - BT * h) + 'px';
     var tabletBottom = topIn(card, rule) + (BB - BT) * h;    // card px: the device's lower edge, not its shadow
     // the description: five lines, its type stepping down (to 12px at most) if it would need a sixth
     var fs = parseFloat(getComputedStyle(p).fontSize);
-    while (lines(card, p).length > 5 && fs > 13){ fs -= 0.25; px(p, 'font-size', fs); }
+    while (!compact && lines(card, p).length > 5 && fs > 13){ fs -= 0.25; px(p, 'font-size', fs); }
     // One gap, G, everywhere: first rule to the title's capitals, title baseline to the role line's x-height, role
     // baseline to the second rule, second rule to the description's capitals, and tablet to button. G and the
     // description's leading are solved together so its last baseline lands on the tablet's bottom edge: leading
@@ -914,6 +920,7 @@
     if (G < 16){ lh = Math.max(fs * 1.3, (K - 4 * 16) / Math.max(1, n - 1)); G = (K - (n - 1) * lh) / 4; }
     if (G > 48){ lh = Math.min(fs * 2.1, (K - 4 * 48) / Math.max(1, n - 1)); G = (K - (n - 1) * lh) / 4; }
     G = Math.max(16, G);   // never closer than 16px: on narrow screens the description may then run past the tablet instead
+    if (compact){ G = 22; lh = fs * 1.55; }
     px(p, 'line-height', lh);
     H = lines(card, h2); nudge(h2, G - (H[0].cap - edges(card, rule).bottom));
     H = lines(card, h2); R = lines(card, role); nudge(role, G - (R[0].xtop - H[H.length - 1].base));
