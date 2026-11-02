@@ -1,4 +1,4 @@
-// Beau.1 · v1.4.6
+// Beau.1 · v1.4.7
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.4.6' };
+  var SITE = { release: 'Beau.1', version: '1.4.7' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -856,7 +856,14 @@
     device(card.querySelector('.ll-tablet'));
     var rule = card.querySelector('.thread'), rule2 = card.querySelectorAll('.thread')[1], h2 = card.querySelector('h2'), role = card.querySelector('.role');
     var btn = card.querySelector('.cta, .case-page-cta:not(.back-dock)'), fig = card.querySelector('.ll-tablet'), p = visible(card);
-    if (fig && !p){ fig.style.visibility = 'hidden'; return; }   // a locked case study: its text (and so its layout) arrives with the password
+    if (fig && !p){   // a locked case study: its text (and so its layout) arrives with the password
+      fig.style.visibility = 'hidden';
+      if (!phone.matches){   // ...but the card keeps the homepage card's height, down to the GitHub icon, so nothing jumps
+        var ghL = document.querySelectorAll('#social-nav a')[1], homeL = document.querySelector('#icon-nav a');
+        if (ghL && homeL){ var mh = ghL.getBoundingClientRect().bottom - homeL.getBoundingClientRect().bottom; if (mh > 0) px(card, 'min-height', mh); }
+      }
+      return;
+    }
     if (fig) fig.style.removeProperty('visibility');
     if (!rule || !rule2 || !h2 || !role || !p || !fig){ if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed'); return; }
     var t, r, first, last, gapTo;
