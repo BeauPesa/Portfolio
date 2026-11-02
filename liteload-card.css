@@ -17,7 +17,7 @@
    its top on the first dashed rule; the button from pinstripe 4 to 6, under the tablet. */
 @media (min-width: 721px){
   .ll-card{ position:relative; overflow:visible; }
-  .ll-card > *:not(.ll-tablet):not(.lock-veil){ max-width: calc(1.5 * var(--grid-gap)); }   /* (the NDA veil keeps covering the whole card) */
+  .ll-card > *:not(.ll-tablet):not(.lock-veil):not(.cta):not(.case-page-cta){ max-width: calc(1.5 * var(--grid-gap)); }   /* (the NDA veil keeps covering the whole card; the button has its own width) */
   .ll-card > .cta, .ll-card > .case-page-cta:not(.back-dock){ width: calc(2 * var(--grid-gap)); max-width:none; position:relative; left: calc(2 * var(--grid-gap)); }
   /* first guess, before site.js measures (so it's already in place when the page appears): body from pinstripe 4 to 6 */
   .ll-card .ll-tablet{ position:absolute; z-index:3; width: calc(2 * var(--grid-gap) / 0.9028); left: calc(2.5 * var(--grid-gap) - 2 * var(--grid-gap) * 0.0486 / 0.9028); top: calc(2 * var(--u, 30px) + 60px - 2 * var(--grid-gap) / 0.9028 * 0.7193 * 0.0139); }
@@ -30,7 +30,7 @@
    awkwardly or jumps as the window is resized. site.js places the tablet just right of pinstripe 4. */
 @media (min-width: 721px) and (max-width: 1099px){
   .ll-card > *:not(.ll-tablet):not(.ll-extra):not(.cta):not(.case-page-cta):not(.lock-veil){ max-width: calc(2 * var(--grid-gap) - 12px); }
-  .ll-card > .cta, .ll-card > .case-page-cta:not(.back-dock){ left: calc(2.12 * var(--grid-gap)); width: calc(1.88 * var(--grid-gap)); }   /* under the tablet, edge to edge */
+
   .ll-card .role{ white-space:nowrap; font-size: min(16px, calc(var(--grid-gap) * 0.12)) !important; }   /* the same size on both pages: full size, easing down only where the column gets too narrow for one line */
 }
 
