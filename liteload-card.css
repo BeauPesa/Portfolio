@@ -31,7 +31,7 @@
 @media (min-width: 721px) and (max-width: 1099px){
   .ll-card > *:not(.ll-tablet):not(.ll-extra):not(.cta):not(.case-page-cta){ max-width: calc(2 * var(--grid-gap) - 12px); }
   .ll-card > .cta, .ll-card > .case-page-cta:not(.back-dock){ left: calc(2.12 * var(--grid-gap)); width: calc(1.88 * var(--grid-gap)); }   /* under the tablet, edge to edge */
-  .ll-card .role{ white-space:nowrap; font-size: min(1em, calc(var(--grid-gap) * 0.085)); }
+  .ll-card .role{ white-space:nowrap; font-size: min(16px, calc(var(--grid-gap) * 0.12)) !important; }   /* the same size on both pages: full size, easing down only where the column gets too narrow for one line */
 }
 
 /* Phones: the tablet sits between the No. badge and the first dashed rule. Its body spans the card's text width; the
