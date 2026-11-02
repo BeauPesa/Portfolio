@@ -1,4 +1,4 @@
-// Beau.1 · v1.3.9
+// Beau.1 · v1.4.3
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.3.9' };
+  var SITE = { release: 'Beau.1', version: '1.4.3' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -975,17 +975,19 @@
   }
   var FACES = ['800 1em "Big Shoulders Display"', '400 1em "IBM Plex Sans"', '400 1em "Space Grotesk"'];
   function fontsIn(){ try { return FACES.every(function(f){ return document.fonts.check(f); }); } catch (e){ return true; } }
-  // The homepage card is one big link to its case study on desktop: a click anywhere on it (not on a link) is "See the work".
+  // On the homepage card, three things open the case study: "See the work", the No. badge, and (on desktop with a mouse)
+  // the tablet itself, which is what the hover draws the eye to. The rest of the card isn't a link.
   cards.forEach(function(card){
     if (card.classList.contains('case-page-card')) return;
-    card.addEventListener('click', function(e){
-      if (e.target.closest('a, button') || !window.matchMedia('(min-width: 1100px) and (hover: hover)').matches) return;
+    var fig = card.querySelector('.ll-tablet');
+    if (fig) fig.addEventListener('click', function(){
+      if (!window.matchMedia('(min-width: 1100px) and (hover: hover)').matches) return;
       var cta = card.querySelector('.cta'); if (cta) cta.click();
     });
   });
   // The surprise is triggered by the tablet itself: pointing at it brings them out at once (.ll-hover), and they start
-  // tucking back in the moment the pointer leaves the tablet. "See the work" (or any click on the card) pops them out if
-  // they aren't already and holds them (.ll-hold) and hands their exact places to the case study, which draws them in
+  // tucking back in the moment the pointer leaves the tablet. Heading to the case study (See the work, the No. badge or the
+  // tablet) pops them out if they aren't already and holds them (.ll-hold) and hands their exact places to the case study, which draws them in
   // the same spots from its very first frame (its <head> reads llHeld), so following the card has no blink.
   var HELD = 'llHeld';
   cards.forEach(function(card){
@@ -1003,9 +1005,10 @@
       fig.addEventListener('pointerenter', function(e){ if (e.pointerType === 'touch') return; card.classList.add('ll-hover'); });
       fig.addEventListener('pointerleave', function(){ card.classList.remove('ll-hover'); });   // the moment the pointer leaves the tablet
     }
-    card.addEventListener('click', function(){
-      // "See the work" (or any click on the card): the devices pop out if they aren't already, and hold.
-      if (getComputedStyle(extras[0]).display === 'none') return;
+    card.addEventListener('click', function(e){
+      // Heading to the case study ("See the work", the No. badge or the tablet): the devices pop out if they aren't
+      // already, and hold.
+      if (!e.target.closest('.cta, .badge-link, .ll-tablet') || getComputedStyle(extras[0]).display === 'none') return;
       card.classList.add('ll-ready', 'll-hover', 'll-hold');
       try {
         var css = '', ver = (document.querySelector('meta[name="site-version"]') || {}).content || '';
@@ -1052,20 +1055,14 @@
       io.observe(card);
     } else start();
   });
-  // The homepage is kept in the browser's back/forward cache when the visitor heads to the case study, and comes back
-  // from it exactly as it was frozen. So as it's frozen, its LiteLoad card is put back to rest (devices tucked away, tablet
-  // settled) with transitions switched off: when it comes back, its first frame is already the resting card, and it
-  // doesn't replay anything. Transitions return a moment after it's back.
-  window.addEventListener('pagehide', function(){
+  // If the homepage comes back from the browser's back/forward cache (the browser's own Back button), its LiteLoad card
+  // is put back to rest at once, without transitions. (It isn't reset as the visitor leaves: the browser can keep showing
+  // the outgoing page for a moment after that, and the devices would vanish in the gap before the case study appears.)
+  window.addEventListener('pageshow', function(ev){
+    if (!ev.persisted) return;
     cards.forEach(function(card){
       if (card.classList.contains('case-page-card')) return;
       card.classList.add('ll-still'); card.classList.remove('ll-hold', 'll-hover');
-    });
-  });
-  window.addEventListener('pageshow', function(ev){
-    cards.forEach(function(card){
-      if (card.classList.contains('case-page-card')) return;
-      card.classList.remove('ll-hold', 'll-hover');
       requestAnimationFrame(function(){ requestAnimationFrame(function(){ card.classList.remove('ll-still'); }); });
     });
   });

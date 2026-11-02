@@ -56,13 +56,12 @@
    it, about pinstripe 4) and a phone (at its right side) out of its middle, in front of it, breaking the card's edges;
    they tuck back in the moment the pointer leaves the tablet. Both moves are quick,
    about a sixth of a second. site.js places them on the grid (--dx, --dy: where each starts, the tablet's middle) and only arms the hover
-   once the tablet has landed (.ll-ready). A click anywhere on the card opens the case study, and if the devices are
-   out at that moment they stay exactly where they are, the tablet still lifted, on through the case study (html.ll-held);
+   once the tablet has landed (.ll-ready). See the work, the No. badge or the tablet opens the case study (the rest of the card isn't a
+   link); if the devices are out at that moment they stay exactly where they are, the tablet still lifted, on through the case study (html.ll-held);
    if they weren't, the click pops them out. On the case study all three stay out, and any of them (or "Back to home")
    takes the visitor home, tucking them back in. */
 .ll-card .ll-extra{ display:none; }
 @media (min-width: 1100px) and (hover: hover){
-  #liteload .ll-card{ cursor:pointer; }
   .ll-card .ll-extra{ display:block; position:absolute; z-index:4; margin:0 !important; pointer-events:none; opacity:0;
     transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(0.5);
     transition: opacity 0.1s var(--ease), transform 0.16s cubic-bezier(0.4, 0, 0.6, 1); }
