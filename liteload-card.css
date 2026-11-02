@@ -73,3 +73,4 @@
   .ll-card.is-in > .ll-extra{ animation:none; }
 }
 @media (prefers-reduced-motion: reduce){ .ll-card .ll-extra, .ll-card.ll-ready.ll-hover .ll-extra{ transform:none; transition: opacity 0.15s linear; } }
+.ll-card.ll-still .ll-extra, .ll-card.ll-still .ll-tablet img{ transition:none !important; }   /* while the homepage is frozen and brought back (site.js) */

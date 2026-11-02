@@ -1,4 +1,4 @@
-// Beau.1 · v1.3.6
+// Beau.1 · v1.3.7
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.3.6' };
+  var SITE = { release: 'Beau.1', version: '1.3.7' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -1045,8 +1045,22 @@
       io.observe(card);
     } else start();
   });
+  // The homepage is kept in the browser's back/forward cache when the visitor heads to the case study, and comes back
+  // from it exactly as it was frozen. So as it's frozen, its LiteLoad card is put back to rest (devices tucked away, tablet
+  // settled) with transitions switched off: when it comes back, its first frame is already the resting card, and it
+  // doesn't replay anything. Transitions return a moment after it's back.
+  window.addEventListener('pagehide', function(){
+    cards.forEach(function(card){
+      if (card.classList.contains('case-page-card')) return;
+      card.classList.add('ll-still'); card.classList.remove('ll-hold', 'll-hover');
+    });
+  });
   window.addEventListener('pageshow', function(ev){
-    if (ev.persisted) cards.forEach(function(card){ if (!card.classList.contains('case-page-card')) card.classList.remove('ll-hold', 'll-hover'); });
+    cards.forEach(function(card){
+      if (card.classList.contains('case-page-card')) return;
+      card.classList.remove('ll-hold', 'll-hover');
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ card.classList.remove('ll-still'); }); });
+    });
   });
   function all(){
     // With a remembered layout already applied (the <head> script), don't re-measure until the real fonts are in:
