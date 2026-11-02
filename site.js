@@ -1,4 +1,4 @@
-// Beau.1 · v1.3.0
+// Beau.1 · v1.3.2
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.3.0' };
+  var SITE = { release: 'Beau.1', version: '1.3.2' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -967,7 +967,7 @@
     });
   });
   // The surprise is triggered by the tablet itself: pointing at it (or at the devices once they're out) brings them out
-  // at once (.ll-hover); after the pointer leaves all three, they linger for 1.5 seconds, then tuck back. The button's
+  // at once (.ll-hover); after the pointer leaves all three, they linger for half a second, then tuck back. The button's
   // row never triggers them, but a click on it (or anywhere on the card) while they're still out, lingering included,
   // holds them (.ll-hold) and hands their exact places to the case study, which draws them in
   // the same spots from its very first frame (its <head> reads llHeld), so following the card has no blink.
@@ -978,7 +978,7 @@
     var parts = card.querySelectorAll('.ll-tablet, .ll-extra'), off = 0;
     Array.prototype.forEach.call(parts, function(el){
       el.addEventListener('pointerenter', function(e){ if (e.pointerType === 'touch') return; clearTimeout(off); card.classList.add('ll-hover'); });
-      el.addEventListener('pointerleave', function(){ clearTimeout(off); off = setTimeout(function(){ card.classList.remove('ll-hover'); }, 1500); });
+      el.addEventListener('pointerleave', function(){ clearTimeout(off); off = setTimeout(function(){ card.classList.remove('ll-hover'); }, 500); });
     });
     if (card.classList.contains('case-page-card')) return;
     card.addEventListener('click', function(){
@@ -998,7 +998,19 @@
   // away if the card is already in place, as on a return); on the case study at once.
   cards.forEach(function(card){
     if (!card.querySelector('.ll-extra')) return;
-    if (card.classList.contains('case-page-card')){ card.classList.add('ll-ready'); if (document.documentElement.classList.contains('ll-held')) card.classList.add('ll-hold'); return; }
+    if (card.classList.contains('case-page-card')){
+      card.classList.add('ll-ready');
+      if (document.documentElement.classList.contains('ll-held')){
+        card.classList.add('ll-hold');
+        // They stay out on the case study until "Back to home": then they tuck back into the tablet (the homepage's
+        // animation in reverse) and the tablet settles, while the card rolls up, so the homepage receives them tucked away.
+        var back = card.querySelector('.case-page-cta');
+        if (back) back.addEventListener('click', function(){
+          document.documentElement.classList.remove('ll-held'); card.classList.remove('ll-hold', 'll-hover');
+        }, true);
+      }
+      return;
+    }
     var started = false, fig = card.querySelector('.ll-tablet');
     function ready(){ card.classList.add('ll-ready'); }
     function start(){

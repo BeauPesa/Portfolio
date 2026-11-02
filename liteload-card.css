@@ -9,7 +9,7 @@
 .ll-card .ll-tablet{ margin:0 !important; }
 .ll-card .case-text::before, .ll-card .case-text::after{ display:none !important; }   /* this card sets its own height: no equal-height rulers */
 .ll-card .ll-tablet img{ display:block; width:100%; height:auto; transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), filter 0.45s cubic-bezier(0.25, 1, 0.5, 1); }
-.ll-card .ll-tablet:hover img, #liteload .ll-card.ll-hover .ll-tablet img{ transform: translateY(-6px); filter: drop-shadow(0 22px 26px rgba(20, 30, 50, 0.28)); }
+.ll-card .ll-tablet:hover img, #liteload .ll-card.ll-hover .ll-tablet img, .ll-card.ll-hold .ll-tablet img, html.ll-held .ll-card .ll-tablet img{ transform: translateY(-6px); filter: drop-shadow(0 22px 26px rgba(20, 30, 50, 0.28)); }
 #liteload .ll-card.is-in > .ll-tablet{ animation-name: tabletIn; }   /* homepage only: on the case study it's simply there, as the rest of the card is */
 @keyframes tabletIn{ from{ opacity:0; translate: 0 -56px; } }
 
@@ -46,10 +46,11 @@
 /* ---------- Hover: the portrait-tablet and phone versions grow out of the tablet ----------
    Desktop with a mouse, wide enough for them (1100px+): pointing at the LiteLoad tablet grows a portrait tablet (above
    it, about pinstripe 4) and a phone (at its right side) out of its middle, in front of it, breaking the card's edges;
-   they linger 1.5 seconds after the pointer leaves the tablet and the devices, then tuck back. Both moves are quick,
+   they linger half a second after the pointer leaves the tablet and the devices, then tuck back. Both moves are quick,
    about a sixth of a second. site.js places them on the grid (--dx, --dy: where each starts, the tablet's middle) and only arms the hover
    once the tablet has landed (.ll-ready). A click anywhere on the card opens the case study, and if the devices are
-   out at that moment they stay exactly where they are, on through the case study (html.ll-held). */
+   out at that moment they stay exactly where they are, the tablet still lifted, on through the case study (html.ll-held),
+   until "Back to home" tucks them back in. */
 .ll-card .ll-extra{ display:none; }
 @media (min-width: 1100px) and (hover: hover){
   #liteload .ll-card{ cursor:pointer; }
