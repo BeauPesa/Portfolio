@@ -1,4 +1,4 @@
-// Beau.1 · v1.4.4
+// Beau.1 · v1.4.6
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.4.4' };
+  var SITE = { release: 'Beau.1', version: '1.4.6' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -846,10 +846,18 @@
     card.querySelectorAll('.ll-extra').forEach(function(ex){ ['width', 'left', 'top', '--dx', '--dy'].forEach(function(k){ ex.style.removeProperty(k); }); });
   }
   function visible(card){ return Array.prototype.filter.call(card.querySelectorAll('.case-text p'), function(p){ return p.offsetHeight > 0; })[0]; }
+  function device(fig){   // this card's device image: where its body sits in the image, and its proportions
+    var b = (fig && fig.getAttribute('data-body') || '0.0486 0.0139 0.9514 0.8898').split(/\s+/).map(Number);
+    BL = b[0]; BT = b[1]; BR = b[2]; BB = b[3];
+    AR = fig && fig.getAttribute('data-ar') ? Number(fig.getAttribute('data-ar')) : 1007 / 1400;
+  }
   function place(card){
     reset(card);
+    device(card.querySelector('.ll-tablet'));
     var rule = card.querySelector('.thread'), rule2 = card.querySelectorAll('.thread')[1], h2 = card.querySelector('h2'), role = card.querySelector('.role');
     var btn = card.querySelector('.cta, .case-page-cta:not(.back-dock)'), fig = card.querySelector('.ll-tablet'), p = visible(card);
+    if (fig && !p){ fig.style.visibility = 'hidden'; return; }   // a locked case study: its text (and so its layout) arrives with the password
+    if (fig) fig.style.removeProperty('visibility');
     if (!rule || !rule2 || !h2 || !role || !p || !fig){ if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed'); return; }
     var t, r, first, last, gapTo;
     if (phone.matches){
@@ -897,6 +905,8 @@
     }
     var cr = card.getBoundingClientRect();
     var stripes = Array.prototype.map.call(document.querySelectorAll('#grid-lines-global > *'), function(e){ return e.getBoundingClientRect().left - cr.left; });
+    // A phone-shaped device ("fit: height") is sized to the left column's height instead of the column grid's width.
+    var fitH = fig.getAttribute('data-fit') === 'height';
     if (stripes.length < 6){ if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed'); return; }
     // Tablet-sized windows (721-1099px) are "compact": the left column is wider (pinstripe 2 to 4), so the tablet starts
     // a little right of pinstripe 4, and the spacing is a steady 22px instead of being solved against the tablet.
@@ -905,6 +915,17 @@
     var w = (stripes[5] - tl) / (BR - BL), h = w * AR;
     fig.style.width = w + 'px'; fig.style.left = (tl - BL * w) + 'px'; fig.style.top = (topIn(card, rule) - BT * h) + 'px';
     var tabletBottom = topIn(card, rule) + (BB - BT) * h;    // card px: the device's lower edge, not its shadow
+    if (fitH){
+      // A phone stands centred between pinstripes 4 and 6 at a phone's size: on desktop its body is 1.55 columns tall
+      // (the text is then spaced to it, as with the tablet); on tablet-sized windows it's sized to the text instead.
+      if (compact) tabletBottom = 1e9;
+      else {
+        var phH = 1.55 * gcol, phW = phH * (BR - BL) / ((BB - BT) * AR);
+        w = phW / (BR - BL); h = w * AR;
+        fig.style.width = w + 'px'; fig.style.left = ((stripes[3] + stripes[5]) / 2 - phW / 2 - BL * w) + 'px'; fig.style.top = (topIn(card, rule) - BT * h) + 'px';
+        tabletBottom = topIn(card, rule) + (BB - BT) * h;
+      }
+    }
     // the description: five lines, its type stepping down (to 12px at most) if it would need a sixth
     var fs = parseFloat(getComputedStyle(p).fontSize);
     while (!compact && lines(card, p).length > 5 && fs > 13){ fs -= 0.25; px(p, 'font-size', fs); }
@@ -927,6 +948,14 @@
     R = lines(card, role); nudge(rule2, G - (edges(card, rule2).top - R[R.length - 1].base));
     P = lines(card, p); nudge(p.parentNode, G - (P[0].cap - edges(card, rule2).bottom));
     P = lines(card, p);
+    if (fitH && compact){
+      // (tablet-sized windows) The phone stands between pinstripes 4 and 6 (centred), its top on the first rule and its
+      // foot level with the description's last baseline.
+      var bodyH = P[P.length - 1].base - topIn(card, rule), bodyW = bodyH * (BR - BL) / ((BB - BT) * AR);
+      w = bodyW / (BR - BL); h = w * AR;
+      fig.style.width = w + 'px'; fig.style.left = ((tl + stripes[5]) / 2 - bodyW / 2 - BL * w) + 'px'; fig.style.top = (topIn(card, rule) - BT * h) + 'px';
+      tabletBottom = topIn(card, rule) + (BB - BT) * h;
+    }
     var off = tabletBottom - P[P.length - 1].base;
     if (off > 0) nudge(p.parentNode, off);                          // rounding, or a gap held at its limit (never pulled up into the rule)
     P = lines(card, p);
@@ -1009,6 +1038,7 @@
       // Heading to the case study ("See the work", the No. badge or the tablet): the devices pop out if they aren't
       // already, and hold.
       if (!e.target.closest('.cta, .badge-link, .ll-tablet') || getComputedStyle(extras[0]).display === 'none') return;
+      card.setAttribute('data-ll-were-out', card.classList.contains('ll-hover') && card.classList.contains('ll-ready') ? '1' : '0');   // (the homepage times its hand-off by this)
       card.classList.add('ll-ready', 'll-hover', 'll-hold');
       try {
         var css = '', ver = (document.querySelector('meta[name="site-version"]') || {}).content || '';
@@ -1082,7 +1112,7 @@
     try {
       var css = '';
       cards.forEach(function(card){
-        var sel = card.classList.contains('case-page-card') ? '.case-page-card.ll-card' : '#liteload .ll-card';
+        var sec = card.closest('section'), sel = card.classList.contains('case-page-card') ? '.case-page-card.ll-card' : '#' + (sec ? sec.id : 'liteload') + ' .ll-card';
         var KEEP = /^(margin-top|padding-top|height|min-height|line-height|font-size|width|left|top)$/;   // layout only: never colours, visibility or animation state
         var rule = function(target, el){
           var out = '';
@@ -1106,6 +1136,7 @@
   // the case study's arrival changes classes on the page and the card; measure again once it has settled
   if (window.MutationObserver){
     var mo = new MutationObserver(soon);
+    cards.forEach(function(c){ var t = c.querySelector('.case-text'); if (t) mo.observe(t, { childList:true, subtree:true }); });   // (a case study's text appearing when it's unlocked)
     mo.observe(document.documentElement, { attributes:true, attributeFilter:['class'] });
     cards.forEach(function(c){ mo.observe(c, { attributes:true, attributeFilter:['class'] }); });
   }
