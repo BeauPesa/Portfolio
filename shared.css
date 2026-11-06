@@ -1,4 +1,4 @@
-/* Beau.1 · v1.4.9 */
+/* Beau.1 · v1.5.2 */
 /* ===================================================================
    SHARED STYLESHEET
    Used by every page except the homepage (which is self-contained
@@ -1047,7 +1047,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 }
 
 /* ---------- Version ---------- (read by siteVersion() in site.js) */
-:root{ --site-version: "1.4.9"; }
+:root{ --site-version: "1.5.2"; }
 
 /* ---------- Gallery: a caption on hover, and the photo viewer ----------
    A tile with data-caption shows its title over the picture on hover or focus (touch screens have no hover: they get the
@@ -1368,3 +1368,12 @@ html.frame .case-page-card::after{ flex-shrink:0; }
    The small labels above the headlines ("Hi, it's me", "Nice to meet you", "Off the clock"...) share Space Grotesk with
    the role lines and the badges' "No.", in semibold: Big Shoulders for headlines, Space Grotesk for labels, Plex for reading. */
 .eyebrow, .page-hero h2.eyebrow{ font-family:'Space Grotesk', 'IBM Plex Sans', sans-serif; font-weight:600; letter-spacing:0.01em; }
+
+/* ---------- Phones: the No. badge straddles the card's top-left corner ----------
+   As on the homepage. Once the card has settled into its scrolling frame the badge is pinned to the frame's corner
+   instead (a scrolling frame would clip it), and it fades out while the card slides on a swipe (site.js, section 17). */
+@media (max-width: 720px){
+  .case-page-card > .badge-link{ position:absolute !important; top:-30px !important; left:-30px !important; z-index:5; margin:0 !important; transition: opacity 0.15s var(--ease); }
+  html.frame .case-page-card > .badge-link{ position:fixed !important; top: calc(var(--frame-top) - 30px) !important; left: calc(var(--grid-inset) + 0.5 * var(--mobile-grid-gap) - 30px) !important; }
+  .case-page-card > .badge-link.is-away{ opacity:0; }
+}

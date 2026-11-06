@@ -1,4 +1,4 @@
-// Beau.1 · v1.4.9
+// Beau.1 · v1.5.2
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.4.9' };
+  var SITE = { release: 'Beau.1', version: '1.5.2' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -267,6 +267,9 @@
     var h = homeCircle(), size = h.width;
     if (isPhone.matches){   // phones: on the card's left edge, as far below the card's top as the card's top is below the row above it
       var pc = dockCard.getBoundingClientRect();   // on a phone both kinds of card are a fixed frame that scrolls inside itself
+      // with the No. badge straddling the card's corner, the circle docks just below it, on the same edge
+      var bd = dockCard.querySelector(':scope > .badge-link');
+      if (bd && /absolute|fixed/.test(getComputedStyle(bd).position)) return { left: pc.left - size / 2, top: bd.getBoundingClientRect().bottom + 10, width: size, height: size };
       return { left: pc.left - size / 2, top: pc.top + frameGap(pc), width: size, height: size };
     }
     var lines = Array.prototype.map.call(document.querySelectorAll('#grid-lines-global span'), function(e){ return e.getBoundingClientRect().x; });
@@ -874,7 +877,14 @@
       // (The headline group, rule to rule, sits 5px higher than the mockup; everything else is where the mockup has it.)
       var badge = card.querySelector('.badge-link'), img = fig.querySelector('img');
       var imgH = img ? img.offsetHeight : fig.offsetHeight;
-      if (badge){
+      // the phone title is set large (liteload-card.css); a longer name steps down until it fits on its one line
+      h2.style.removeProperty('font-size');
+      var tfs = parseFloat(getComputedStyle(h2).fontSize);
+      while (h2.scrollWidth > h2.clientWidth + 1 && tfs > 24){ tfs -= 1; px(h2, 'font-size', tfs); }
+      var badgeOut = badge && /absolute|fixed/.test(getComputedStyle(badge).position);   // straddling the card's corner, out of the flow
+      if (badgeOut){
+        nudge(fig, 32 - (topIn(card, fig) + BT * imgH));   // the device leads the card
+      } else if (badge){
         nudge(badge, 32 - topIn(card, badge));
         nudge(fig, 32 - ((topIn(card, fig) + BT * imgH) - (topIn(card, badge) + badge.offsetHeight)));
       }
@@ -898,7 +908,7 @@
         var spare = card.offsetHeight - last[last.length - 1].base - btn.offsetHeight, short = 40 - spare;
         if (short > 0){
           var k = Math.min(0.85, short / 138.5);
-          if (badge) nudge(badge, -32 * k);
+          if (badge && !badgeOut) nudge(badge, -32 * k);
           nudge(fig, -32 * k); nudge(rule, -38 * k); nudge(p.parentNode, -36.5 * k);
           // still short (a long description on a small phone): the device gives up the rest of the room, down to 55% of
           // its size, rather than the button being pushed off the card
@@ -1253,4 +1263,32 @@
   window.addEventListener('load', fit);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
   if (window.MutationObserver) new MutationObserver(function(){ cancelAnimationFrame(q); q = requestAnimationFrame(fit); }).observe(document.documentElement, { attributes:true, attributeFilter:['class'] });
+})();
+
+/* ---------------- 17. Phones: the No. badge straddles the card's top-left corner ----------------
+   (shared.css / index.html.) On a case study that has settled into its scrolling frame, the badge is pinned to the
+   frame's corner (a scrolling frame would clip anything poking out of it). While the card slides in or out on a swipe it
+   can't follow, so it fades out for the slide and back in once the card is still. */
+(function(){
+  var card = document.querySelector('.case-page-card'), phone = window.matchMedia('(max-width: 720px)');
+  var badge = card && card.querySelector('.badge-link');
+  if (!badge) return;
+  function moving(){
+    if (card.style.transform && card.style.transform !== 'none') return true;
+    var t = getComputedStyle(card).transform;
+    if (t && t !== 'none') return true;
+    // only a slide counts (an animation of the card's transform), not the frame settling in, which leaves the corner put
+    return card.getAnimations ? card.getAnimations().some(function(a){
+      if (a.playState !== 'running' || !a.effect || !a.effect.getKeyframes) return false;
+      return a.effect.getKeyframes().some(function(k){ return 'transform' in k || 'translate' in k; });
+    }) : false;
+  }
+  (function tick(){
+    if (phone.matches && document.documentElement.classList.contains('frame')){
+      badge.classList.add('is-shown');   // (pinned outside the scrolling frame, the reveal-on-scroll can't see it, so it's simply shown)
+      badge.classList.toggle('is-away', moving());
+    }
+    else badge.classList.remove('is-away');
+    requestAnimationFrame(tick);
+  })();
 })();
