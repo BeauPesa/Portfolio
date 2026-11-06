@@ -1,4 +1,4 @@
-// Beau.1 · v1.4.8
+// Beau.1 · v1.4.9
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.4.8' };
+  var SITE = { release: 'Beau.1', version: '1.4.9' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -842,7 +842,7 @@
     card.querySelectorAll('h2, .role, .thread, .case-text, .cta, .case-page-cta, .badge-link, .ll-tablet').forEach(function(el){ el.style.removeProperty('margin-top'); });
     card.querySelectorAll('.case-text p').forEach(function(p){ p.style.removeProperty('line-height'); p.style.removeProperty('font-size'); });
     card.style.removeProperty('min-height'); card.style.removeProperty('padding-top'); card.style.removeProperty('height');
-    var fig = card.querySelector('.ll-tablet'); if (fig){ ['width', 'left', 'top'].forEach(function(k){ fig.style.removeProperty(k); }); }
+    var fig = card.querySelector('.ll-tablet'); if (fig){ ['width', 'left', 'top', 'margin-left', 'margin-right', 'align-self'].forEach(function(k){ fig.style.removeProperty(k); }); }
     card.querySelectorAll('.ll-extra').forEach(function(ex){ ['width', 'left', 'top', '--dx', '--dy'].forEach(function(k){ ex.style.removeProperty(k); }); });
   }
   function visible(card){ return Array.prototype.filter.call(card.querySelectorAll('.case-text p'), function(p){ return p.offsetHeight > 0; })[0]; }
@@ -891,15 +891,24 @@
           if (frameH > 200){ px(card, 'height', frameH); px(card, 'min-height', frameH); }
         }
       }
-      // On shorter phones that would leave the button squeezed: if it would get less than 16px above and below, the four
+      // On shorter phones that would leave the button squeezed: if it would get less than 20px above and below, the four
       // larger gaps (32, 32, 38, 36.5) give up the difference in proportion, so the rhythm stays the mockup's.
       if (btn){
         last = lines(card, p);
-        var spare = card.offsetHeight - last[last.length - 1].base - btn.offsetHeight, short = 32 - spare;
+        var spare = card.offsetHeight - last[last.length - 1].base - btn.offsetHeight, short = 40 - spare;
         if (short > 0){
           var k = Math.min(0.85, short / 138.5);
           if (badge) nudge(badge, -32 * k);
           nudge(fig, -32 * k); nudge(rule, -38 * k); nudge(p.parentNode, -36.5 * k);
+          // still short (a long description on a small phone): the device gives up the rest of the room, down to 55% of
+          // its size, rather than the button being pushed off the card
+          last = lines(card, p);
+          spare = card.offsetHeight - last[last.length - 1].base - btn.offsetHeight; short = 40 - spare;
+          if (short > 0 && img){
+            var ih = img.offsetHeight, nh = Math.max(ih * 0.55, ih - short), fw = fig.getBoundingClientRect().width * nh / ih;
+            fig.style.setProperty('width', fw + 'px', 'important');
+            fig.style.setProperty('margin-left', 'auto', 'important'); fig.style.setProperty('margin-right', 'auto', 'important'); fig.style.setProperty('align-self', 'center', 'important');
+          }
         }
       }
       if (btn){
@@ -1197,4 +1206,51 @@
   arrive();
   // (a page brought back from the browser's back/forward cache doesn't run its scripts again, so do it here)
   window.addEventListener('pageshow', function(ev){ if (ev.persisted) arrive(); });
+})();
+
+/* ---------------- 16. Phones: every case card is the same size, on the homepage and on its own page ----------------
+   A case study on a phone settles into a frame between the dots above and the nav below. Every homepage case card takes
+   exactly that height too, as does a case study's card while it's locked (and so not yet a frame), so a card never
+   changes size between the two pages and every homepage card scrolls into place the same way. If a card's content
+   would need more room than that, the gaps between its parts tighten (down to 10px) rather than the card growing.
+   (The LiteLoad-style cards on the homepage get the same height from section 14.) */
+(function(){
+  var phone = window.matchMedia('(max-width: 720px)');
+  function frameH(){
+    var up = document.getElementById('progress-nav') || document.getElementById('case-dots'), down = document.querySelector('#icon-nav a');
+    if (!up || !down) return 0;
+    var ur = up.getBoundingClientRect(), dr = down.getBoundingClientRect(), vh = window.innerHeight;
+    return vh - (ur.bottom + ur.top) - (2 * (vh - dr.bottom) + dr.height);
+  }
+  function cards(){
+    var home = Array.prototype.slice.call(document.querySelectorAll('.case > .case-card:not(.ll-card)'));
+    var page = Array.prototype.slice.call(document.querySelectorAll('.case-page-card'));
+    return home.concat(page);
+  }
+  var last = '';
+  function fit(){
+    var H = phone.matches ? frameH() : 0, changed = false;
+    cards().forEach(function(c){
+      var framed = c.classList.contains('case-page-card') && document.documentElement.classList.contains('frame');
+      var unlockedLL = c.classList.contains('case-page-card') && c.classList.contains('ll-card') && !c.classList.contains('is-nda');
+      if (!H || H < 200 || framed){ ['height', 'min-height', 'row-gap'].forEach(function(k){ c.style.removeProperty(k); }); return; }
+      if (unlockedLL) return;
+      c.style.removeProperty('row-gap');
+      c.style.setProperty('height', H + 'px', 'important'); c.style.setProperty('min-height', H + 'px', 'important');
+      var need = c.scrollHeight;
+      if (need > H + 1){
+        var kids = Array.prototype.filter.call(c.children, function(k){ return k.offsetHeight > 0 && getComputedStyle(k).position !== 'absolute'; });
+        var gap = parseFloat(getComputedStyle(c).rowGap) || 0, n = Math.max(1, kids.length - 1);
+        c.style.setProperty('row-gap', Math.max(10, gap - (need - H) / n) + 'px', 'important');
+      }
+      changed = true;
+    });
+    var sig = H + ':' + window.innerWidth;
+    if (changed && sig !== last){ last = sig; window.dispatchEvent(new Event('resize')); }   // let the homepage re-centre its sections on the new heights
+  }
+  fit();
+  var q = 0; window.addEventListener('resize', function(){ cancelAnimationFrame(q); q = requestAnimationFrame(fit); });
+  window.addEventListener('load', fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  if (window.MutationObserver) new MutationObserver(function(){ cancelAnimationFrame(q); q = requestAnimationFrame(fit); }).observe(document.documentElement, { attributes:true, attributeFilter:['class'] });
 })();
