@@ -1,4 +1,4 @@
-// Beau.1 · v1.5.6
+// Beau.1 · v1.5.9
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.5.6' };
+  var SITE = { release: 'Beau.1', version: '1.5.9' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -775,7 +775,7 @@
       if (!cta || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       e.preventDefault();
       v.classList.add('is-open');                                   // the veil fades off the card first
-      setTimeout(function(){ cta.click(); }, 300);                  // then the usual hand-off: the homepage picks the card up where it is
+      setTimeout(function(){ cta.click(); }, 480);                  // then the usual hand-off (the button slides back to the card's own first)
     });
     var form = v.querySelector('form'), input = v.querySelector('input'), err = v.querySelector('.lock-error');
     form.addEventListener('submit', function(e){
@@ -913,7 +913,9 @@
       // larger gaps (32, 32, 38, 36.5) give up the difference in proportion, so the rhythm stays the mockup's.
       if (btn){
         last = lines(card, p);
-        var spare = card.offsetHeight - last[last.length - 1].base - btn.offsetHeight, short = 40 - spare;
+        // (the bottom of the card is kept for the swipe hint: its own height plus its offset from the edge, plus 12px)
+        var uPx = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--u')) || 26, hintRoom = 2 * uPx + 12;
+        var spare = card.offsetHeight - hintRoom - last[last.length - 1].base - btn.offsetHeight, short = 40 - spare;
         if (short > 0){
           var k = Math.min(0.85, short / 138.5);
           if (badge && !badgeOut) nudge(badge, -32 * k);
@@ -921,7 +923,7 @@
           // still short (a long description on a small phone): the device gives up the rest of the room, down to 55% of
           // its size, rather than the button being pushed off the card
           last = lines(card, p);
-          spare = card.offsetHeight - last[last.length - 1].base - btn.offsetHeight; short = 40 - spare;
+          spare = card.offsetHeight - hintRoom - last[last.length - 1].base - btn.offsetHeight; short = 40 - spare;
           if (short > 0 && img){
             var ih = img.offsetHeight, nh = Math.max(ih * 0.55, ih - short), fw = fig.getBoundingClientRect().width * nh / ih;
             fig.style.setProperty('width', fw + 'px', 'important');
@@ -931,7 +933,8 @@
       }
       if (btn){
         last = lines(card, p);
-        var lb = last[last.length - 1].base, room = card.offsetHeight - lb - btn.offsetHeight;
+        var uPx2 = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--u')) || 26;
+        var lb = last[last.length - 1].base, room = card.offsetHeight - (2 * uPx2 + 12) - lb - btn.offsetHeight;   // midway, above the swipe hint's space
         nudge(btn, (lb + room / 2) - topIn(card, btn));
       }
       if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed');
@@ -1310,4 +1313,28 @@
     }
   }
   (function tick(){ if (phone.matches) lift(); else settle(); requestAnimationFrame(tick); })();
+})();
+
+/* ---------------- 18. The veil's "Back to home" sits on the card's own button ----------------
+   On a locked case study the veil's Back to home starts exactly over the card's Back to home (where See the work sat on
+   the homepage card), same size and type. On desktop it then slides left to centre under the password form as the veil
+   fades in, and slides back as the veil fades away; on phones it simply stays put. */
+(function(){
+  var veil = document.querySelector('.case-page-card .lock-veil'), phoneQ = window.matchMedia('(max-width: 720px)');
+  if (!veil) return;
+  (function tick(){
+    var card = veil.closest('.case-page-card'), back = veil.querySelector('.lock-back'), cta = card && card.querySelector(':scope > .case-page-cta');
+    if (back && cta){
+      if (back.parentNode !== veil) veil.appendChild(back);
+      var vr = veil.getBoundingClientRect(), r = cta.getBoundingClientRect(), cs = getComputedStyle(cta);
+      var atCard = r.left - vr.left, centred = vr.width / 2 - r.width / 2;
+      // desktop: centred under the form (on the card's centre line) while the veil is up, sliding in from the card's own
+      // button as the veil fades in and back out to it as the veil fades away; phones: on the card's button throughout
+      var showing = !veil.classList.contains('is-arriving') && !veil.classList.contains('is-open') && !phoneQ.matches;
+      back.style.left = (showing ? centred : atCard) + 'px'; back.style.top = (r.top - vr.top) + 'px';
+      back.style.width = r.width + 'px'; back.style.height = r.height + 'px';
+      back.style.fontSize = cs.fontSize; back.style.fontFamily = cs.fontFamily;
+    }
+    requestAnimationFrame(tick);
+  })();
 })();

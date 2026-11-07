@@ -61,3 +61,12 @@ html.nda-held .case-page-card::before{ bottom:0 !important; animation:none !impo
 @media (max-width: 720px){
   html.nda-held body, html.nda-held .case-page-card, .lock-veil{ touch-action: pan-y; }   /* horizontal drags go to the swipe, as on an open case study */
 }
+
+/* "Back to home" on the veil sits exactly where the card's own button is (and where See the work was on the homepage),
+   so it doesn't move between the two pages: site.js lifts it out of the form and lays it over the card's button. */
+.lock-veil > .lock-back{
+  position:absolute; margin:0; display:flex; align-items:center; justify-content:center; box-sizing:border-box;
+  border-radius:999px; border:1.5px solid #fff; color:#fff; background:transparent;
+  font-weight:600; text-decoration:none; transition: left 0.5s var(--ease), background 0.25s var(--ease), color 0.25s var(--ease);
+}
+.lock-veil > .lock-back:hover, .lock-veil > .lock-back:focus-visible{ background:#fff; color: var(--lock-ink); }
