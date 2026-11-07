@@ -1,4 +1,4 @@
-// Beau.1 · v1.5.3
+// Beau.1 · v1.5.6
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.5.3' };
+  var SITE = { release: 'Beau.1', version: '1.5.6' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -268,7 +268,7 @@
     if (isPhone.matches){   // phones: on the card's left edge, as far below the card's top as the card's top is below the row above it
       var pc = dockCard.getBoundingClientRect();   // on a phone both kinds of card are a fixed frame that scrolls inside itself
       // with the No. badge straddling the card's corner, the circle docks just below it, on the same edge
-      var bd = dockCard.querySelector(':scope > .badge-link');
+      var bd = dockCard.querySelector(':scope > .badge-link') || document.querySelector('body > .badge-link.badge-floating');
       if (bd && /absolute|fixed/.test(getComputedStyle(bd).position)) return { left: pc.left - size / 2, top: bd.getBoundingClientRect().bottom + 10, width: size, height: size };
       return { left: pc.left - size / 2, top: pc.top + frameGap(pc), width: size, height: size };
     }
@@ -458,6 +458,7 @@
         e.preventDefault();
         if (leaving) return;
         leaving = true;
+        caseCard.classList.add('is-leaving');   // (from here on nothing re-measures the card: section 14)
         if (dock){ cancelAnimationFrame(dockRaf); dock.style.transition = 'opacity 0.3s ease'; dock.style.opacity = '0'; }
         var href = a.href;
         if (nav && !isPhone.matches) nav.classList.remove('collapsed');   // the nav plays its animation in reverse
@@ -495,7 +496,7 @@
         if (dock){ dock.style.opacity = ''; }
         caseCard.style.transform = ''; caseCard.style.opacity = '';
         document.body.style.transition = ''; if (typeof origBg !== 'undefined') document.body.style.backgroundColor = origBg;
-        caseCard.classList.remove('is-rolling-up');
+        caseCard.classList.remove('is-rolling-up', 'is-leaving');
         if (framed) caseCard.getAnimations().forEach(function(an){ an.cancel(); });
         if (nav) nav.classList.add('collapsed');
         if (bar) bar.classList.add('is-in');
@@ -715,6 +716,12 @@
 (function(){
   var homeCards = document.querySelectorAll('.case-card[data-nda]');
   var sealed = document.querySelector('.case-text[data-locked]');
+  // While locked, the card shows the same public description as its homepage card (data-teaser), so the card behind the
+  // veil is exactly the homepage card; the password swaps in the full text.
+  if (sealed && !sealed.textContent.trim()){
+    var teaserCard = sealed.closest('.case-page-card'), teaser = teaserCard && teaserCard.getAttribute('data-teaser');
+    if (teaser){ var tp = document.createElement('p'); tp.className = 'nda-teaser'; tp.textContent = teaser; sealed.appendChild(tp); }
+  }
   var token = document.querySelector('meta[name="case-lock"]');
   if (!homeCards.length && !sealed) return;
   var KEY = 'bp-case-pass', te = new TextEncoder(), td = new TextDecoder();
@@ -844,7 +851,8 @@
     var cache = document.getElementById('ll-cache'); if (cache) cache.remove();   // measuring now: the remembered layout steps aside (same frame, so nothing is drawn in between)
     card.querySelectorAll('h2, .role, .thread, .case-text, .cta, .case-page-cta, .badge-link, .ll-tablet').forEach(function(el){ el.style.removeProperty('margin-top'); });
     card.querySelectorAll('.case-text p').forEach(function(p){ p.style.removeProperty('line-height'); p.style.removeProperty('font-size'); });
-    card.style.removeProperty('min-height'); card.style.removeProperty('padding-top'); card.style.removeProperty('height');
+    if (!card.hasAttribute('data-phone-fit')){ card.style.removeProperty('min-height'); card.style.removeProperty('height'); }   // (section 16 owns a phone card's height)
+    card.style.removeProperty('padding-top');
     var fig = card.querySelector('.ll-tablet'); if (fig){ ['width', 'left', 'top', 'margin-left', 'margin-right', 'align-self'].forEach(function(k){ fig.style.removeProperty(k); }); }
     card.querySelectorAll('.ll-extra').forEach(function(ex){ ['width', 'left', 'top', '--dx', '--dy'].forEach(function(k){ ex.style.removeProperty(k); }); });
   }
@@ -881,7 +889,7 @@
       h2.style.removeProperty('font-size');
       var tfs = parseFloat(getComputedStyle(h2).fontSize);
       while (h2.scrollWidth > h2.clientWidth + 1 && tfs > 24){ tfs -= 1; px(h2, 'font-size', tfs); }
-      var badgeOut = badge && /absolute|fixed/.test(getComputedStyle(badge).position);   // straddling the card's corner, out of the flow
+      var badgeOut = !badge || /absolute|fixed/.test(getComputedStyle(badge).position);   // straddling the card's corner (or lifted out of it, on a case study)
       if (badgeOut){
         nudge(fig, 32 - (topIn(card, fig) + BT * imgH));   // the device leads the card
       } else if (badge){
@@ -1126,7 +1134,9 @@
     // With a remembered layout already applied (the <head> script), don't re-measure until the real fonts are in:
     // measuring a fallback font would nudge things away from the remembered layout and back again.
     if (document.getElementById('ll-cache') && document.fonts && !fontsIn()) return;
-    cards.forEach(place); remember();
+    // a card on its way out (rolling up for "Back to home") is left exactly as it is: re-measuring it mid-exit would reset its
+    // height for a moment, which showed as the page shortening and growing again
+    cards.forEach(function(c){ if (!c.classList.contains('is-rolling-up') && !c.classList.contains('is-leaving')) place(c); }); remember();
   }
   // Remember the finished layout (per page and window size) so the next visit to this page can apply it in the <head>,
   // before anything is drawn: without it the page paints once with default spacing, then again in place (a blink).
@@ -1242,9 +1252,13 @@
     var H = phone.matches ? frameH() : 0, changed = false;
     cards().forEach(function(c){
       var framed = c.classList.contains('case-page-card') && document.documentElement.classList.contains('frame');
-      var unlockedLL = c.classList.contains('case-page-card') && c.classList.contains('ll-card') && !c.classList.contains('is-nda');
-      if (!H || H < 200 || framed){ ['height', 'min-height', 'row-gap'].forEach(function(k){ c.style.removeProperty(k); }); return; }
-      if (unlockedLL) return;
+      var unlockedLL = c.classList.contains('case-page-card') && c.classList.contains('ll-card') && !c.querySelector('.case-text[data-locked]');   // (a locked one is sized here)
+      // (only ever undo what this section set itself: on desktop the LiteLoad-style cards get their height from section 14)
+      if (!H || H < 200 || framed || unlockedLL){
+        if (c.hasAttribute('data-phone-fit')){ ['height', 'min-height', 'row-gap'].forEach(function(k){ c.style.removeProperty(k); }); c.removeAttribute('data-phone-fit'); }
+        return;
+      }
+      c.setAttribute('data-phone-fit', '');
       c.style.removeProperty('row-gap');
       c.style.setProperty('height', H + 'px', 'important'); c.style.setProperty('min-height', H + 'px', 'important');
       var need = c.scrollHeight;
@@ -1256,7 +1270,15 @@
       changed = true;
     });
     var sig = H + ':' + window.innerWidth;
-    if (changed && sig !== last){ last = sig; window.dispatchEvent(new Event('resize')); }   // let the homepage re-centre its sections on the new heights
+    if (changed && sig !== last){
+      last = sig; window.dispatchEvent(new Event('resize'));   // let the homepage re-centre its sections on the new heights
+      // arriving back from a case study (#to-<case>): the cards only took their final heights just now, so settle the card
+      // onto the line again (the browser placed it by the old heights)
+      if (location.hash.indexOf('#to-') === 0 && performance.now() < 5000){
+        var tgt = document.getElementById(location.hash.slice(1)), root = document.documentElement, pb = root.style.scrollBehavior;
+        if (tgt){ root.classList.add('no-snap'); root.style.scrollBehavior = 'auto'; tgt.scrollIntoView({ block: 'start' }); root.style.scrollBehavior = pb; requestAnimationFrame(function(){ root.classList.remove('no-snap'); }); }
+      }
+    }
   }
   fit();
   var q = 0; window.addEventListener('resize', function(){ cancelAnimationFrame(q); q = requestAnimationFrame(fit); });
@@ -1265,30 +1287,27 @@
   if (window.MutationObserver) new MutationObserver(function(){ cancelAnimationFrame(q); q = requestAnimationFrame(fit); }).observe(document.documentElement, { attributes:true, attributeFilter:['class'] });
 })();
 
-/* ---------------- 17. Phones: the No. badge straddles the card's top-left corner ----------------
-   (shared.css / index.html.) On a case study that has settled into its scrolling frame, the badge is pinned to the
-   frame's corner (a scrolling frame would clip anything poking out of it). While the card slides in or out on a swipe it
-   can't follow, so it fades out for the slide and back in once the card is still. */
+/* ---------------- 17. Phones: the No. badge straddles the case study card's top-left corner ----------------
+   On a phone the case study's badge is lifted out of the card into the page itself and kept on the card's corner every
+   frame. Inside the card it would be clipped by the card's scrolling frame (iPhone browsers clip even pinned elements
+   there) and sit under the NDA veil; out here it rides above both, and follows the card through every move (settling
+   into the frame, sliding on a swipe, rolling up on the way home). On wider screens it goes back into the card. */
 (function(){
   var card = document.querySelector('.case-page-card'), phone = window.matchMedia('(max-width: 720px)');
-  var badge = card && card.querySelector('.badge-link');
+  var badge = card && card.querySelector(':scope > .badge-link');
   if (!badge) return;
-  function moving(){
-    if (card.style.transform && card.style.transform !== 'none') return true;
-    var t = getComputedStyle(card).transform;
-    if (t && t !== 'none') return true;
-    // only a slide counts (an animation of the card's transform), not the frame settling in, which leaves the corner put
-    return card.getAnimations ? card.getAnimations().some(function(a){
-      if (a.playState !== 'running' || !a.effect || !a.effect.getKeyframes) return false;
-      return a.effect.getKeyframes().some(function(k){ return 'transform' in k || 'translate' in k; });
-    }) : false;
+  var home = { parent: card, next: badge.nextSibling };
+  function lift(){
+    if (badge.parentNode !== document.body){ document.body.appendChild(badge); badge.classList.add('badge-floating', 'is-shown'); badge.style.removeProperty('margin-top'); }
+    var r = card.getBoundingClientRect(), bw = badge.offsetWidth, bh = badge.offsetHeight;
+    badge.style.left = (r.left - bw / 2) + 'px'; badge.style.top = (r.top - bh / 2) + 'px';
+    badge.style.opacity = getComputedStyle(card).opacity;
   }
-  (function tick(){
-    if (phone.matches && document.documentElement.classList.contains('frame')){
-      badge.classList.add('is-shown');   // (pinned outside the scrolling frame, the reveal-on-scroll can't see it, so it's simply shown)
-      badge.classList.toggle('is-away', moving());
+  function settle(){
+    if (badge.parentNode === document.body){
+      home.parent.insertBefore(badge, home.next && home.next.parentNode === home.parent ? home.next : home.parent.firstChild);
+      badge.classList.remove('badge-floating'); ['left', 'top', 'opacity'].forEach(function(k){ badge.style.removeProperty(k); });
     }
-    else badge.classList.remove('is-away');
-    requestAnimationFrame(tick);
-  })();
+  }
+  (function tick(){ if (phone.matches) lift(); else settle(); requestAnimationFrame(tick); })();
 })();

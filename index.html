@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="site-release" content="Beau.1">
 <meta name="case-lock" content="250000.7UQfEvr96RLeJHRN5wsiEg==.wA3GJOvFhlLHYUs+.4ZOTIMZiRHupDcbxajhbNrhCEEGqnfqB">
-<meta name="site-version" content="1.5.3">
+<meta name="site-version" content="1.5.6">
 <title>Beau Pesa — Portfolio</title>
 <link rel="preload" href="fonts/big-shoulders-display-800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/ibm-plex-sans-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/space-grotesk-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/space-grotesk-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/playfair-display-700.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="fonts.css?v=1.5.3">
+<link rel="stylesheet" href="fonts.css?v=1.5.6">
 <style>
 
   /* ===================================================================
@@ -22,7 +22,7 @@
      for your exact Figma / brand hex codes.
      =================================================================== */
   :root{
-    --site-version: "1.5.3";
+    --site-version: "1.5.6";
     --ink: #101114;           /* intro / outro base */
     --paper: #F2F1EC;         /* card surface */
     --text-dark: #1B1C1E;
@@ -826,9 +826,19 @@
        still paints above the pinstripes, which come before it in the page. */
     .case > .case-card{ z-index:auto; }
   }
+
+  /* ---------- Phones: the homepage snaps from card to card ----------
+     A swipe up or down settles the next card exactly on the card line (under the dots), and the intro and outro
+     settle centred, instead of the page coming to rest anywhere. Snapping steps aside while the page glides itself. */
+  @media (max-width: 720px){
+    html{ scroll-snap-type: y mandatory; }
+    html.no-snap{ scroll-snap-type: none; }
+    .case > .case-card{ scroll-snap-align: start; scroll-snap-stop: always; }
+    .bookend{ scroll-snap-align: center; }
+  }
 </style>
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight');},2500);})();</script>
-<link rel="stylesheet" href="liteload-card.css?v=1.5.3">
+<link rel="stylesheet" href="liteload-card.css?v=1.5.6">
 <link rel="preload" as="image" href="images/liteload/tablet-flat.webp" fetchpriority="high">
 <script>/* LiteLoad card: apply the layout remembered from this page's last visit (site.js, section 14) before the first paint */
 (function(){ try { var v = (document.querySelector('meta[name="site-version"]') || {}).content || ''; var c = JSON.parse(sessionStorage.getItem('llLayout:' + v + ':' + location.pathname) || 'null');
@@ -1053,7 +1063,11 @@
   }
   // Where the middle of a case section sits when its card is on the line (the section is symmetric around the card).
   function anchorY(){ return cardTopLine() + fadeCards[0].card.offsetHeight / 2; }
+  // (phones snap the page to each card; while the page scrolls itself, snapping steps aside so it can't fight the glide)
+  var snapT = 0;
+  function noSnap(ms){ document.documentElement.classList.add('no-snap'); clearTimeout(snapT); snapT = setTimeout(function(){ document.documentElement.classList.remove('no-snap'); }, ms); }
   function scrollToY(y, smooth){
+    noSnap(smooth ? 900 : 60);
     var root = document.documentElement, prev = root.style.scrollBehavior;
     var animate = smooth && !reduceMotion;
     if (!animate) root.style.scrollBehavior = 'auto';
@@ -1066,6 +1080,7 @@
       scrollToY(card.getBoundingClientRect().top + window.scrollY - cardTopLine(), smooth);
       return;
     }
+    noSnap(smooth ? 900 : 60);
     var root = document.documentElement, prev = root.style.scrollBehavior;   // the intro and the outro: centered, as before
     var animate = smooth && !reduceMotion;
     if (!animate) root.style.scrollBehavior = 'auto';
@@ -1074,6 +1089,7 @@
   }
   // A short, eased scroll by dy pixels (used to settle a card onto the line after "See the work" is clicked).
   function glideBy(dy, ms, done){
+    noSnap(ms + 200);
     var root = document.documentElement, prev = root.style.scrollBehavior, y0 = window.scrollY, t0 = null;
     root.style.scrollBehavior = 'auto';
     function step(now){
@@ -1336,6 +1352,6 @@
 })();
 </script>
 
-<script src="site.js?v=1.5.3"></script>
+<script src="site.js?v=1.5.6"></script>
 </body>
 </html>
