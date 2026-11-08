@@ -1,4 +1,4 @@
-// Beau.1 · v1.6.1
+// Beau.1 · v1.6.2
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.6.1' };
+  var SITE = { release: 'Beau.1', version: '1.6.2' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -1101,9 +1101,16 @@
         else requestAnimationFrame(function(){ requestAnimationFrame(function(){ card.classList.add('ll-hold'); }); });
         // They stay out until "Back to home" (the button, or a click on any of the three): then they tuck back into the
         // tablet, the homepage's animation in reverse, and the tablet settles, while the card rolls up.
-        var back = card.querySelector('.case-page-cta');
-        if (back) back.addEventListener('click', function(){
-          document.documentElement.classList.remove('ll-held'); card.classList.remove('ll-hold', 'll-hover');
+        // (the card's own button, or the circle it docks into as the page scrolls: both are a .case-page-cta)
+        document.addEventListener('click', function(e){
+          if (!e.target.closest || !e.target.closest('.case-page-cta')) return;
+          // From the docked circle the page first scrolls back up to the card; the tuck waits until the card is back in view,
+          // so it's seen rather than happening off screen.
+          var tuck = function(){ document.documentElement.classList.remove('ll-held'); card.classList.remove('ll-hold', 'll-hover'); };
+          if (window.scrollY > 4 && !phone.matches){
+            var t0 = performance.now();
+            (function wait(){ if (window.scrollY <= 4 || performance.now() - t0 > 1500) tuck(); else requestAnimationFrame(wait); })();
+          } else tuck();
         }, true);
       }
       return;
