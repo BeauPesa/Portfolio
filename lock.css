@@ -24,7 +24,7 @@
 }
 .lock-form .lock-badge svg{ width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 .lock-form .lock-rule{ display:block; color: var(--lock-accent); overflow:visible; }
-.lock-form .lock-title{ font-weight:700; font-size:1.05rem; margin:0 !important; color:#fff !important; }
+.lock-form .lock-title{ font-family:'Space Grotesk', 'IBM Plex Sans', sans-serif; font-weight:600; font-size:1.05rem; letter-spacing:0.01em; margin:0 !important; color:#fff !important; }   /* the site's H2 voice: Space Grotesk semibold */
 .lock-form .lock-note{ font-size:0.9rem; line-height:1.5; margin:0 !important; color:#ECEBE6 !important; max-width:none; }
 .lock-form .lock-row{ display:flex; width:100%; gap:0.5rem; }
 .lock-form input{ flex:1; min-width:0; height: var(--u, 30px); box-sizing:border-box; padding:0 0.9rem; border-radius:999px; border:1.5px solid #fff; background:rgba(255,255,255,0.92); font:inherit; font-size:16px; line-height:1; color:#1B1C1E; }
@@ -74,5 +74,10 @@ html.nda-held .case-page-card::before{ bottom:0 !important; animation:none !impo
 /* Desktop: the form hangs from the No. badge's line (site.js sets its top), with more breathing room between its parts,
    and a closing dashed rule under the password row, echoing the card's own pair of rules. */
 .lock-veil.is-aligned{ align-items:flex-start; }
-.lock-veil.is-aligned .lock-form{ gap:1.25rem; }
-.lock-form .lock-rule-end{ margin-top:0.15rem; }
+/* the form's parts are spaced by site.js (the text block midway between the lock badge and Back to home, each rule
+   midway in its gap); within the text block, a steady 0.9rem */
+.lock-veil.is-aligned .lock-form{ gap:0; position:relative; }
+.lock-veil.is-aligned .lock-form > *{ margin:0 !important; }
+.lock-veil.is-aligned .lock-note, .lock-veil.is-aligned .lock-row{ margin-top:0.9rem !important; }
+.lock-veil.is-aligned .lock-rule, .lock-veil.is-aligned .lock-title{ margin-top:0; }
+.lock-veil.is-aligned .lock-error{ position:absolute; left:0; right:0; margin-top:0.35rem !important; }   /* (out of the spacing, just under the row: site.js sets its top) */

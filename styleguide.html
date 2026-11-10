@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Style guide — Beau Pesa</title>
+<link rel="stylesheet" href="fonts.css?v=1.7.3">
+<style>
+  /* A reference page, not part of the site's navigation. Every value here was read from the live site (v1.7.3) at
+     three widths: desktop 1440, tablet 950, phone 390 (iPhone 13). */
+  :root{
+    --ink:#101114; --paper:#F2F1EC; --text:#1B1C1E; --muted:#5B5D63; --lime:#ADD944; --line:rgba(16,17,20,0.12);
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--paper); color:var(--text); font-family:'IBM Plex Sans', sans-serif; font-size:16px; line-height:1.6; }
+  main{ max-width:1180px; margin:0 auto; padding:72px 32px 120px; }
+  header.top{ display:flex; align-items:flex-end; justify-content:space-between; gap:24px; border-bottom:2px solid var(--ink); padding-bottom:28px; margin-bottom:56px; }
+  .eyebrow{ font-family:'Space Grotesk', sans-serif; font-weight:600; letter-spacing:0.01em; color:#5A7D12; font-size:0.95rem; margin:0 0 10px; }
+  h1{ font-family:'Big Shoulders Display', sans-serif; font-weight:800; font-size:clamp(3rem, 8vw, 6rem); line-height:0.95; letter-spacing:0.01em; margin:0; }
+  .version{ font-family:'Space Grotesk', sans-serif; font-size:0.85rem; color:var(--muted); text-align:right; }
+  section{ margin:0 0 72px; }
+  section > h2{ font-family:'Big Shoulders Display', sans-serif; font-weight:800; font-size:2.25rem; line-height:1; margin:0 0 6px; }
+  section > .lede{ color:var(--muted); margin:0 0 28px; max-width:70ch; }
+  h3{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:1.05rem; margin:32px 0 12px; }
+  table{ width:100%; border-collapse:collapse; font-size:0.9rem; }
+  th, td{ text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:0.8rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+  td code, p code{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:0.82rem; background:rgba(16,17,20,0.06); padding:1px 5px; border-radius:4px; }
+  .note{ font-size:0.88rem; color:var(--muted); }
+  .flag{ display:inline-block; font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:0.72rem; letter-spacing:0.04em; text-transform:uppercase; background:#FFE9A8; color:#5A4500; padding:2px 7px; border-radius:999px; margin-left:6px; vertical-align:2px; }
+
+  /* type specimens */
+  .spec{ display:grid; grid-template-columns:180px 1fr; gap:24px; align-items:baseline; padding:22px 0; border-bottom:1px solid var(--line); }
+  .spec .tag{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:0.85rem; }
+  .spec .tag small{ display:block; font-weight:400; color:var(--muted); font-size:0.78rem; margin-top:4px; }
+  .s-h1{ font-family:'Big Shoulders Display'; font-weight:800; font-size:6rem; line-height:0.95; letter-spacing:0.01em; }
+  .s-h1b{ font-family:'Big Shoulders Display'; font-weight:800; font-size:3.5rem; line-height:0.95; letter-spacing:0.01em; }
+  .s-h2{ font-family:'Space Grotesk'; font-weight:600; font-size:0.95rem; letter-spacing:0.01em; color:#5A7D12; }
+  .s-role{ font-family:'Space Grotesk'; font-weight:400; font-size:1rem; color:#001C38; }
+  .s-body{ font-family:'IBM Plex Sans'; font-weight:400; font-size:1.02rem; line-height:1.6; max-width:52ch; }
+  .s-btn{ font-family:'IBM Plex Sans'; font-weight:600; font-size:0.95rem; }
+
+  /* palette */
+  .swatches{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:14px; }
+  .sw{ border-radius:10px; overflow:hidden; border:1px solid var(--line); background:#fff; }
+  .sw .chip{ height:84px; }
+  .sw .meta{ padding:10px 12px; font-size:0.8rem; line-height:1.4; }
+  .sw .meta b{ font-family:'Space Grotesk'; font-weight:600; display:block; font-size:0.85rem; }
+  .sw .meta code{ background:none; padding:0; }
+  .cases{ display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:16px; }
+  .case{ border-radius:12px; padding:18px; color:#fff; min-height:210px; display:flex; flex-direction:column; gap:12px; }
+  .case .paper{ background:var(--paper); color:var(--text); border-radius:8px; padding:14px 14px 16px; box-shadow:12px 12px 22px -6px rgba(0,0,0,0.35); }
+  .case .rule{ height:3px; border-radius:2px; width:100%; background-image:linear-gradient(90deg, currentColor 0 18%, transparent 18% 24%, currentColor 24% 34%, transparent 34% 40%, currentColor 40% 50%, transparent 50% 56%, currentColor 56% 74%, transparent 74% 80%, currentColor 80% 100%); }
+  .case .name{ font-family:'Big Shoulders Display'; font-weight:800; font-size:1.7rem; line-height:1; margin:10px 0 4px; }
+  .case .role{ font-family:'Space Grotesk'; font-size:0.85rem; }
+  .case .hex{ font-size:0.75rem; line-height:1.5; opacity:0.92; }
+  .case .hex code{ background:rgba(255,255,255,0.18); color:inherit; }
+
+  /* components */
+  .row{ display:flex; flex-wrap:wrap; gap:28px; align-items:center; }
+  .demo{ background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:28px; }
+  .demo.dark{ background:var(--ink); border-color:var(--ink); color:#D4D4CE; }
+  .demo.grey{ background:#C2C2C2; border-color:#C2C2C2; }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; height:30px; min-width:220px; padding:0 16px; border-radius:999px; border:1px solid currentColor; font-family:'IBM Plex Sans'; font-weight:600; font-size:0.95rem; text-decoration:none; color:#001C38; background:transparent; transition:background 0.25s var(--ease), color 0.25s var(--ease); cursor:pointer; }
+  .btn:hover{ background:#001C38; color:var(--paper); }
+  .btn.lime{ color:var(--lime); }
+  .btn.lime:hover{ background:var(--lime); color:var(--ink); }
+  .btn.veil{ color:#fff; border-width:1.5px; }
+  .btn.veil:hover{ background:#fff; color:#323264; }
+  .badge{ width:60px; height:60px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:var(--bc); color:#fff; border:0 solid var(--bc30); box-shadow:0 8px 20px rgba(0,0,0,0.35); transition:transform 0.25s var(--ease), background 0.25s var(--ease), color 0.25s var(--ease), border-width 0.25s var(--ease); cursor:pointer; text-decoration:none; }
+  .badge:hover{ background:#fff; color:var(--bc); border-width:4px; transform:scale(1.06); }
+  .badge .in{ display:flex; align-items:flex-start; }
+  .badge .no{ font-family:'Space Grotesk'; font-weight:700; font-size:12px; position:relative; left:-3px; line-height:1.2; }
+  .badge .no::after{ content:''; position:absolute; left:0; right:0; bottom:-3px; border-bottom:1.5px dashed currentColor; }
+  .badge .num{ font-family:'Playfair Display'; font-weight:700; font-size:26.7px; line-height:1; }
+  .badge svg{ width:22px; height:22px; }
+  .navbtn{ width:30px; height:30px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; border:1.5px solid rgba(255,255,255,0.75); color:#fff; background:transparent; transition:background 0.25s var(--ease), color 0.25s var(--ease), transform 0.25s var(--ease); }
+  .navbtn svg{ width:15px; height:15px; }
+  .navbtn.hover, .navbtn:hover{ background:rgba(255,255,255,0.18); transform:scale(1.08); }
+  .navbtn.active{ background:#fff; color:var(--ink); border-color:transparent; box-shadow:0 4px 12px rgba(0,0,0,0.4); }
+  .dots{ display:inline-flex; gap:10px; padding:8px 14px; border-radius:999px; background:rgba(16,17,20,0.35); }
+  .dots i{ width:10px; height:10px; border-radius:50%; border:1.5px solid rgba(255,255,255,0.8); }
+  .dots i.on{ background:#fff; width:12px; height:12px; margin:-1px; }
+  .cap{ font-size:0.78rem; color:var(--muted); margin-top:8px; text-align:center; font-family:'Space Grotesk'; }
+  .dark .cap{ color:#9a9a96; }
+  figure{ margin:0; display:inline-flex; flex-direction:column; align-items:center; }
+  .grid-demo{ position:relative; height:120px; border-radius:12px; background:#C2C2C2; overflow:hidden; }
+  .grid-demo span{ position:absolute; top:0; bottom:0; border-left:1px dashed rgba(255,255,255,0.55); }
+  .grid-demo span::before, .grid-demo span::after{ content:''; position:absolute; top:0; bottom:0; border-left:1px solid rgba(255,255,255,0.55); opacity:0.3; }
+  .grid-demo span::before{ left:-16px; } .grid-demo span::after{ left:14px; }
+  .grid-demo b{ position:absolute; bottom:8px; font-family:'Space Grotesk'; font-size:0.72rem; color:#fff; transform:translateX(-50%); }
+  @media (max-width: 720px){
+    main{ padding:40px 18px 80px; }
+    .spec{ grid-template-columns:1fr; gap:8px; }
+    .s-h1{ font-size:3rem; } .s-h1b{ font-size:2.4rem; }
+    table{ font-size:0.82rem; } th, td{ padding:8px 6px; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<header class="top">
+  <div>
+    <p class="eyebrow">Beau.1 reference</p>
+    <h1>Style guide</h1>
+  </div>
+  <p class="version">Read from the live site, v1.7.3<br>Desktop 1440 · Tablet 950 · Phone 390</p>
+</header>
+
+<!-- ============================== TYPE ============================== -->
+<section>
+  <h2>Type</h2>
+  <p class="lede">Three voices plus one exception. Big Shoulders Display shouts the headline, Space Grotesk names things, IBM Plex Sans does the reading. Playfair Display appears only as the numeral in the No. badges.</p>
+
+  <div class="spec"><div class="tag">H1 · Page title<small>Big Shoulders Display 800 · lh 0.95 · tracking +0.01em</small></div><div class="s-h1">Not so random.</div></div>
+  <div class="spec"><div class="tag">H1 · Case title<small>Big Shoulders Display 800 · lh 0.95</small></div><div class="s-h1b">LiteLoad</div></div>
+  <div class="spec"><div class="tag">H2 · Label<small>Space Grotesk 600 · lh 1.6 · eyebrows, NDA title</small></div><div class="s-h2">Nice to meet you</div></div>
+  <div class="spec"><div class="tag">H2 · Role line<small>Space Grotesk 400 · in the case's ink colour</small></div><div class="s-role">Founder &amp; designer, in progress</div></div>
+  <div class="spec"><div class="tag">Body<small>IBM Plex Sans 400 · lh 1.6</small></div><div class="s-body">LiteLoad translates legacy loading sheets into a clean, task-first screen, so loaders see what goes on the truck, and in what order.</div></div>
+  <div class="spec"><div class="tag">Button<small>IBM Plex Sans 600</small></div><div class="s-btn">See the work →</div></div>
+  <div class="spec"><div class="tag">Badge<small>"No." Space Grotesk 700 · numeral Playfair Display 700</small></div><div><span class="badge" style="--bc:#001C38; --bc30:rgba(0,28,56,.3)"><span class="in"><span class="no">No.</span><span class="num">1</span></span></span></div></div>
+
+  <h3>Sizes by screen (px)</h3>
+  <table>
+    <thead><tr><th>Role</th><th>Desktop 1440</th><th>Tablet 950</th><th>Phone 390</th><th>How it scales</th></tr></thead>
+    <tbody>
+      <tr><td>H1 · intro (“I’m Beau.”)</td><td>112</td><td>85.5</td><td>48</td><td>fluid with the column width</td></tr>
+      <tr><td>H1 · page title (About, Résumé…)</td><td>96</td><td>76</td><td>34.5</td><td><code>min(clamp(3rem, 8vw, 6rem), col / 5.2)</code></td></tr>
+      <tr><td>H1 · case title (card)</td><td>56</td><td>47.5</td><td>44.5 <span class="flag">LiteLoad set</span></td><td>desktop <code>clamp(2.25rem, 5vw, 3.5rem)</code>; phone 1.4× (long names step down to fit one line)</td></tr>
+      <tr><td>H2 · label / eyebrow</td><td>15.2</td><td>15.2</td><td>15.2</td><td>fixed 0.95rem</td></tr>
+      <tr><td>H2 · role line</td><td>16</td><td>16</td><td>11.6</td><td>tablet eases down only if one line won’t fit</td></tr>
+      <tr><td>Body · case card description</td><td>16.3</td><td>16.3</td><td>12.5</td><td>leading solved to the device on desktop</td></tr>
+      <tr><td>Body · page text (About…)</td><td>16.8</td><td>16.8</td><td>16</td><td></td></tr>
+      <tr><td>Button label</td><td>15.2</td><td>15.2</td><td>15.2 · 13.6 on pages</td><td></td></tr>
+    </tbody>
+  </table>
+  <p class="note">Worth locking down: body text is 16.3 on case cards but 16.8 on pages, and the phone card description (12.5) and role line (11.6) sit well below the other phone text. A tidy scale to aim for: <b>Body 16 / 15 phone · Role 16 / 13 phone · Label 15 everywhere · Case title 56 / 44 phone · Page title 96 / 48 phone.</b></p>
+</section>
+
+<!-- ============================== PALETTE ============================== -->
+<section>
+  <h2>Palette</h2>
+  <p class="lede">A neutral core, one personal accent, and a colour set per case study: the section background, the card’s ink (badge, role line, button), and its dashed-rule accent.</p>
+
+  <h3>Core</h3>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#101114"></div><div class="meta"><b>Ink</b><code>#101114</code><br>personal pages, intro, outro</div></div>
+    <div class="sw"><div class="chip" style="background:#F2F1EC"></div><div class="meta"><b>Paper</b><code>#F2F1EC</code><br>every card</div></div>
+    <div class="sw"><div class="chip" style="background:#1B1C1E"></div><div class="meta"><b>Text</b><code>#1B1C1E</code><br>type on paper</div></div>
+    <div class="sw"><div class="chip" style="background:#D4D4CE"></div><div class="meta"><b>Text on ink</b><code>#D4D4CE</code><br>page body text</div></div>
+    <div class="sw"><div class="chip" style="background:#ADD944"></div><div class="meta"><b>Lime</b><code>#ADD944</code><br>personal accent, labels</div></div>
+    <div class="sw"><div class="chip" style="background:#C2C2C2; position:relative"><div style="position:absolute; inset:0; background:repeating-linear-gradient(90deg, transparent 0 40px, rgba(255,255,255,.55) 40px 41px)"></div></div><div class="meta"><b>Pinstripe</b><code>rgba(255,255,255,.55)</code><br>gutters at 30%</div></div>
+  </div>
+
+  <h3>Case studies</h3>
+  <div class="cases">
+    <div class="case" style="background:#C2C2C2"><div class="paper" style="color:#63AA2A"><div class="rule"></div><div class="name" style="color:#1B1C1E">LiteLoad</div><div class="role" style="color:#001C38">Founder &amp; designer</div></div><div class="hex" style="color:#1B1C1E">section <code>#C2C2C2</code> · ink <code>#001C38</code> · rule <code>#63AA2A</code></div></div>
+    <div class="case" style="background:#AFBFFD"><div class="paper" style="color:#E62600"><div class="rule"></div><div class="name" style="color:#1B1C1E">Walgreens</div><div class="role" style="color:#323264">Self-checkout</div></div><div class="hex" style="color:#1B1C1E">section <code>#AFBFFD</code> · ink <code>#323264</code> · rule <code>#E62600</code></div></div>
+    <div class="case" style="background:#B1CC72"><div class="paper" style="color:#F5AF02"><div class="rule"></div><div class="name" style="color:#1B1C1E">eBay</div><div class="role" style="color:#0064D2">Two-factor auth</div></div><div class="hex" style="color:#1B1C1E">section <code>#B1CC72</code> · ink <code>#0064D2</code> · rule <code>#F5AF02</code></div></div>
+    <div class="case" style="background:#80CCEC"><div class="paper" style="color:#E31332"><div class="rule"></div><div class="name" style="color:#1B1C1E">Cisco Systems</div><div class="role" style="color:#06485C">Network diagnostics</div></div><div class="hex" style="color:#1B1C1E">section <code>#80CCEC</code> · ink <code>#06485C</code> · rule <code>#E31332</code></div></div>
+    <div class="case" style="background:#2C2A2F"><div class="paper" style="color:#3680D0"><div class="rule"></div><div class="name" style="color:#1B1C1E">Urban Design</div><div class="role" style="color:#C52E72">São Paulo thesis</div></div><div class="hex">section <code>#2C2A2F</code> · ink <code>#C52E72</code> · rule <code>#3680D0</code></div></div>
+  </div>
+  <p class="note">Personal pages (About, Résumé, Creative Endeavors, Photography, Sketchbooks, Printmaking, Writing, More proof) all sit on Ink with Lime as the accent.</p>
+</section>
+
+<!-- ============================== COMPONENTS ============================== -->
+<section>
+  <h2>Components</h2>
+  <p class="lede">Hover the samples. Every interactive circle on the site shares one size, the nav button’s: 30px on desktop, 26px on phones.</p>
+
+  <h3>Buttons</h3>
+  <div class="demo grey"><div class="row">
+    <figure><a class="btn">See the work →</a><div class="cap">Case card · outline, fills with the case ink on hover</div></figure>
+    <figure><a class="btn">Back to home ←</a><div class="cap">Case study · same button, same spot</div></figure>
+  </div></div>
+  <div class="demo dark" style="margin-top:14px"><div class="row">
+    <figure><a class="btn lime">Get in touch →</a><div class="cap">Personal pages · lime outline</div></figure>
+    <figure><a class="btn veil">Back to home ←</a><div class="cap">NDA veil · white outline</div></figure>
+  </div></div>
+  <p class="note">Height = nav button (30 / 26). Width spans pinstripe 4 → 6 on case cards (two columns); 2 columns on phones. Radius fully round. Hover fills over 0.25s.</p>
+
+  <h3>Badges</h3>
+  <div class="demo grey"><div class="row">
+    <figure><span class="badge" style="--bc:#001C38; --bc30:rgba(0,28,56,.3)"><span class="in"><span class="no">No.</span><span class="num">1</span></span></span><div class="cap">LiteLoad</div></figure>
+    <figure><span class="badge" style="--bc:#323264; --bc30:rgba(50,50,100,.3)"><span class="in"><span class="no">No.</span><span class="num">2</span></span></span><div class="cap">Walgreens</div></figure>
+    <figure><span class="badge" style="--bc:#0064D2; --bc30:rgba(0,100,210,.3)"><span class="in"><span class="no">No.</span><span class="num">3</span></span></span><div class="cap">eBay</div></figure>
+    <figure><span class="badge" style="--bc:#06485C; --bc30:rgba(6,72,92,.3)"><span class="in"><span class="no">No.</span><span class="num">4</span></span></span><div class="cap">Cisco</div></figure>
+    <figure><span class="badge" style="--bc:#C52E72; --bc30:rgba(197,46,114,.3)"><span class="in"><span class="no">No.</span><span class="num">5</span></span></span><div class="cap">Urban</div></figure>
+    <figure><span class="badge" style="--bc:#323264; --bc30:rgba(50,50,100,.3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><div class="cap">Lock (NDA)</div></figure>
+  </div></div>
+  <p class="note">60px circle in the case ink, white type. Hover inverts (white fill, ink type), adds a 4px ring at 30% ink, and scales slightly. Phones: the badge straddles the card’s top-left corner, above everything.</p>
+
+  <h3>Navigation states</h3>
+  <div class="demo dark"><div class="row">
+    <figure><span class="navbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span><div class="cap">Default</div></figure>
+    <figure><span class="navbtn hover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span><div class="cap">Hover · tooltip</div></figure>
+    <figure><span class="navbtn active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span><div class="cap">Current page</div></figure>
+    <figure><span class="dots"><i></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i></span><div class="cap">Dots · homepage 7, case studies 5</div></figure>
+  </div></div>
+  <p class="note">Desktop: icon nav down the left on pinstripe 1, socials at its foot, section dots on the right. Phones: icon nav in a bottom pill, dots in a top pill, socials at the left middle. Page to page, the lit button and the dots pill animate across.</p>
+
+  <h3>Dashed rule</h3>
+  <div class="demo"><svg viewBox="0 0 320 6" width="320" height="6" style="color:#63AA2A; display:block"><line x1="3" y1="3" x2="317" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="40,16,16,16,16,16,16,16,40,16,16,16,30,0"/></svg><div class="cap" style="text-align:left">Case cards frame the title and role with a pair, in the case’s rule colour; the NDA veil uses a thinner, 1.5× longer pair.</div></div>
+</section>
+
+<!-- ============================== GRID & MOTION ============================== -->
+<section>
+  <h2>Grid, spacing &amp; motion</h2>
+  <p class="lede">Seven dashed pinstripes; gutters half a nav button either side; one spacing unit, the nav button.</p>
+  <div class="grid-demo">
+    <span style="left:4%"></span><span style="left:19.3%"></span><span style="left:34.7%"></span><span style="left:50%"></span><span style="left:65.3%"></span><span style="left:80.7%"></span><span style="left:96%"></span>
+    <b style="left:4%">1</b><b style="left:19.3%">2</b><b style="left:34.7%">3</b><b style="left:50%">4</b><b style="left:65.3%">5</b><b style="left:80.7%">6</b><b style="left:96%">7</b>
+  </div>
+  <table style="margin-top:20px">
+    <thead><tr><th>Token</th><th>Value</th><th>Used for</th></tr></thead>
+    <tbody>
+      <tr><td><code>--u</code></td><td>30px desktop · 26px phone</td><td>nav button, button height, badge-to-button gaps, gutter offset (½)</td></tr>
+      <tr><td><code>--grid-gap</code></td><td><code>(100vw − 8vw) / 6</code></td><td>one column between pinstripes</td></tr>
+      <tr><td>Device → button</td><td>one nav diameter (30)</td><td>case cards, desktop and tablet</td></tr>
+      <tr><td>Card shadow</td><td><code>12px 12px 22px −6px rgba(0,0,0,.35)</code></td><td>45° down-right, every card (.6 on ink)</td></tr>
+      <tr><td><code>--ease</code></td><td><code>cubic-bezier(.22,.61,.36,1)</code></td><td>hovers 0.25s · slides 0.5s · card unroll 0.84s</td></tr>
+      <tr><td>Device hover</td><td>out 0.16s · back 0.34s</td><td>LiteLoad’s phone and portrait tablet</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</main>
+</body>
+</html>

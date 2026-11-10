@@ -1,4 +1,4 @@
-// Beau.1 · v1.7.1
+// Beau.1 · v1.7.3
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.7.1' };
+  var SITE = { release: 'Beau.1', version: '1.7.3' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -787,14 +787,14 @@
     var id = 'lock-' + Math.random().toString(36).slice(2, 8);
     v.innerHTML = '<form class="lock-form" novalidate>' +
       '<span class="lock-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>' +
-      '<svg class="lock-rule" viewBox="0 0 78 6" width="78" height="6" aria-hidden="true"><line x1="3" y1="3" x2="75" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,12,4,4,4,8,40"/></svg>' +   // seven dashes, unevenly
+      '<svg class="lock-rule" viewBox="0 0 117 6" width="117" height="6" aria-hidden="true"><line x1="3" y1="3" x2="114" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="18,6,6,6,6,6,6,6,18,6,6,6,12,60"/></svg>' +   // seven dashes, unevenly
       '<p class="lock-title">' + name + ' is under NDA</p>' +
       '<p class="lock-note">Enter the password to see the work, or <a href="about.html">get in touch</a> for access.</p>' +
       '<div class="lock-row"><label class="sr-only" for="' + id + '">Password</label>' +
       '<input id="' + id + '" type="password" autocomplete="current-password" placeholder="Password" required>' +
       '<button type="submit">Unlock</button></div>' +
       '<p class="lock-error" role="status" aria-live="polite"></p>' +
-      '<svg class="lock-rule lock-rule-end" viewBox="0 0 78 6" width="78" height="6" aria-hidden="true"><line x1="3" y1="3" x2="75" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,12,4,4,4,8,40"/></svg>' +   // a closing rule, as the card's own
+      '<svg class="lock-rule lock-rule-end" viewBox="0 0 117 6" width="117" height="6" aria-hidden="true"><line x1="3" y1="3" x2="114" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="18,6,6,6,6,6,6,6,18,6,6,6,12,60"/></svg>' +   // a closing rule, as the card's own
       (onPage ? '<a class="lock-back" href="index.html#to-' + location.pathname.split('/').pop().replace(/\.html$/, '') + '">Back to home ←</a>' : '') +
       '</form>';
     v.classList.add('is-arriving');
@@ -1379,8 +1379,29 @@
     var nb = (card && card.querySelector(':scope > .badge-link')) || document.querySelector('body > .badge-link.badge-floating');
     if (lb && form && nb){
       var vr2 = veil.getBoundingClientRect(), nr = nb.getBoundingClientRect();
-      if (!phoneQ.matches){ veil.classList.add('is-aligned'); form.style.marginTop = Math.max(0, nr.top - vr2.top) + 'px'; }
-      else { veil.classList.remove('is-aligned'); form.style.removeProperty('margin-top'); }
+      // The form hangs from a fixed line: on desktop the No. badge's top; on phones two nav buttons down the veil.
+      var uP = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--u')) || 30;
+      veil.classList.add('is-aligned');
+      var hang = phoneQ.matches ? 2 * uP : Math.max(0, nr.top - vr2.top);
+      form.style.marginTop = hang + 'px';
+      // The text block (title, note, password row) sits exactly midway between the lock badge and Back to home, and each
+      // dashed rule sits midway in the gap on its side.
+      var r1 = form.querySelector('.lock-rule:not(.lock-rule-end)'), r2 = form.querySelector('.lock-rule-end');
+      var tt = form.querySelector('.lock-title'), row = form.querySelector('.lock-row'), bk = veil.querySelector('.lock-back');
+      if (r1 && r2 && tt && row && bk){
+        var blockH = (row.getBoundingClientRect().bottom - tt.getBoundingClientRect().top);
+        var backTop = bk.getBoundingClientRect().top - vr2.top, badgeBottom = hang + lb.offsetHeight;
+        var gapV = (backTop - badgeBottom - blockH) / 2, rh = r1.getBoundingClientRect().height || 6;
+        var m = Math.max(6, (gapV - rh) / 2);
+        [r1, tt, r2].forEach(function(el){ el.style.setProperty('margin-top', m + 'px', 'important'); });
+        var er = form.querySelector('.lock-error');
+        if (er){
+          er.style.top = (row.offsetTop + row.offsetHeight) + 'px';   // just under the row
+          // where the gap is tight, a "wrong password" message would run into the rule below it: the rule steps aside
+          var clash = er.textContent.trim() && er.getBoundingClientRect().bottom > r2.getBoundingClientRect().top - 4;
+          r2.style.opacity = clash ? '0' : ''; r2.style.transition = 'opacity 0.2s ease';
+        }
+      }
       var lx = 0, ly = 0, el = lb;   // its own place within the veil (offsets ignore the slide)
       while (el && el !== veil){ lx += el.offsetLeft; ly += el.offsetTop; el = el.offsetParent; }
       if (el !== veil){ var cr0 = lb.getBoundingClientRect(); lx = cr0.left - vr2.left; ly = cr0.top - vr2.top; }
