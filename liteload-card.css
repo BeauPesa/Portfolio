@@ -26,10 +26,11 @@
 /* The description has a short version for phones, where the tablet takes the room the longer one would need. */
 .ll-card .ll-short{ display:none; }
 
-/* Tablet-sized windows: a wider left column (pinstripe 2 to 4) and the role line kept to one line, so nothing wraps
-   awkwardly or jumps as the window is resized. site.js places the tablet just right of pinstripe 4. */
+/* Tablet-sized windows: a wider left column (pinstripe 2 to pinstripe 4's left gutter, half a nav button short of 4) and
+   the role line kept to one line, so nothing wraps or jumps as the window is resized. The device and the button below it
+   both run from pinstripe 4 to 6 (site.js), so they always line up. */
 @media (min-width: 721px) and (max-width: 1099px){
-  .ll-card > *:not(.ll-tablet):not(.ll-extra):not(.cta):not(.case-page-cta):not(.lock-veil){ max-width: calc(2 * var(--grid-gap) - 12px); }
+  .ll-card > *:not(.ll-tablet):not(.ll-extra):not(.cta):not(.case-page-cta):not(.lock-veil){ max-width: calc(2 * var(--grid-gap) - var(--u, 30px) / 2); }   /* ends on pinstripe 4's left gutter: half a nav button short of the device */
 
   .ll-card .role{ white-space:nowrap; font-size: min(16px, calc(var(--grid-gap) * 0.12)) !important; }   /* the same size on both pages: full size, easing down only where the column gets too narrow for one line */
 }

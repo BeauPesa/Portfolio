@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="site-release" content="Beau.1">
 <meta name="case-lock" content="250000.7UQfEvr96RLeJHRN5wsiEg==.wA3GJOvFhlLHYUs+.4ZOTIMZiRHupDcbxajhbNrhCEEGqnfqB">
-<meta name="site-version" content="1.6.7">
+<meta name="site-version" content="1.6.9">
 <script>/* Phones, coming back from a case study (#to-<case>): keep the page undrawn until its cards exist, then reveal it
    already scrolled to the card, so the first frame is the finished one (iPhone browsers otherwise draw a frame of the
    page before its cards have arrived). Fails safe after 1.5s. */
@@ -16,18 +16,25 @@
   var d = document.documentElement; d.classList.add('ret-wait', 'ret-bg'); d.style.backgroundColor = c; d.style.setProperty('--ret-bg', c);   // (the page's colour layer starts on the section's colour, not the intro's black)
   window.__retReveal = function(){ if (!d.classList.contains('ret-wait')) return;
     var t = document.getElementById('to-' + m[1]); if (t){ var pb = d.style.scrollBehavior; d.style.scrollBehavior = 'auto'; t.scrollIntoView({ block:'start' }); d.style.scrollBehavior = pb; }
-    d.classList.remove('ret-wait'); d.classList.add('ret-fading'); void d.offsetWidth;   // ...and fade in from the section's colour
-    requestAnimationFrame(function(){ d.classList.add('ret-in'); d.classList.remove('ret-fading'); setTimeout(function(){ d.classList.remove('ret-in', 'ret-bg'); d.style.backgroundColor = ''; }, 900); }); };
+    d.classList.remove('ret-wait'); d.classList.add('ret-fading'); void d.offsetWidth;   // ...and fade in from the section's colour,
+    // starting only once a frame has actually been drawn (so the fade is seen, not finished before the first paint)
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ d.classList.add('ret-in'); d.classList.remove('ret-fading');
+      setTimeout(function(){ d.classList.remove('ret-in', 'ret-bg'); d.style.backgroundColor = ''; }, 1000); }); }); };
   setTimeout(window.__retReveal, 1500);
 } catch (e) {} })();</script>
-<style>html.ret-wait body{ visibility:hidden; } html.ret-fading body{ opacity:0; } html.ret-in body{ opacity:1; transition: opacity 0.24s ease; } html.ret-bg #bg-layer{ background-color: var(--ret-bg) !important; transition:none !important; }</style>
+<style>/* the pinstripes and the section colour stay put the whole time (they're identical on both pages); only the page's
+   content waits, then fades in */
+html.ret-wait body > *:not(#grid-lines-global):not(#bg-layer){ visibility:hidden; }
+html.ret-fading body > *:not(#grid-lines-global):not(#bg-layer){ opacity:0; }
+html.ret-in body > *:not(#grid-lines-global):not(#bg-layer){ opacity:1; transition: opacity 0.32s ease; }
+html.ret-bg #bg-layer{ background-color: var(--ret-bg) !important; transition:none !important; }</style>
 <title>Beau Pesa — Portfolio</title>
 <link rel="preload" href="fonts/big-shoulders-display-800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/ibm-plex-sans-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/space-grotesk-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/space-grotesk-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/playfair-display-700.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="fonts.css?v=1.6.7">
+<link rel="stylesheet" href="fonts.css?v=1.6.9">
 <style>
 
   /* ===================================================================
@@ -37,7 +44,7 @@
      for your exact Figma / brand hex codes.
      =================================================================== */
   :root{
-    --site-version: "1.6.7";
+    --site-version: "1.6.9";
     --ink: #101114;           /* intro / outro base */
     --paper: #F2F1EC;         /* card surface */
     --text-dark: #1B1C1E;
@@ -696,7 +703,7 @@
   .is-shown.rv-static{ animation:none; }
   @media (prefers-reduced-motion: reduce){ .is-shown{ animation-name: partFade; animation-duration: 0.4s; animation-delay: 0s; } }
   @media (max-width: 720px){
-    :root{ --thread-w: calc(2 * var(--mobile-grid-gap)); --frame-top: calc(1.8rem + 26px); --frame-bottom: calc(1.8rem + 25px); --card-h: calc(100vh - var(--frame-top) - var(--frame-bottom)); }
+    :root{ --thread-w: calc(2 * var(--mobile-grid-gap)); --frame-top: calc(1.8rem + 25px); --frame-bottom: calc(1.8rem + 26px + env(safe-area-inset-bottom, 0px)); --card-h: calc(100vh - var(--frame-top) - var(--frame-bottom)); }
     @supports (height: 100svh){ :root{ --card-h: calc(100svh - var(--frame-top) - var(--frame-bottom)); } }
     /* Each card is as tall as the case study's frame (the screen minus the room for the nav above and the dots below),
        so the handoff changes nothing but the page. The button stays at the card's bottom edge: it leaves the flow and a
@@ -861,7 +868,7 @@
   }
 </style>
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight');},2500);})();</script>
-<link rel="stylesheet" href="liteload-card.css?v=1.6.7">
+<link rel="stylesheet" href="liteload-card.css?v=1.6.9">
 <link rel="preload" as="image" href="images/liteload/tablet-flat.webp" fetchpriority="high">
 <script>/* LiteLoad card: apply the layout remembered from this page's last visit (site.js, section 14) before the first paint */
 (function(){ try { var v = (document.querySelector('meta[name="site-version"]') || {}).content || ''; var c = JSON.parse(sessionStorage.getItem('llLayout:' + v + ':' + location.pathname) || 'null');
@@ -1388,6 +1395,6 @@
 })();
 </script>
 
-<script src="site.js?v=1.6.7"></script>
+<script src="site.js?v=1.6.9"></script>
 </body>
 </html>

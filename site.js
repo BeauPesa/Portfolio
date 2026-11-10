@@ -1,4 +1,4 @@
-// Beau.1 · v1.6.7
+// Beau.1 · v1.6.9
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.6.7' };
+  var SITE = { release: 'Beau.1', version: '1.6.9' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -38,6 +38,16 @@
   }
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var isPhone = window.matchMedia('(max-width: 720px)');
+  // The phone card height, read from CSS (--card-h: the small viewport height less the room for the dots and the nav),
+  // so it holds steady while a phone's address bar slides in and out during a scroll (reading the window's height
+  // instead made the cards resize mid-scroll, which showed as a card stopping and then jumping into place).
+  window.__cardH = function(){
+    var pr = document.getElementById('card-h-probe');
+    if (!pr){ pr = document.createElement('div'); pr.id = 'card-h-probe'; pr.setAttribute('aria-hidden', 'true');
+      pr.style.cssText = 'position:fixed;left:-9999px;top:0;width:1px;height:var(--card-h);visibility:hidden;pointer-events:none;';
+      document.body.appendChild(pr); }
+    return pr.offsetHeight;
+  };
   // Phones: while a text field has focus (the password on an NDA page), the keyboard shrinks the window; the layout is
   // frozen as it was (html.is-typing) instead of squeezing to fit, and the floating nav steps out of the way.
   document.addEventListener('focusin', function(e){ if (isPhone.matches && e.target.matches && e.target.matches('input, textarea')) document.documentElement.classList.add('is-typing'); });
@@ -486,7 +496,8 @@
             var col = { liteload:'rgb(194,194,194)', walgreens:'rgb(175,191,253)', ebay:'rgb(177,204,114)', cisco:'rgb(128,204,236)', urban:'rgb(44,42,47)' }[here];
             if (col){
               var veilC = document.createElement('div');
-              veilC.setAttribute('style', 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;opacity:0;transition:opacity 0.18s ease;background:' + col);
+              veilC.setAttribute('style', 'position:fixed;inset:0;z-index:2147483646;pointer-events:none;opacity:0;transition:opacity 0.18s ease;background:' + col);
+              document.documentElement.classList.add('bridge');   // (the pinstripes stay above the colour: shared.css)
               document.body.appendChild(veilC); void veilC.offsetWidth; veilC.style.opacity = '1';
               setTimeout(function(){ window.location.href = href; }, 190);
               return;
@@ -924,7 +935,7 @@
         var up = document.getElementById('progress-nav'), down = document.querySelector('#icon-nav a');
         if (up && down){
           var ur = up.getBoundingClientRect(), dr = down.getBoundingClientRect(), vh = window.innerHeight;
-          var frameH = vh - (ur.bottom + ur.top) - (2 * (vh - dr.bottom) + dr.height);
+          var frameH = window.__cardH ? window.__cardH() : vh - (ur.bottom + ur.top) - (2 * (vh - dr.bottom) + dr.height);
           if (frameH > 200){ px(card, 'height', frameH); px(card, 'min-height', frameH); }
         }
       }
@@ -964,10 +975,10 @@
     // A phone-shaped device ("fit: height") is sized to the left column's height instead of the column grid's width.
     var fitH = fig.getAttribute('data-fit') === 'height';
     if (stripes.length < 6){ if (!card.classList.contains('ll-placed')) card.classList.add('ll-placed'); return; }
-    // Tablet-sized windows (721-1099px) are "compact": the left column is wider (pinstripe 2 to 4), so the tablet starts
-    // a little right of pinstripe 4, and the spacing is a steady 22px instead of being solved against the tablet.
+    // Tablet-sized windows (721-1099px) are "compact": the left column is wider (to pinstripe 4's left gutter), and the
+    // spacing is a steady 22px instead of being solved against the tablet.
     var compact = window.innerWidth < 1100, gcol = stripes[4] - stripes[3];
-    var tl = compact ? stripes[3] + 0.12 * gcol : stripes[3];
+    var tl = stripes[3];   // (the device starts on pinstripe 4 at every width, lined up with the button below it)
     var w = (stripes[5] - tl) / (BR - BL), h = w * AR;
     fig.style.width = w + 'px'; fig.style.left = (tl - BL * w) + 'px'; fig.style.top = (topIn(card, rule) - BT * h) + 'px';
     var tabletBottom = topIn(card, rule) + (BB - BT) * h;    // card px: the device's lower edge, not its shadow
@@ -1266,12 +1277,7 @@
    (The LiteLoad-style cards on the homepage get the same height from section 14.) */
 (function(){
   var phone = window.matchMedia('(max-width: 720px)');
-  function frameH(){
-    var up = document.getElementById('progress-nav') || document.getElementById('case-dots'), down = document.querySelector('#icon-nav a');
-    if (!up || !down) return 0;
-    var ur = up.getBoundingClientRect(), dr = down.getBoundingClientRect(), vh = window.innerHeight;
-    return vh - (ur.bottom + ur.top) - (2 * (vh - dr.bottom) + dr.height);
-  }
+  function frameH(){ return window.__cardH ? window.__cardH() : 0; }   // (steady through the address bar's comings and goings)
   function cards(){
     var home = Array.prototype.slice.call(document.querySelectorAll('.case > .case-card:not(.ll-card)'));
     var page = Array.prototype.slice.call(document.querySelectorAll('.case-page-card'));
