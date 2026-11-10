@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="site-release" content="Beau.1">
 <meta name="case-lock" content="250000.7UQfEvr96RLeJHRN5wsiEg==.wA3GJOvFhlLHYUs+.4ZOTIMZiRHupDcbxajhbNrhCEEGqnfqB">
-<meta name="site-version" content="1.6.9">
+<meta name="site-version" content="1.7.0">
 <script>/* Phones, coming back from a case study (#to-<case>): keep the page undrawn until its cards exist, then reveal it
    already scrolled to the card, so the first frame is the finished one (iPhone browsers otherwise draw a frame of the
    page before its cards have arrived). Fails safe after 1.5s. */
@@ -34,7 +34,7 @@ html.ret-bg #bg-layer{ background-color: var(--ret-bg) !important; transition:no
 <link rel="preload" href="fonts/space-grotesk-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/space-grotesk-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/playfair-display-700.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="fonts.css?v=1.6.9">
+<link rel="stylesheet" href="fonts.css?v=1.7.0">
 <style>
 
   /* ===================================================================
@@ -44,7 +44,7 @@ html.ret-bg #bg-layer{ background-color: var(--ret-bg) !important; transition:no
      for your exact Figma / brand hex codes.
      =================================================================== */
   :root{
-    --site-version: "1.6.9";
+    --site-version: "1.7.0";
     --ink: #101114;           /* intro / outro base */
     --paper: #F2F1EC;         /* card surface */
     --text-dark: #1B1C1E;
@@ -868,7 +868,7 @@ html.ret-bg #bg-layer{ background-color: var(--ret-bg) !important; transition:no
   }
 </style>
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight');},2500);})();</script>
-<link rel="stylesheet" href="liteload-card.css?v=1.6.9">
+<link rel="stylesheet" href="liteload-card.css?v=1.7.0">
 <link rel="preload" as="image" href="images/liteload/tablet-flat.webp" fetchpriority="high">
 <script>/* LiteLoad card: apply the layout remembered from this page's last visit (site.js, section 14) before the first paint */
 (function(){ try { var v = (document.querySelector('meta[name="site-version"]') || {}).content || ''; var c = JSON.parse(sessionStorage.getItem('llLayout:' + v + ':' + location.pathname) || 'null');
@@ -1395,6 +1395,6 @@ html.ret-bg #bg-layer{ background-color: var(--ret-bg) !important; transition:no
 })();
 </script>
 
-<script src="site.js?v=1.6.9"></script>
+<script src="site.js?v=1.7.0"></script>
 </body>
 </html>

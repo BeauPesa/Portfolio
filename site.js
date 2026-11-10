@@ -1,4 +1,4 @@
-// Beau.1 · v1.6.9
+// Beau.1 · v1.7.0
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.6.9' };
+  var SITE = { release: 'Beau.1', version: '1.7.0' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -1027,7 +1027,9 @@
     if (off > 0) nudge(p.parentNode, off);                          // rounding, or a gap held at its limit (never pulled up into the rule)
     P = lines(card, p);
     var under = Math.max(tabletBottom, P[P.length - 1].base);         // whichever ends lower: normally they're level
-    if (btn) nudge(btn, (under + G) - topIn(card, btn));
+    // the button's top sits exactly one nav button's diameter (--u) below the device's bottom edge, at every width
+    var navD = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--u')) || 30;
+    if (btn) nudge(btn, (tabletBottom + navD) - topIn(card, btn));
     // the card reaches down to the bottom of the GitHub icon in the left rail
     // (cards settle with their top level with the bottom of the Home nav button, so the height is the distance between)
     var gh = document.querySelectorAll('#social-nav a')[1], home = document.querySelector('#icon-nav a');
