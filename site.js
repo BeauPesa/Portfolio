@@ -1,4 +1,4 @@
-// Beau.1 · v1.7.0
+// Beau.1 · v1.7.1
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.7.0' };
+  var SITE = { release: 'Beau.1', version: '1.7.1' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -794,6 +794,7 @@
       '<input id="' + id + '" type="password" autocomplete="current-password" placeholder="Password" required>' +
       '<button type="submit">Unlock</button></div>' +
       '<p class="lock-error" role="status" aria-live="polite"></p>' +
+      '<svg class="lock-rule lock-rule-end" viewBox="0 0 78 6" width="78" height="6" aria-hidden="true"><line x1="3" y1="3" x2="75" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="12,4,4,4,4,4,4,4,12,4,4,4,8,40"/></svg>' +   // a closing rule, as the card's own
       (onPage ? '<a class="lock-back" href="index.html#to-' + location.pathname.split('/').pop().replace(/\.html$/, '') + '">Back to home ←</a>' : '') +
       '</form>';
     v.classList.add('is-arriving');
@@ -1370,6 +1371,26 @@
       back.style.left = (showing ? centred : atCard) + 'px'; back.style.top = (r.top - vr.top) + 'px';
       back.style.width = r.width + 'px'; back.style.height = r.height + 'px';
       back.style.fontSize = cs.fontSize; back.style.fontFamily = cs.fontFamily;
+    }
+    // The lock badge: on desktop its top lines up with the No. badge's (the form hangs from that line, with more room
+    // between its parts), and on every screen it slides out of the No. badge into its own place as the veil fades in,
+    // and back into it as the veil fades away, the way the button slides between its two spots.
+    var lb = veil.querySelector('.lock-badge'), form = veil.querySelector('.lock-form');
+    var nb = (card && card.querySelector(':scope > .badge-link')) || document.querySelector('body > .badge-link.badge-floating');
+    if (lb && form && nb){
+      var vr2 = veil.getBoundingClientRect(), nr = nb.getBoundingClientRect();
+      if (!phoneQ.matches){ veil.classList.add('is-aligned'); form.style.marginTop = Math.max(0, nr.top - vr2.top) + 'px'; }
+      else { veil.classList.remove('is-aligned'); form.style.removeProperty('margin-top'); }
+      var lx = 0, ly = 0, el = lb;   // its own place within the veil (offsets ignore the slide)
+      while (el && el !== veil){ lx += el.offsetLeft; ly += el.offsetTop; el = el.offsetParent; }
+      if (el !== veil){ var cr0 = lb.getBoundingClientRect(); lx = cr0.left - vr2.left; ly = cr0.top - vr2.top; }
+      var out = veil.classList.contains('is-arriving') || veil.classList.contains('is-open');
+      var tr = out ? (nr.left - vr2.left - lx) + 'px ' + (nr.top - vr2.top - ly) + 'px' : '0px 0px';
+      if (!lb.hasAttribute('data-placed')){   // the first time, it starts on the No. badge without sliding there
+        lb.style.transition = 'none'; lb.style.translate = (nr.left - vr2.left - lx) + 'px ' + (nr.top - vr2.top - ly) + 'px';
+        void lb.offsetWidth; lb.style.removeProperty('transition'); lb.setAttribute('data-placed', '');
+      }
+      lb.style.translate = tr;
     }
     requestAnimationFrame(tick);
   })();

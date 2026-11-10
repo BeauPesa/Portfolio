@@ -17,8 +17,8 @@
 .lock-form .lock-badge{
   width:60px; height:60px; border-radius:50%; background: var(--lock-ink); color:#fff; display:flex; align-items:center; justify-content:center;
   border:1.5px solid transparent; box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), background 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease), border-width 0.25s var(--ease);
-}
+  transition: translate 0.5s var(--ease), transform 0.25s var(--ease), box-shadow 0.25s var(--ease), background 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease), border-width 0.25s var(--ease);
+}   /* (translate: the slide out of the No. badge and back, site.js section 18) */
 .lock-form .lock-badge:hover{   /* the same hover as the No. badges: it inverts, gains a ring in its own colour, and grows a touch */
   background:#fff; color: var(--lock-ink); border-width:6px; border-color: var(--lock-ink-30); transform: scale(1.08); box-shadow: 0 8px 20px rgba(0,0,0,0.35);
 }
@@ -70,3 +70,9 @@ html.nda-held .case-page-card::before{ bottom:0 !important; animation:none !impo
   font-weight:600; text-decoration:none; transition: left 0.5s var(--ease), background 0.25s var(--ease), color 0.25s var(--ease);
 }
 .lock-veil > .lock-back:hover, .lock-veil > .lock-back:focus-visible{ background:#fff; color: var(--lock-ink); }
+
+/* Desktop: the form hangs from the No. badge's line (site.js sets its top), with more breathing room between its parts,
+   and a closing dashed rule under the password row, echoing the card's own pair of rules. */
+.lock-veil.is-aligned{ align-items:flex-start; }
+.lock-veil.is-aligned .lock-form{ gap:1.25rem; }
+.lock-form .lock-rule-end{ margin-top:0.15rem; }
