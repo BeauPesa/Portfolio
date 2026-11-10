@@ -1,4 +1,4 @@
-/* Beau.1 · v1.6.2 */
+/* Beau.1 · v1.6.7 */
 /* ===================================================================
    SHARED STYLESHEET
    Used by every page except the homepage (which is self-contained
@@ -542,7 +542,7 @@ h1,h2,h3{
    shadow) that continues --case-extend below it, off the bottom of the screen: this is where the case study
    content will go. Coming from the homepage the sheet unrolls from the card's bottom edge; going back it rolls
    up to the homepage card's size. The card never disappears. */
-:root{ --case-extend: 140vh; --card-top: calc(2.5rem + 30px); }   /* --card-top: the line a case study card's top sits on: the bottom of the Home nav circle */
+:root{ --case-extend: 140vh; --card-top: calc(3.05rem + 30px); }   /* --card-top: where a case study card's top sits on desktop: dead centre, halfway between the Home circle's bottom (2.5rem + 30px down) and the GitHub circle's bottom (3.6rem + 30px up), exactly where the homepage centres its cards */
 .case-page-card{ position:relative; isolation:isolate; box-shadow:none !important; }
 .case-page-card::before{
   content:'';
@@ -1047,7 +1047,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 }
 
 /* ---------- Version ---------- (read by siteVersion() in site.js) */
-:root{ --site-version: "1.6.2"; }
+:root{ --site-version: "1.6.7"; }
 
 /* ---------- Gallery: a caption on hover, and the photo viewer ----------
    A tile with data-caption shows its title over the picture on hover or focus (touch screens have no hover: they get the
@@ -1375,4 +1375,9 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 @media (max-width: 720px){
   .badge-link.badge-floating{ position:fixed !important; z-index:30; margin:0 !important; }
 }
+
+/* Phones, typing (the NDA password): the floating nav, dots and swipe hint step aside so nothing crowds the field or
+   lands on the text while the keyboard is up (site.js sets html.is-typing). */
+@media (max-width: 720px){
+  html.is-typing #icon-nav, html.is-typing #case-dots, html.is-typing #social-nav, html.is-typing .lock-hint, html.is-typing .back-dock{ opacity:0 !important; pointer-events:none !important; transition: opacity 0.15s ease; }
 }

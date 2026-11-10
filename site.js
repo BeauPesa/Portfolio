@@ -1,4 +1,4 @@
-// Beau.1 · v1.6.2
+// Beau.1 · v1.6.7
 // Site-wide helpers.
 // 1. Morse breaks: the single "BP" pattern stretched to fill the break exactly, so the line always ends on the
 //    pinstripe it is stretched to (pinstripe 2 -> 4).
@@ -15,7 +15,7 @@
      In the console, siteVersion() compares the page, this script, the stylesheet (and gallery.js where it is used) and
      names any part that is not on the same version: an old copy being served from a cache, or a file that wasn't uploaded.
      On a phone, add ?version to any page's address and the same verdict appears as a small pill. */
-  var SITE = { release: 'Beau.1', version: '1.6.2' };
+  var SITE = { release: 'Beau.1', version: '1.6.7' };
   window.__siteVersion = SITE.version;
   function versionReport(){
     var meta = document.querySelector('meta[name="site-version"]');
@@ -38,6 +38,12 @@
   }
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var isPhone = window.matchMedia('(max-width: 720px)');
+  // Phones: while a text field has focus (the password on an NDA page), the keyboard shrinks the window; the layout is
+  // frozen as it was (html.is-typing) instead of squeezing to fit, and the floating nav steps out of the way.
+  document.addEventListener('focusin', function(e){ if (isPhone.matches && e.target.matches && e.target.matches('input, textarea')) document.documentElement.classList.add('is-typing'); });
+  document.addEventListener('focusout', function(e){ if (e.target.matches && e.target.matches('input, textarea')) setTimeout(function(){
+    if (!(document.activeElement && document.activeElement.matches && document.activeElement.matches('input, textarea'))){ document.documentElement.classList.remove('is-typing'); window.dispatchEvent(new Event('resize')); }
+  }, 250); });
 
   var BP = [3,1,1,1,1,1,1,1,1,1,3,1,3,1,1];
   var SW = 3;
@@ -463,18 +469,31 @@
         var href = a.href;
         if (nav && !isPhone.matches) nav.classList.remove('collapsed');   // the nav plays its animation in reverse
         if (!rollUp){ setTimeout(function(){ window.location.href = href; }, 950); return; }
-        // On phones, if the visitor came here from the homepage, "Back to home" is literally a step back: the browser puts
-        // the homepage back exactly as it was left (its back/forward cache) instead of drawing it from scratch, which on
-        // iPhone browsers flashed an empty frame. (Desktop browsers don't have that flash, and a frozen homepage would show
-        // its hover devices for a frame, so on desktop it loads normally.)
+        // (Stepping back through history to a frozen homepage was tried for phones and didn't reliably happen on real
+        // phones; the colour bridge below replaced it. cameFromHome is kept, switched off, in case it's wanted again.)
         // (The homepage marks this as it sends someone here, and also tucks #to-<case> into its own address, so even a
         // browser that redraws it lands on this card.)
         var cameFromHome = false;
         try {
           var hb = sessionStorage.getItem('homeBack'), ref = document.referrer ? new URL(document.referrer) : null;
-          cameFromHome = isPhone.matches && hb === here && ref && ref.origin === location.origin && /(\/|index\.html)$/.test(ref.pathname) && history.length > 1;
+          cameFromHome = false && hb === here && ref && ref.origin === location.origin && /(\/|index\.html)$/.test(ref.pathname) && history.length > 1;
         } catch (err) {}
-        var go = function(){ if (cameFromHome){ try { sessionStorage.removeItem('homeBack'); } catch (err) {} history.back(); } else window.location.href = href; };
+        // Phones: the case study fades to the homepage section's own colour before leaving, and the homepage fades in from
+        // that same colour once it's ready (index.html), so whatever a phone browser draws in between is hidden behind
+        // one calm colour bridge instead of flashing.
+        var go = function(){
+          if (isPhone.matches){
+            var col = { liteload:'rgb(194,194,194)', walgreens:'rgb(175,191,253)', ebay:'rgb(177,204,114)', cisco:'rgb(128,204,236)', urban:'rgb(44,42,47)' }[here];
+            if (col){
+              var veilC = document.createElement('div');
+              veilC.setAttribute('style', 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;opacity:0;transition:opacity 0.18s ease;background:' + col);
+              document.body.appendChild(veilC); void veilC.offsetWidth; veilC.style.opacity = '1';
+              setTimeout(function(){ window.location.href = href; }, 190);
+              return;
+            }
+          }
+          if (cameFromHome){ try { sessionStorage.removeItem('homeBack'); } catch (err) {} history.back(); } else window.location.href = href;
+        };
         var roll = function(){
           if (framed){ rollUpFrame(go); return; }
           var r = caseCard.getBoundingClientRect();
@@ -1141,6 +1160,7 @@
     });
   });
   function all(){
+    if (document.documentElement.classList.contains('is-typing')) return;   // (the keyboard is up: hold the layout as it was)
     // With a remembered layout already applied (the <head> script), don't re-measure until the real fonts are in:
     // measuring a fallback font would nudge things away from the remembered layout and back again.
     if (document.getElementById('ll-cache') && document.fonts && !fontsIn()) return;
@@ -1259,6 +1279,7 @@
   }
   var last = '';
   function fit(){
+    if (document.documentElement.classList.contains('is-typing')) return;   // (the keyboard is up: hold the cards' size)
     var H = phone.matches ? frameH() : 0, changed = false;
     cards().forEach(function(c){
       var framed = c.classList.contains('case-page-card') && document.documentElement.classList.contains('frame');

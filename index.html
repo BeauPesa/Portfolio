@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="site-release" content="Beau.1">
 <meta name="case-lock" content="250000.7UQfEvr96RLeJHRN5wsiEg==.wA3GJOvFhlLHYUs+.4ZOTIMZiRHupDcbxajhbNrhCEEGqnfqB">
-<meta name="site-version" content="1.6.2">
+<meta name="site-version" content="1.6.7">
 <script>/* Phones, coming back from a case study (#to-<case>): keep the page undrawn until its cards exist, then reveal it
    already scrolled to the card, so the first frame is the finished one (iPhone browsers otherwise draw a frame of the
    page before its cards have arrived). Fails safe after 1.5s. */
@@ -13,20 +13,21 @@
   var m = /^#to-(liteload|walgreens|ebay|cisco|urban)$/.exec(location.hash);
   if (!m || window.innerWidth > 720) return;
   var c = { liteload:'rgb(194,194,194)', walgreens:'rgb(175,191,253)', ebay:'rgb(177,204,114)', cisco:'rgb(128,204,236)', urban:'rgb(44,42,47)' }[m[1]];
-  var d = document.documentElement; d.classList.add('ret-wait'); d.style.backgroundColor = c;
+  var d = document.documentElement; d.classList.add('ret-wait', 'ret-bg'); d.style.backgroundColor = c; d.style.setProperty('--ret-bg', c);   // (the page's colour layer starts on the section's colour, not the intro's black)
   window.__retReveal = function(){ if (!d.classList.contains('ret-wait')) return;
     var t = document.getElementById('to-' + m[1]); if (t){ var pb = d.style.scrollBehavior; d.style.scrollBehavior = 'auto'; t.scrollIntoView({ block:'start' }); d.style.scrollBehavior = pb; }
-    d.classList.remove('ret-wait'); };
+    d.classList.remove('ret-wait'); d.classList.add('ret-fading'); void d.offsetWidth;   // ...and fade in from the section's colour
+    requestAnimationFrame(function(){ d.classList.add('ret-in'); d.classList.remove('ret-fading'); setTimeout(function(){ d.classList.remove('ret-in', 'ret-bg'); d.style.backgroundColor = ''; }, 900); }); };
   setTimeout(window.__retReveal, 1500);
 } catch (e) {} })();</script>
-<style>html.ret-wait body{ visibility:hidden; }</style>
+<style>html.ret-wait body{ visibility:hidden; } html.ret-fading body{ opacity:0; } html.ret-in body{ opacity:1; transition: opacity 0.24s ease; } html.ret-bg #bg-layer{ background-color: var(--ret-bg) !important; transition:none !important; }</style>
 <title>Beau Pesa — Portfolio</title>
 <link rel="preload" href="fonts/big-shoulders-display-800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/ibm-plex-sans-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/space-grotesk-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/space-grotesk-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/playfair-display-700.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="fonts.css?v=1.6.2">
+<link rel="stylesheet" href="fonts.css?v=1.6.7">
 <style>
 
   /* ===================================================================
@@ -36,7 +37,7 @@
      for your exact Figma / brand hex codes.
      =================================================================== */
   :root{
-    --site-version: "1.6.2";
+    --site-version: "1.6.7";
     --ink: #101114;           /* intro / outro base */
     --paper: #F2F1EC;         /* card surface */
     --text-dark: #1B1C1E;
@@ -850,17 +851,17 @@
     .case > .case-card{ scroll-snap-align: start; scroll-snap-stop: always; }
     .bookend{ scroll-snap-align: center; }
   }
-  /* Desktop and tablet: every scroll settles a card onto its line (under the Home button), as on phones, but without
-     phones' one-card-at-a-time stop, so a long, fast scroll can still travel several cards. */
+  /* Desktop and tablet: every scroll settles a card dead centre in the window (exactly where the nav buttons put it), as
+     phones settle theirs, but without phones' one-card-at-a-time stop, so a long, fast scroll can still travel several. */
   @media (min-width: 721px){
     html{ scroll-snap-type: y mandatory; }
     html.no-snap{ scroll-snap-type: none; }
-    .case > .case-card{ scroll-snap-align: start; }
+    .case > .case-card{ scroll-snap-align: center; scroll-margin-top: 0; }   /* dead centre, the same spot the nav glides to */
     .bookend{ scroll-snap-align: center; }
   }
 </style>
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{var f=JSON.parse(sessionStorage.getItem('cardFlight')||'null');if(f&&f.id&&Date.now()-f.t<5000&&location.pathname.split('/').pop()===f.id+'.html')d.classList.add('flight');}catch(e){}setTimeout(function(){if(!(window.__siteReady>=2))d.classList.remove('js','flight');},2500);})();</script>
-<link rel="stylesheet" href="liteload-card.css?v=1.6.2">
+<link rel="stylesheet" href="liteload-card.css?v=1.6.7">
 <link rel="preload" as="image" href="images/liteload/tablet-flat.webp" fetchpriority="high">
 <script>/* LiteLoad card: apply the layout remembered from this page's last visit (site.js, section 14) before the first paint */
 (function(){ try { var v = (document.querySelector('meta[name="site-version"]') || {}).content || ''; var c = JSON.parse(sessionStorage.getItem('llLayout:' + v + ':' + location.pathname) || 'null');
@@ -1077,7 +1078,8 @@
     var c = document.querySelector('#icon-nav a');
     if (!c) return 0;
     var r = c.getBoundingClientRect();
-    if (window.innerWidth > 720) return r.bottom;
+    // desktop and tablet: the card sits dead centre in the window (the snap points agree: scroll-snap-align: center)
+    if (window.innerWidth > 720){ var fc = document.querySelector('.case > .case-card'); return fc ? (window.innerHeight - fc.offsetHeight) / 2 : r.bottom; }
     // Phones: the line is set by whichever row sits at the top of the screen. The nav moved to the bottom, so
     // that's the dots pill now; fall back to the nav circles if they're ever back on top.
     var d = document.getElementById('progress-nav'), dr = d && d.getBoundingClientRect();
@@ -1087,8 +1089,19 @@
   // Where the middle of a case section sits when its card is on the line (the section is symmetric around the card).
   function anchorY(){ return cardTopLine() + fadeCards[0].card.offsetHeight / 2; }
   // (phones snap the page to each card; while the page scrolls itself, snapping steps aside so it can't fight the glide)
-  var snapT = 0;
-  function noSnap(ms){ document.documentElement.classList.add('no-snap'); clearTimeout(snapT); snapT = setTimeout(function(){ document.documentElement.classList.remove('no-snap'); }, ms); }
+  // Snapping comes back only once the page has actually come to rest: no sooner than ms, then on the first still moment,
+  // never part-way through a long glide (which used to give a second "snap" at the end of a nav-button trip).
+  var snapT = 0, snapRaf = 0;
+  function noSnap(ms){
+    var root = document.documentElement; root.classList.add('no-snap'); clearTimeout(snapT); cancelAnimationFrame(snapRaf);
+    snapT = setTimeout(function(){
+      var lastY = window.scrollY, still = 0;
+      (function watch(){
+        if (Math.abs(window.scrollY - lastY) < 0.5) still++; else { still = 0; lastY = window.scrollY; }
+        if (still >= 6) root.classList.remove('no-snap'); else snapRaf = requestAnimationFrame(watch);
+      })();
+    }, ms);
+  }
   function scrollToY(y, smooth){
     noSnap(smooth ? 900 : 60);
     var root = document.documentElement, prev = root.style.scrollBehavior;
@@ -1375,6 +1388,6 @@
 })();
 </script>
 
-<script src="site.js?v=1.6.2"></script>
+<script src="site.js?v=1.6.7"></script>
 </body>
 </html>
