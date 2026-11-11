@@ -1,4 +1,4 @@
-/* Beau.1 · v1.7.3 */
+/* Beau.1 · v1.7.4 */
 /* ===================================================================
    SHARED STYLESHEET
    Used by every page except the homepage (which is self-contained
@@ -1047,7 +1047,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 }
 
 /* ---------- Version ---------- (read by siteVersion() in site.js) */
-:root{ --site-version: "1.7.3"; }
+:root{ --site-version: "1.7.4"; }
 
 /* ---------- Gallery: a caption on hover, and the photo viewer ----------
    A tile with data-caption shows its title over the picture on hover or focus (touch screens have no hover: they get the
@@ -1385,3 +1385,7 @@ html.frame .case-page-card::after{ flex-shrink:0; }
 /* Phones, heading home: the case study fades into its homepage section's colour, but the pinstripes stay on top of it,
    unbroken, since they're identical on both pages (site.js adds html.bridge). */
 html.bridge #grid-lines-global{ z-index:2147483647 !important; }
+
+/* The smallest phones (iPhone SE height): a page card's last sentence steps aside so its button still sits on screen
+   on arrival, instead of docking straight away. */
+@media (max-width: 720px) and (max-height: 600px){ .trim-short{ display:none; } .page-card{ row-gap:16px !important; } }   /* (and the gaps tighten a touch) */
